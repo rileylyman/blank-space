@@ -5,7 +5,7 @@
         value: string;
     }
 
-    let guess: string;
+    let guess = "";
     let hints: Hint[] = [
         {revealed: false, value: "fire"}, 
         {revealed: false, value: "oyster"}, 
@@ -18,15 +18,17 @@
     const revealHint = (hintIdx: number) => () => {
         hints[hintIdx].revealed = true;
     };
+
+    $: console.log(guess);
+
+    let placeholder = "Enter your text here.";
     
-    const handleInputKeydown = (event: KeyboardEvent) => () => {
-        guess = event.key;
-        return;
-        if (event.key.toLowerCase() !== "enter") {
-            return;
-        }
-        if (guess.toLowerCase() === target) {
+    const submitGuess = () => {
+        if (guess.toLowerCase() === target.toLowerCase()) {
             correctGuess = true;
+        } else {
+            placeholder = "incorrect guess";
+            guess = "";
         }
     };
 </script>
@@ -36,8 +38,10 @@
         class:correct-guess={correctGuess} 
         type="text" 
         bind:value={guess} 
-        on:keydown={handleInputKeydown} 
-        placeholder="enter your guess"/>
+        on:change={submitGuess} 
+        disabled={correctGuess}
+        placeholder={placeholder}
+        />
     <div id="hints">
         {#each hints as {revealed, value}, hintIdx}
             <div class="hint" class:revealed on:click={revealHint(hintIdx)}>
@@ -55,6 +59,7 @@
         flex-direction: column;
         align-items: center;
         font-family: 'Verdana';
+        width: 100vw;
     }
 
     #hint-help {
@@ -74,12 +79,17 @@
         font-size: 1.5em;
     }
     
+    input:disabled {
+        color: black;
+    }
+    
     input:focus {
         box-shadow: -3px 3px 15px grey;
     }
 
     input.correct-guess {
-        background: green;
+        background: #3c9252;
+        color: black;
     }
 
     #hints {
@@ -87,7 +97,8 @@
         display: grid;
         column-gap: 1rem;
         row-gap: 1rem;
-        grid-template-columns: 40vw 40vw;
+        grid-template-columns: 1fr 1fr;
+        width: 80%;
     }
 
     .hint {
