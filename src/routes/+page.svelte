@@ -7,6 +7,8 @@
     }
 
     let guess = "";
+    const guessCost = 1;
+    let score = 25;
     let incorrectGuesses: string[] = [];
     let hints: Hint[] = [
         {revealed: false, cost: 3, value: "fire"}, 
@@ -17,21 +19,37 @@
 
     let correctGuess: boolean = false;
 
+    const subtractFromScore = (n: number) => {
+        score = Math.max(0, score - n);
+    };
+
     const revealHint = (hintIdx: number) => () => {
+        let {cost} = hints[hintIdx];
         hints[hintIdx].revealed = true;
+        subtractFromScore(cost);
     };
 
     $: console.log(guess);
 
     let placeholder = "Enter your guess";
     
-    const submitGuess = () => {
+    const submitGuess = async () => {
         if (guess.toLowerCase() === target.toLowerCase()) {
             correctGuess = true;
         } else {
-            incorrectGuesses = [...incorrectGuesses, guess];
-            console.log(incorrectGuesses);
-            placeholder = "incorrect";
+            (async (guess: string) => {
+                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${guess}`);
+                if (!incorrectGuesses.includes(guess) && response.ok) {
+                    incorrectGuesses = [...incorrectGuesses, guess];
+                    subtractFromScore(guessCost);
+                    placeholder = "incorrect";
+                } else if (!response.ok) {
+                    placeholder = "not in wordlist";
+                } else if (incorrectGuesses.includes(guess)) {
+                    placeholder = "already guessed";
+                } 
+            })(guess);
+            placeholder = "";
             guess = "";
         }
     };
@@ -47,7 +65,7 @@
         disabled={correctGuess}
         placeholder={placeholder}
         />
-    <div id="score"> <p class="score-label">Score:</p> 25 </div>
+    <div id="score"> <p class="score-label">Score:</p> {score} </div>
     <p id="hints-label">Click a hint to reveal:</p>
     <div class="hints">
         {#each hints as {revealed, cost, value}, hintIdx}
