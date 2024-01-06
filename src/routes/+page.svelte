@@ -2,15 +2,17 @@
 
     interface Hint {
         revealed: boolean;
+        cost: number;
         value: string;
     }
 
     let guess = "";
+    let incorrectGuesses: string[] = [];
     let hints: Hint[] = [
-        {revealed: false, value: "fire"}, 
-        {revealed: false, value: "oyster"}, 
-        {revealed: false, value: "ritz"}, 
-        {revealed: false, value: "nut"}];
+        {revealed: false, cost: 3, value: "fire"}, 
+        {revealed: false, cost: 1, value: "oyster"}, 
+        {revealed: false, cost: 10, value: "ritz"}, 
+        {revealed: false, cost: 7, value: "nut"}];
     let target: string = "cracker";
 
     let correctGuess: boolean = false;
@@ -21,19 +23,25 @@
 
     $: console.log(guess);
 
-    let placeholder = "Enter your text here.";
+    let placeholder = "Enter your guess";
     
     const submitGuess = () => {
         if (guess.toLowerCase() === target.toLowerCase()) {
             correctGuess = true;
         } else {
-            placeholder = "incorrect guess";
+            incorrectGuesses = [...incorrectGuesses, guess];
+            console.log(incorrectGuesses);
+            placeholder = "incorrect";
             guess = "";
         }
     };
 </script>
 
 <div id="root-container">
+    <div id="settings"> settings </div>
+    <div id="header"> Blank Space </div>
+    <div id="help"> help </div>
+    <div/>
     <input 
         class:correct-guess={correctGuess} 
         type="text" 
@@ -42,39 +50,71 @@
         disabled={correctGuess}
         placeholder={placeholder}
         />
-    <div id="hints">
-        {#each hints as {revealed, value}, hintIdx}
-            <div class="hint" class:revealed on:click={revealHint(hintIdx)}>
-                <div class="back">{value}</div>
-                <div class="front"></div>
-            </div>
+    <div/>
+    <div/>
+    <div id="score"> <p class="score-label">Score:</p> 25 </div>
+    <div/>
+    <div/>
+    <p id="hint-help">Click a hint to reveal</p>
+    <div/>
+    {#each hints as {revealed, cost, value}, hintIdx}
+        {#if ((hintIdx % 2) == 0)}
+            <div/>
+        {/if}
+        <div class="hint" class:revealed on:click={revealHint(hintIdx)}>
+            <div class="back">{value}</div>
+            <div class="front">-{cost} point{cost > 1 ? 's' : ''}</div>
+        </div>
+        {#if ((hintIdx %2) == 1)}
+            <div/>
+        {/if}
+    {/each}
+    <div/>
+    <p id="hint-help">Incorrect guesses:</p>
+    <div/>
+    <div/>
+    <div id="incorrect-guesses">
+        {#each incorrectGuesses as g}
+            <p>{g}</p>
         {/each}
     </div>
-    <p id="hint-help">Click a hint to reveal</p>
+    <div/>
 </div>
 
 <style>
     #root-container {
-        display: flex;
-        flex-direction: column;
+        margin-top: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr 2fr 2fr 1fr;
+        justify-items: center;
         align-items: center;
+        column-gap: 1rem;
+        row-gap: 1rem;
         font-family: 'Verdana';
         width: 100vw;
     }
 
     #hint-help {
-        font-size: 1.5rem;
-        margin-top: 5rem;
+        font-size: 1.3rem;
+        grid-column: span 2;
+
+    }
+
+    #header {
+        grid-column: span 2;
+        font-size: 5rem;
+        text-decoration: underline overline;
     }
     
     input {
         all: unset;
+        grid-column: span 2;
         text-transform: uppercase;
-        margin: 5rem 0 5rem 0;
-        width: 50%;
+        margin: 2rem 0 2rem 0;
+        width: 80%;
         height: 4rem;
         text-align: center;
-        border-radius: 1rem;
+        border-radius: 0.5rem;
         border: 1px solid black;
         font-size: 1.5em;
     }
@@ -92,22 +132,34 @@
         color: black;
     }
 
-    #hints {
-        font-size: 1.5em;
-        display: grid;
-        column-gap: 1rem;
-        row-gap: 1rem;
-        grid-template-columns: 1fr 1fr;
-        width: 80%;
+    #score {
+        position: relative;
+        grid-column: span 2;
+        font-size: 5rem;
+        background: lightgrey;
+        border-radius: 50%;
+        width: 10rem;
+        height: 10rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #score > .score-label {
+        position: absolute;
+        display: block;
+        font-size: 1rem;
+        top: 1rem;
     }
 
     .hint {
+        font-size: 1.5em;
         text-transform: uppercase;
         position: relative;
-        border-radius: 0.1rem;
         text-align: center;
         min-width: 100%;
-        height: 25vh;
+        height: 10rem;
         justify-self: center;
     }
 
@@ -116,6 +168,8 @@
     }
 
     .back, .front {
+        border-radius: 0.5rem;
+        overflow: hidden;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -145,6 +199,19 @@
     }
     .hint.revealed > .front {
         transform: rotateX(180deg);
+    }
+
+    #incorrect-guesses {
+        grid-column: span 2;
+        width: 80%;
+        height: 20rem;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        text-align: center;
+        padding: 1rem;
+        text-transform: uppercase;
     }
 
 </style>
