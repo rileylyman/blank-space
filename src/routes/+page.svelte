@@ -1,270 +1,383 @@
 <script lang="ts">
 
     interface Hint {
-        revealed: boolean;
-        cost: number;
         value: string;
+        guess: string;
+        expanded: boolean;
+        completed: boolean;
+        inputting: boolean;
     }
 
-    let guess = "";
-    const guessCost = 1;
-    let score = 25;
-    let incorrectGuesses: string[] = [];
-    let hints: Hint[] = [
-        {revealed: false, cost: 3, value: "fire"}, 
-        {revealed: false, cost: 1, value: "oyster"}, 
-        {revealed: false, cost: 10, value: "ritz"}, 
-        {revealed: false, cost: 7, value: "nut"}];
-    let target: string = "cracker";
+    let rulesRead = false;
+    const hints = [
+        {value: "oyster", guess: "", expanded: false, completed: false, inputting: false},
+        {value: "fire", guess: "", expanded: false, completed: false, inputting: false},
+        {value: "nut", guess: "", expanded: false, completed: false, inputting: false},
+        {value: "ritz",guess: "", expanded: false, completed: false, inputting: false},
+    ];
+    $: currentHint = hints.findIndex((hint) => !hint.completed);
+    $: anyExpanded = hints.some((hint, i) => hint.expanded && !hint.completed);
 
-    let correctGuess: boolean = false;
-
-    const subtractFromScore = (n: number) => {
-        score = Math.max(0, score - n);
-    };
-
-    const revealHint = (hintIdx: number) => () => {
-        let {cost} = hints[hintIdx];
-        hints[hintIdx].revealed = true;
-        subtractFromScore(cost);
-    };
-
-    $: console.log(guess);
-
-    let placeholder = "Enter your guess";
-    
-    const submitGuess = async () => {
-        if (guess.toLowerCase() === target.toLowerCase()) {
-            correctGuess = true;
-        } else {
-            (async (guess: string) => {
-                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${guess}`);
-                if (!incorrectGuesses.includes(guess) && response.ok) {
-                    incorrectGuesses = [...incorrectGuesses, guess];
-                    subtractFromScore(guessCost);
-                    placeholder = "incorrect";
-                } else if (!response.ok) {
-                    placeholder = "not in wordlist";
-                } else if (incorrectGuesses.includes(guess)) {
-                    placeholder = "already guessed";
-                } 
-            })(guess);
-            placeholder = "";
-            guess = "";
+    const hintClicked = (hintIdx: number) => () => {
+        if (hints[hintIdx].completed) {
+            return;
         }
+        hints[hintIdx].expanded = true;
     };
 </script>
 
 <div id="root-container">
-    <div id="header"> Blank Space </div>
-    <input 
-        class:correct-guess={correctGuess} 
-        type="text" 
-        bind:value={guess} 
-        on:change={submitGuess} 
-        disabled={correctGuess}
-        placeholder={placeholder}
-        />
-    <div id="score"> <p class="score-label">Score:</p> {score} </div>
-    <p id="hints-label">Click a hint to reveal:</p>
-    <div class="hints">
-        {#each hints as {revealed, cost, value}, hintIdx}
-            <div class="hint" 
-                class:hint-left={(hintIdx % 2) == 0} 
-                class:hint-right={(hintIdx % 2) == 1} 
-                class:revealed 
-                on:click={revealHint(hintIdx)}
+        <div class="hints" 
+            class:any-expand={anyExpanded}
+            class:expand-1={hints[0].expanded && !hints[0].completed}
+            class:expand-2={hints[1].expanded && !hints[1].completed}
+            class:expand-3={hints[2].expanded && !hints[2].completed}
+            class:expand-4={hints[3].expanded && !hints[3].completed}
+        >
+            {#each hints as hint, hintIdx}
+                <button 
+                    class="hint" 
+                    class:revealed={hint.expanded || hint.completed}
+                    class:fade-away={anyExpanded && (!hint.expanded || hint.completed)}
+                    on:click={hintClicked(hintIdx)}
                 >
-                <div class="back">{value}</div>
-                <div class="front">-{cost} point{cost > 1 ? 's' : ''}</div>
-            </div>
-        {/each}
-    </div>
-    <p id="incorrect-guesses-label">Incorrect guesses:</p>
-    <div id="incorrect-guesses">
-        {#each incorrectGuesses as g}
-            <p>{g}</p>
-        {/each}
+                    <div class="back">
+                        {#if !hint.completed}
+                            <div class="previous">
+                                {#each hints as prevHint, prevHintIdx}
+                                    {#if prevHintIdx < hintIdx}
+                                        <p>
+                                            <span class="hint-value">{prevHint.value}</span>: 
+                                            <span class="guess">{prevHint.guess}</span>
+                                        </p>
+                                    {/if}
+                                {/each}
+                            </div>
+                        {/if}
+                        <h1>{hint.value}</h1>
+                        {#if hint.inputting && !hint.guess}
+                            <div class="buttons">
+                                <input 
+                                    autofocus
+                                    type=text 
+                                    placeholder="enter your guess" 
+                                    on:change={(e) => {hint.guess = e.target.value; hint.completed = true}}
+                                >
+                            </div>
+                        {:else if !hint.completed}
+                            <div class="buttons">
+                                <button on:click={() => hint.inputting = true}>Guess</button>
+                                <button on:click={() => {hint.completed = true; hint.guess = "<no guess>"}}>Next</button>
+                            </div>
+                        {/if}
+                        {#if hint.guess}
+                            <p>{hint.guess}</p>
+                        {/if}
+                    </div>
+                    <div class="front">
+                        <h3>{hintIdx == currentHint ? "Click to Reveal" : ""}</h3>
+                    </div>
+                </button>
+            {/each}
+        </div>
+    <div id="rules-container" class:hidden={rulesRead}>
+        <div id="rules">
+            <h1>
+                <b>Blank Space</b>
+            </h1>
+            <br/>
+            <h2>
+                Introduction
+            </h2>
+            <br/>
+            <p>
+                Your goal is to discover the elusive <em><b>TARGET WORD</b></em> using a
+                series of clues. Each clue can form a compound word or a
+                short phrase with the <em><b>TARGET WORD</b></em>.
+
+                <br/>
+                <br/>
+                
+                For instance, if the
+                <em><b>TARGET WORD</b></em> is "space," possible clues are "blank ____,"
+                "____ cadet," or "____-time continuum." It's important to
+                remember that the <em><b>TARGET WORD</b></em> will always be at the
+                beginning or end of the phrase, never in the middle.
+            </p>
+            <br/>
+            <h2>
+                Scoring
+            </h2>
+            <br/>
+            <p>
+                You score points based on how quickly you identify the
+                <em><b>TARGET WORD</b></em>. Guessing correctly on the first clue earns you 10
+                points, the second clue gets you 5 points, the third 3 points,
+                and the fourth 1 point.
+            </p>
+
+            <br/>
+            <button on:click={() => rulesRead = true}>Play</button>
+        </div>
     </div>
 </div>
 
 <style>
+    :root {
+        font-family: 'Fira Sans', sans-serif;
+    }
+
     #root-container {
+        position: relative;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 2fr 2fr 4rem 0.5fr 4fr 0.5fr 3fr;
-        grid-template-areas: "header header"
-              "score score"
-              "guess guess"
-              "hints-label hints-label"
-              "hints hints"
-              "incorrect-guesses-label incorrect-guesses-label"
-              "incorrect-guesses incorrect-guesses";
-        grid-auto-rows: min-content;
-        grid-auto-flow: dense;
         justify-items: center;
         align-items: center;
-        column-gap: 1rem;
-        row-gap: 1rem;
-        font-family: 'Verdana';
-        width: 100vw;
         height: 100vh;
-        width: 100svw;
         height: 100svh;
-        padding-bottom: 2rem;
-        padding-top: 0rem;
-    }
-
-    @media screen and (min-width: 900px) {
-        #root-container {
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr 4rem 0.5fr 1fr 1fr 1fr 1fr;
-            grid-template-areas: "header header"
-                "score score"
-                "guess guess"
-                "hints-label incorrect-guesses-label"
-                "hints incorrect-guesses"
-                "hints incorrect-guesses"
-                "hints incorrect-guesses"
-                "hints incorrect-guesses"
-        }
-    }
-
-    @media screen and (min-width: 1200px) {
-        #root-container {
-            width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    #header {
-        font-size: 12vw;
-        text-decoration: underline overline;
-        grid-area: header;
-    }
-
-    @media screen and (min-width: 640px) {
-        #header {
-            font-size: 5rem;
-        }
+        max-height: 100vh;
+        max-height: 100svh;
+        filter: blur(100);
     }
     
-    input {
-        all: unset;
-        margin-top: 1rem;
-        text-transform: uppercase;
-        align-self: stretch;
-        min-width: 50%;
-        max-height: 3rem;
-        text-align: center;
-        border-radius: 0.5rem;
-        border: 1px solid black;
-        font-size: 1.5em;
-        grid-area: guess;
-    }
-    
-    input:disabled {
-        color: black;
-    }
-    
-    input:focus {
-        box-shadow: -3px 3px 15px grey;
-    }
-
-    input.correct-guess {
-        background: #3c9252;
-        color: black;
-    }
-
-    #score {
-        position: relative;
-        grid-area: score;
-        font-size: 4rem;
-        padding: 1rem;
-        background: lightgrey;
-        border-radius: 50%;
-        align-self: stretch;
-        height: 100%;
-        aspect-ratio: 1 / 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    @media screen and (min-width: 900px) {
-        #score {
-            font-size: 6rem;
-        }
-
-    }
-
-    #score > .score-label {
+    #rules-container {
         position: absolute;
-        display: block;
-        font-size: 0.8rem;
-        top: 1rem;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        background: #ffffffcf;
+        transition: opacity 500ms;
     }
 
-    #hints-label {
-        font-size: 1rem;
-        grid-area: hints-label;
-        margin-bottom: -1rem;
+    #rules {
+        position: absolute;
+        background: white;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        width: 70%;
+        max-height: 90%;
+        padding: 3rem 4rem;
+        overflow: scroll;
+    }
+
+    @media (max-aspect-ratio: 1/1.5) {
+        #rules {
+            border: none;
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            padding: 1rem 2rem;
+        }
+    }
+
+    #rules-container.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #rules > h1 {
+        font-size: 3rem;
+    }
+
+    #rules > button {
+        display: block;
+        margin: 3rem auto 0 auto;
+        width: 10rem;
+        text-align: center;
+        background: white;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    #rules > button:hover {
+        background: #f0f0f0;
+        cursor: pointer;
     }
 
     .hints {
-        min-height: 10rem;
-        align-self: stretch;
-        justify-self: stretch;
-        grid-area: hints;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        row-gap: 1rem;
-        column-gap: 1rem;
-        padding: 0 5% 0 5%;
+        grid-template: 1fr 1fr / 1fr 1fr;
+        grid-auto-flow: dense;
+        justify-items: center;
+        align-items: center;
+        column-gap: 2.5vw;
+        row-gap: 2.5vw;
+        width: 90vw;
+        max-width: 1500px;
+        height: 65%;
     }
 
-    @media screen and (min-width: 900px) {
+    .hints.any-expand {
+    }
+
+    .hints.expand-1 {
+        animation: resize-1 500ms ease 1000ms forwards;
+    }
+
+    .hints.expand-2 {
+        animation: resize-2 500ms ease 1000ms forwards;
+    }
+
+    .hints.expand-3 {
+        animation: resize-3 500ms ease 1000ms forwards;
+    }
+
+    .hints.expand-4 {
+        animation: resize-4 500ms ease 1000ms forwards;
+    }
+
+    @keyframes resize-1 {
+        0% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+        100% {
+            grid-template: 1fr 0fr / 1fr 0fr;
+        }
+    }
+
+    @keyframes resize-2 {
+        0% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+        100% {
+            grid-template: 1fr 0fr / 0fr 1fr;
+        }
+    }
+
+    @keyframes resize-3 {
+        0% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+        100% {
+            grid-template: 0fr 1fr / 1fr 0fr;
+        }
+    }
+
+    @keyframes resize-4 {
+        0% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+        100% {
+            grid-template: 0fr 1fr / 0fr 1fr;
+        }
+    }
+
+    @media (max-aspect-ratio: 1/1.2) {
         .hints {
-            grid-template-columns: 1fr;
+            height: 80%;
+            grid-template: 1fr 1fr 1fr 1fr / 1fr;
+            column-gap: 1rem;
+            row-gap: 1rem;
         }
     }
 
     .hint {
-        font-size: min(2vh, 5vw);
+        all: unset;
+        display: block;
+        font-size: max(2vh, 2vw, 1rem);
         text-transform: uppercase;
         position: relative;
         text-align: center;
-        align-self: stretch;
         justify-self: stretch;
+        align-self: stretch;
+        transition: opacity 1000ms;
     }
 
     .hint:hover {
         cursor: pointer;
     }
 
-    .back, .front {
-        border-radius: 0.5rem;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid black;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        transition: transform 1s;
-        transform-style: preserve-3d;
-        backface-visibility: hidden;
+    .hint.fade-away {
+        opacity: 0;
     }
 
-    .front:hover {
-        box-shadow: -2px 2px 20px gray;
+    .back, .front {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        border: 1px solid black;
+        border-radius: 1rem;
+        transition: transform 1000ms;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: space-around;
     }
 
     .front {
-        background-color: lightgrey;
+        background-color: #f0f0f0;
+    }
+
+    .front > h1, .back > h1 {
+        font-size: 1.5em;
+    }
+
+    .back > .previous {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 1rem 2rem;
+        text-align: left;
+    }
+
+    .previous .hint-value {
+        font-weight: bold;
+    }
+
+    .previous .guess {
+        font-size: 1.5rem;
+        font-style: italic;
+        text-decoration: line-through;
+        text-transform: lowercase;
+    }
+
+    .back > p {
+        text-decoration: line-through;
+        text-transform: lowercase;
+        font-style: italic;
+    }
+
+    .back > .buttons {
+        width: 100%;
+    }
+
+    .back > .buttons > button {
+        width: 10rem;
+        text-transform: uppercase;
+        background: white;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+    }
+
+    .back > .buttons > button:hover {
+        background: #f0f0f0;
+        cursor: pointer;
+    }
+
+    .back input, .back input:focus {
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        height: 4rem;
+        text-align: center;
+        text-transform: lowercase;
+    }
+
+    .back input:focus {
+        outline: none;
+    }
+
+
+    .front:hover {
+        box-shadow: -2px 2px 15px #d9d9d2;
     }
 
     .back {
@@ -277,25 +390,4 @@
     .hint.revealed > .front {
         transform: rotateX(180deg);
     }
-
-    #incorrect-guesses-label {
-        grid-area: incorrect-guesses-label;
-        margin-bottom: -1rem;
-    }
-
-    #incorrect-guesses {
-        grid-area: incorrect-guesses;
-        width: 90%;
-        align-self: stretch;
-        border: 1px solid black;
-        border-radius: 0.5rem;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        text-align: center;
-        padding: 1rem;
-        text-transform: uppercase;
-    }
-
 </style>
