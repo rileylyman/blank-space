@@ -130,6 +130,14 @@
         }
     }
 
+    @media screen and (min-width: 1200px) {
+        #root-container {
+            width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
     #header {
         font-size: 12vw;
         text-decoration: underline overline;
@@ -187,7 +195,7 @@
 
     @media screen and (min-width: 900px) {
         #score {
-            font-size: 10vw;
+            font-size: 6rem;
         }
 
     }
