@@ -1,6 +1,5 @@
 <script lang="ts">
     interface Hint {
-        points: number;
         value: string;
         guess: string;
         expanded: boolean;
@@ -8,19 +7,34 @@
         inputting: boolean;
     }
 
+    export let data;
     let rulesRead = false;
     let won = false;
-    let targetWord = "cracker";
-    const hints = [
-        {points: 1, value: "oyster", guess: "", expanded: false, completed: false, inputting: false},
-        {points: 3, value: "fire", guess: "", expanded: false, completed: false, inputting: false},
-        {points: 5, value: "nut", guess: "", expanded: false, completed: false, inputting: false},
-        {points: 10, value: "ritz",guess: "", expanded: false, completed: false, inputting: false},
+    let targetWord = data.found ? data!.game!.target.toLowerCase().trim() : "";
+    let rawHints = !data.found ? [] : [
+        data!.game!.hint1, 
+        data!.game!.hint2,
+        data!.game!.hint3,
+        data!.game!.hint4,
     ];
+    let hints: Hint[] = rawHints.map((raw) => { 
+        return {
+            value: raw.toLowerCase().replace(targetWord, '').trim(), 
+            guess: "", 
+            expanded: false, 
+            completed: false, 
+            inputting: false
+        }
+    });
+    $: formattedHints = rawHints.map((raw, i) => 
+        raw.toUpperCase()
+            .replace(targetWord.toUpperCase(), `<em><b>${targetWord.toUpperCase()}</b></em>`)
+    );
+    $: guesses = hints.map((hint) => hint.guess);
     $: remainingHints = hints.filter((hint) => !hint.guess);
     $: currentHint = hints.findIndex((hint) => !hint.completed);
     $: anyExpanded = hints.some((hint) => hint.expanded && !hint.completed);
-    $: won = hints.some((hint) => isCorrect(hint.guess));
+    $: won = guesses.some((guess) => isCorrect(guess));
     $: gameOver = hints.every(({completed}) => completed) || won;
 
     const hintClicked = (hintIdx: number) => () => {
@@ -38,6 +52,7 @@
         if (hintIdx == 3) return "after the third hint. Nice."
         if (hintIdx == 4 || hintIdx == -1) return "after the fourth hint. Hey, at least you didn't lose."
     };
+
     const scoreString = (hintIdx: number) => {
         if (hintIdx == 1) return ", a perfect 4-star score!"
         if (hintIdx == 2) return " for a cool 3 stars."
@@ -72,7 +87,7 @@
                                     {#if prevHintIdx < hintIdx}
                                         <p>
                                             <span class="hint-value">{prevHint.value}</span>: 
-                                            <span class="guess">{prevHint.guess}</span>
+                                            <span class="guess strike">{prevHint.guess}</span>
                                         </p>
                                     {/if}
                                 {/each}
@@ -104,7 +119,7 @@
                 </button>
             {/each}
         </div>
-    <div id="modal-container" class:hidden={rulesRead && !gameOver}>
+    <div id="modal-container" class:hidden={rulesRead && !gameOver} class:strike={false}>
         {#if !rulesRead}
             <div id="modal">
                 <h1>
@@ -148,28 +163,35 @@
             <div id="modal">
                 <h1>You Lost</h1>
                 <br/>
-                <p>The correct word was <em><b>CRACKER</b></em>. </p>
+                <p>The correct word was <em><b>{targetWord.toUpperCase()}</b></em>. </p>
                 <br />
                 <h2>Hints </h2>
                 <ul>
-                {#each hints as {value, guess}}
+                {#each formattedHints as hint}
                     <li> 
-                        {value.toUpperCase()} 
-                        <span style="text-decoration: line-through"> 
-                            <em>{!isCorrect(guess) ? guess : ""}</em> 
-                        </span> 
-                        <em><b>{targetWord.toUpperCase()}</b></em> 
+                        {@html hint}
                     </li>
                 {/each}
                 </ul>
                 <br/>
-                <button on:click={() => window.location = "/"}>Go Home</button>
+                <h2>Your Guesses </h2>
+                <ul>
+                {#each guesses as guess}
+                    {#if guess}
+                        <li> 
+                            {guess.toUpperCase()}
+                        </li>
+                    {/if}
+                {/each}
+                </ul>
+                <br/>
+                <button on:click={() => window.location = window.location.pathname}>Go Home</button>
             </div>
         {:else if gameOver}
             <div id="modal">
                 <h1>You Won!</h1>
                 <br/>
-                <p>You guessed <em><b>CRACKER</b></em> {hintString(currentHint)}</p>
+                <p>You guessed <em><b>{targetWord.toUpperCase()}</b></em> {hintString(currentHint)}</p>
                 <br />
                 <h2> Points </h2>
                 <br/>
@@ -179,18 +201,25 @@
                 <br/>
                 <h2>Hints </h2>
                 <ul>
-                {#each hints as {value, guess}}
+                {#each formattedHints as hint}
                     <li> 
-                        {value.toUpperCase()} 
-                        <span style="text-decoration: line-through"> 
-                            <em>{!isCorrect(guess) ? guess : ""}</em> 
-                        </span> 
-                        <em><b>{targetWord.toUpperCase()}</b></em> 
+                        {@html hint}
                     </li>
                 {/each}
                 </ul>
                 <br/>
-                <button on:click={() => window.location = "/"}>Go Home</button>
+                <h2>Your Guesses </h2>
+                <ul>
+                {#each guesses as guess}
+                    {#if guess}
+                        <li> 
+                            {guess.toUpperCase()}
+                        </li>
+                    {/if}
+                {/each}
+                </ul>
+                <br/>
+                <button on:click={() => window.location = window.location.pathname}>Go Home</button>
             </div>
         {/if}
     </div>
@@ -470,8 +499,11 @@
     .previous .guess {
         font-size: 1.5rem;
         font-style: italic;
-        text-decoration: line-through;
         text-transform: lowercase;
+    }
+
+    .strike {
+        text-decoration: line-through;
     }
 
     .back > p {
