@@ -18,32 +18,50 @@
         {points: 10, value: "ritz",guess: "", expanded: false, completed: false, inputting: false},
     ];
     $: remainingHints = hints.filter((hint) => !hint.guess);
-    $: score = remainingHints.reduce((n: number, hint: Hint) => n + hint.points, 0);
     $: currentHint = hints.findIndex((hint) => !hint.completed);
-    $: anyExpanded = hints.some((hint, i) => hint.expanded && !hint.completed);
-    $: won = hints.some((hint) => hint.guess.toLowerCase() === targetWord.toLowerCase());
+    $: anyExpanded = hints.some((hint) => hint.expanded && !hint.completed);
+    $: won = hints.some((hint) => isCorrect(hint.guess));
     $: gameOver = hints.every(({completed}) => completed) || won;
 
     const hintClicked = (hintIdx: number) => () => {
-        if (hints[hintIdx].completed) {
+        if (hints[hintIdx].completed || currentHint < hintIdx) {
             return;
         }
         hints[hintIdx].expanded = true;
     };
+
+    const isCorrect = (guess: string) => guess.toLowerCase() == targetWord.toLowerCase();
+
+    const hintString = (hintIdx: number) => {
+        if (hintIdx == 1) return "after the first hint. A perfect game!";
+        if (hintIdx == 2) return "after the second hint. Stellar!"
+        if (hintIdx == 3) return "after the third hint. Nice."
+        if (hintIdx == 4 || hintIdx == -1) return "after the fourth hint. Hey, at least you didn't lose."
+    };
+    const scoreString = (hintIdx: number) => {
+        if (hintIdx == 1) return ", a perfect 4-star score!"
+        if (hintIdx == 2) return " for a cool 3 stars."
+        if (hintIdx == 3) return " for a respectable 2 stars."
+        if (hintIdx == 4 || hintIdx == -1) return " and earned 1 star."
+    }
 </script>
 
 <div id="root-container">
         <div class="hints" 
             class:any-expand={anyExpanded}
             class:expand-1={hints[0].expanded && !hints[0].completed}
+            class:retract-1={hints[0].completed && !hints[1].expanded}
             class:expand-2={hints[1].expanded && !hints[1].completed}
+            class:retract-2={hints[1].completed && !hints[2].expanded}
             class:expand-3={hints[2].expanded && !hints[2].completed}
+            class:retract-3={hints[2].completed && !hints[3].expanded}
             class:expand-4={hints[3].expanded && !hints[3].completed}
+            class:retract-4={hints[3].completed}
         >
             {#each hints as hint, hintIdx}
                 <button 
                     class="hint" 
-                    class:revealed={hint.expanded || hint.completed}
+                    class:revealed={hint.expanded}
                     class:fade-away={anyExpanded && (!hint.expanded || hint.completed)}
                     on:click={hintClicked(hintIdx)}
                 >
@@ -77,7 +95,7 @@
                             </div>
                         {/if}
                         {#if hint.guess}
-                            <p>{hint.guess}</p>
+                            <p class:correct={isCorrect(hint.guess)}>{hint.guess}</p>
                         {/if}
                     </div>
                     <div class="front">
@@ -138,7 +156,7 @@
                     <li> 
                         {value.toUpperCase()} 
                         <span style="text-decoration: line-through"> 
-                            <em>{guess.toLowerCase() !== targetWord.toLowerCase() ? guess : ""}</em> 
+                            <em>{!isCorrect(guess) ? guess : ""}</em> 
                         </span> 
                         <em><b>{targetWord.toUpperCase()}</b></em> 
                     </li>
@@ -151,13 +169,12 @@
             <div id="modal">
                 <h1>You Won!</h1>
                 <br/>
-                <p>You guessed <em><b>CRACKER</b></em> after 2 hints. Great job!</p>
+                <p>You guessed <em><b>CRACKER</b></em> {hintString(currentHint)}</p>
                 <br />
                 <h2> Points </h2>
                 <br/>
                 <p>
-                    You left {remainingHints.length} hints remaining, for a total
-                    score of <b>{score} points</b>.
+                    You left {remainingHints.length} hints remaining{scoreString(currentHint)}
                 </p>
                 <br/>
                 <h2>Hints </h2>
@@ -166,7 +183,7 @@
                     <li> 
                         {value.toUpperCase()} 
                         <span style="text-decoration: line-through"> 
-                            <em>{guess.toLowerCase() !== targetWord.toLowerCase() ? guess : ""}</em> 
+                            <em>{!isCorrect(guess) ? guess : ""}</em> 
                         </span> 
                         <em><b>{targetWord.toUpperCase()}</b></em> 
                     </li>
@@ -203,7 +220,7 @@
         display: grid;
         place-items: center;
         background: #ffffffcf;
-        transition: opacity 500ms;
+        transition: opacity 0ms;
     }
 
     #modal {
@@ -284,6 +301,26 @@
         animation: resize-4 500ms ease 1000ms forwards;
     }
 
+    .hints.retract-1 {
+        grid-template: 1fr 0fr / 1fr 0fr;
+        animation: resize-1-back 500ms ease 0ms forwards;
+    }
+
+    .hints.retract-2 {
+        grid-template: 1fr 0fr / 0fr 1fr;
+        animation: resize-2-back 500ms ease 0ms forwards;
+    }
+
+    .hints.retract-3 {
+        grid-template: 0fr 1fr / 1fr 0fr;
+        animation: resize-3-back 500ms ease 0ms forwards;
+    }
+
+    .hints.retract-4 {
+        grid-template: 0fr 1fr / 0fr 1fr;
+        animation: resize-4-back 500ms ease 0ms forwards;
+    }
+
     @keyframes resize-1 {
         0% {
             grid-template: 1fr 1fr / 1fr 1fr;
@@ -321,6 +358,46 @@
         }
         100% {
             grid-template: 0fr 1fr / 0fr 1fr;
+        }
+    }
+
+    @keyframes resize-1-back {
+        0% {
+            grid-template: 1fr 0fr / 1fr 0fr;
+        }
+        100% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+    }
+
+    @keyframes resize-2-back {
+        0% {
+            grid-template: 1fr 0fr / 0fr 1fr;
+        }
+        100% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+    }
+
+    @keyframes resize-3-back {
+        0% {
+            grid-template: 0fr 1fr / 1fr 0fr;
+        }
+        100% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
+        }
+    }
+
+    @keyframes resize-4-back {
+        0% {
+            grid-template: 0fr 1fr / 0fr 1fr;
+        }
+        100% {
+            grid-template: 1fr 1fr / 1fr 1fr;
+
         }
     }
 
@@ -401,6 +478,10 @@
         text-decoration: line-through;
         text-transform: lowercase;
         font-style: italic;
+    }
+
+    .back > p.correct {
+        text-decoration: none;
     }
 
     .back > .buttons {
