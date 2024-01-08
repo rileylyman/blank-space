@@ -1,6 +1,6 @@
 <script lang="ts">
-
     interface Hint {
+        points: number;
         value: string;
         guess: string;
         expanded: boolean;
@@ -9,14 +9,20 @@
     }
 
     let rulesRead = false;
+    let won = false;
+    let targetWord = "cracker";
     const hints = [
-        {value: "oyster", guess: "", expanded: false, completed: false, inputting: false},
-        {value: "fire", guess: "", expanded: false, completed: false, inputting: false},
-        {value: "nut", guess: "", expanded: false, completed: false, inputting: false},
-        {value: "ritz",guess: "", expanded: false, completed: false, inputting: false},
+        {points: 1, value: "oyster", guess: "", expanded: false, completed: false, inputting: false},
+        {points: 3, value: "fire", guess: "", expanded: false, completed: false, inputting: false},
+        {points: 5, value: "nut", guess: "", expanded: false, completed: false, inputting: false},
+        {points: 10, value: "ritz",guess: "", expanded: false, completed: false, inputting: false},
     ];
+    $: remainingHints = hints.filter((hint) => !hint.guess);
+    $: score = remainingHints.reduce((n: number, hint: Hint) => n + hint.points, 0);
     $: currentHint = hints.findIndex((hint) => !hint.completed);
     $: anyExpanded = hints.some((hint, i) => hint.expanded && !hint.completed);
+    $: won = hints.some((hint) => hint.guess.toLowerCase() === targetWord.toLowerCase());
+    $: gameOver = hints.every(({completed}) => completed) || won;
 
     const hintClicked = (hintIdx: number) => () => {
         if (hints[hintIdx].completed) {
@@ -80,45 +86,96 @@
                 </button>
             {/each}
         </div>
-    <div id="rules-container" class:hidden={rulesRead}>
-        <div id="rules">
-            <h1>
-                <b>Blank Space</b>
-            </h1>
-            <br/>
-            <h2>
-                Introduction
-            </h2>
-            <br/>
-            <p>
-                Your goal is to discover the elusive <em><b>TARGET WORD</b></em> using a
-                series of clues. Each clue can form a compound word or a
-                short phrase with the <em><b>TARGET WORD</b></em>.
+    <div id="modal-container" class:hidden={rulesRead && !gameOver}>
+        {#if !rulesRead}
+            <div id="modal">
+                <h1>
+                    <b>Blank Space</b>
+                </h1>
+                <br/>
+                <h2>
+                    How to Play
+                </h2>
+                <br/>
+                <p>
+                    Your goal is to discover the elusive <em><b>TARGET WORD</b></em> using a
+                    series of clues. Each clue can form a compound word or a
+                    short phrase with the <em><b>TARGET WORD</b></em>.
+
+                    <br/>
+                    <br/>
+                    
+                    For instance, if the
+                    <em><b>TARGET WORD</b></em> is "space," possible clues are "blank ____,"
+                    "____ cadet," or "____-time continuum." It's important to
+                    remember that the <em><b>TARGET WORD</b></em> will always be at the
+                    beginning or end of the phrase, never in the middle.
+                </p>
+                <br/>
+                <h2>
+                    Scoring
+                </h2>
+                <br/>
+                <p>
+                    You score points based on how quickly you identify the
+                    <em><b>TARGET WORD</b></em>. Guessing correctly on the first clue earns you 10
+                    points, the second clue gets you 5 points, the third 3 points,
+                    and the fourth 1 point.
+                </p>
 
                 <br/>
+                <button on:click={() => rulesRead = true}>Play</button>
+            </div>
+        {:else if gameOver && !won}
+            <div id="modal">
+                <h1>You Lost</h1>
                 <br/>
-                
-                For instance, if the
-                <em><b>TARGET WORD</b></em> is "space," possible clues are "blank ____,"
-                "____ cadet," or "____-time continuum." It's important to
-                remember that the <em><b>TARGET WORD</b></em> will always be at the
-                beginning or end of the phrase, never in the middle.
-            </p>
-            <br/>
-            <h2>
-                Scoring
-            </h2>
-            <br/>
-            <p>
-                You score points based on how quickly you identify the
-                <em><b>TARGET WORD</b></em>. Guessing correctly on the first clue earns you 10
-                points, the second clue gets you 5 points, the third 3 points,
-                and the fourth 1 point.
-            </p>
-
-            <br/>
-            <button on:click={() => rulesRead = true}>Play</button>
-        </div>
+                <p>The correct word was <em><b>CRACKER</b></em>. </p>
+                <br />
+                <h2>Hints </h2>
+                <ul>
+                {#each hints as {value, guess}}
+                    <li> 
+                        {value.toUpperCase()} 
+                        <span style="text-decoration: line-through"> 
+                            <em>{guess.toLowerCase() !== targetWord.toLowerCase() ? guess : ""}</em> 
+                        </span> 
+                        <em><b>{targetWord.toUpperCase()}</b></em> 
+                    </li>
+                {/each}
+                </ul>
+                <br/>
+                <button on:click={() => window.location = "/"}>Go Home</button>
+            </div>
+        {:else if gameOver}
+            <div id="modal">
+                <h1>You Won!</h1>
+                <br/>
+                <p>You guessed <em><b>CRACKER</b></em> after 2 hints. Great job!</p>
+                <br />
+                <h2> Points </h2>
+                <br/>
+                <p>
+                    You left {remainingHints.length} hints remaining, for a total
+                    score of <b>{score} points</b>.
+                </p>
+                <br/>
+                <h2>Hints </h2>
+                <ul>
+                {#each hints as {value, guess}}
+                    <li> 
+                        {value.toUpperCase()} 
+                        <span style="text-decoration: line-through"> 
+                            <em>{guess.toLowerCase() !== targetWord.toLowerCase() ? guess : ""}</em> 
+                        </span> 
+                        <em><b>{targetWord.toUpperCase()}</b></em> 
+                    </li>
+                {/each}
+                </ul>
+                <br/>
+                <button on:click={() => window.location = "/"}>Go Home</button>
+            </div>
+        {/if}
     </div>
 </div>
 
@@ -139,7 +196,7 @@
         filter: blur(100);
     }
     
-    #rules-container {
+    #modal-container {
         position: absolute;
         width: 100%;
         height: 100%;
@@ -149,7 +206,7 @@
         transition: opacity 500ms;
     }
 
-    #rules {
+    #modal {
         position: absolute;
         background: white;
         border: 1px solid black;
@@ -161,7 +218,7 @@
     }
 
     @media (max-aspect-ratio: 1/1.5) {
-        #rules {
+        #modal {
             border: none;
             width: 100%;
             height: 100%;
@@ -170,16 +227,16 @@
         }
     }
 
-    #rules-container.hidden {
+    #modal-container.hidden {
         opacity: 0;
         pointer-events: none;
     }
 
-    #rules > h1 {
+    #modal > h1 {
         font-size: 3rem;
     }
 
-    #rules > button {
+    #modal > button {
         display: block;
         margin: 3rem auto 0 auto;
         width: 10rem;
@@ -190,7 +247,7 @@
         font-size: 1.5rem;
     }
 
-    #rules > button:hover {
+    #modal > button:hover {
         background: #f0f0f0;
         cursor: pointer;
     }
