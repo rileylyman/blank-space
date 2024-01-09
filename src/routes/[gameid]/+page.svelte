@@ -8,6 +8,7 @@
     }
 
     export let data;
+    let easyMode = false;
     let rulesRead = false;
     let won = false;
     let targetWord = data.found ? data!.game!.target.toLowerCase().trim() : "";
@@ -17,9 +18,9 @@
         data!.game!.hint3,
         data!.game!.hint4,
     ];
-    let hints: Hint[] = rawHints.map((raw) => { 
+    $: hints = rawHints.map((raw) => { 
         return {
-            value: raw.toLowerCase().replace(targetWord, '').trim(), 
+            value: raw.toLowerCase().replace(targetWord, easyMode ? '_'.repeat(targetWord.length) : '').trim(), 
             guess: "", 
             expanded: false, 
             completed: false, 
@@ -81,18 +82,20 @@
                     on:click={hintClicked(hintIdx)}
                 >
                     <div class="back">
-                        {#if !hint.completed}
-                            <div class="previous">
-                                {#each hints as prevHint, prevHintIdx}
-                                    {#if prevHintIdx < hintIdx}
-                                        <p>
-                                            <span class="hint-value">{prevHint.value}</span>: 
-                                            <span class="guess strike">{prevHint.guess}</span>
-                                        </p>
-                                    {/if}
-                                {/each}
-                            </div>
-                        {/if}
+                        <div 
+                            class="previous" 
+                            class:show={hints[hintIdx].expanded && !hints[hintIdx].completed}
+                            class:force-hide={hints[hintIdx].completed}
+                        >
+                            {#each hints as prevHint, prevHintIdx}
+                                {#if prevHintIdx < hintIdx}
+                                    <p>
+                                        <span class="hint-value">{prevHint.value}</span>: 
+                                        <span class="guess strike">{prevHint.guess}</span>
+                                    </p>
+                                {/if}
+                            {/each}
+                        </div>
                         <h1>{hint.value}</h1>
                         {#if hint.inputting && !hint.guess}
                             <div class="buttons">
@@ -157,7 +160,10 @@
                 </p>
 
                 <br/>
-                <button on:click={() => rulesRead = true}>Play</button>
+                <div class="buttons">
+                    <button on:click={() => rulesRead = true}>Play</button>
+                    <button on:click={() => {rulesRead = true; easyMode = true;}}>Play Easy-Mode</button>
+                </div>
             </div>
         {:else if gameOver && !won}
             <div id="modal">
@@ -282,10 +288,17 @@
         font-size: 3rem;
     }
 
-    #modal > button {
+    #modal > .buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    #modal button {
         display: block;
-        margin: 3rem auto 0 auto;
-        width: 10rem;
+        width: 25%;
+        margin: 0 1rem 0 1rem;
         text-align: center;
         background: white;
         border: 1px solid black;
@@ -293,7 +306,7 @@
         font-size: 1.5rem;
     }
 
-    #modal > button:hover {
+    #modal button:hover {
         background: #f0f0f0;
         cursor: pointer;
     }
@@ -490,6 +503,18 @@
         left: 0;
         padding: 1rem 2rem;
         text-align: left;
+        opacity: 0;
+        transition: opacity 2s;
+        transition-delay: 1.5s;
+    }
+
+    .previous.show {
+        opacity: 1;
+    }
+
+    .previous.force-hide {
+        opacity: 0;
+        transition: none;
     }
 
     .previous .hint-value {
