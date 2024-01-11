@@ -1,0 +1,21 @@
+/* Styling the scrollbar track (background) */
+::-webkit-scrollbar {
+    width: 12px;
+    /* width of the entire scrollbar */
+}
+
+/* Styling the scrollbar handle */
+::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    /* color of the scrollbar itself */
+    border-radius: 10px;
+    /* roundness of the scrollbar */
+    border: 3px solid white;
+    /* creates padding around the scrollbar */
+}
+
+/* Optional: styling the scrollbar track */
+::-webkit-scrollbar-track {
+    background: #0000;
+    /* color of the scrollbar track */
+}

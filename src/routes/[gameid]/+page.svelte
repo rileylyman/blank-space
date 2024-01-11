@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { redirect } from '@sveltejs/kit';
+    import { tick } from 'svelte';
 
     interface Hint {
         value: string;
@@ -19,6 +19,7 @@
     let gameMode = GameMode.Easy;
 
     export let data;
+    let useAutoClick = true;
     let easyMode = false;
     let rulesRead = false;
     let won = false;
@@ -30,14 +31,15 @@
         data!.game!.hint4,
     ];
     let homeLink = "/games";
+    const autoClickDelay = 750;
     $: hints = rawHints.map((raw) => { 
         const value = raw.toLowerCase().replace(targetWord, '').trim();
         const hintLoc = raw.indexOf(value); 
         const targetLoc = raw.indexOf(targetWord); // TODO: check if target is actually in
         const targetBefore = targetLoc < hintLoc;
         const targetHintGap = targetBefore 
-            ? hintLoc - targetLoc + targetWord.length
-            : targetLoc - hintLoc + value.length;
+            ? hintLoc - (targetLoc + targetWord.length)
+            : targetLoc - (hintLoc + value.length);
         return {
             value,
             targetBefore,
@@ -50,7 +52,7 @@
     });
     $: formattedHints = rawHints.map((raw, i) => 
         raw.toUpperCase()
-            .replace(targetWord.toUpperCase(), `<em><b>${targetWord.toUpperCase()}</b></em>`)
+            .replace(targetWord.toUpperCase(), `<b>${targetWord.toUpperCase()}</b>`)
     );
     $: targetPlaceholder = "*".repeat(targetWord.length);
     $: guesses = hints.map((hint) => hint.guess);
@@ -59,13 +61,23 @@
     $: anyExpanded = hints.some((hint) => hint.expanded && !hint.completed);
     $: won = guesses.some((guess) => isCorrect(guess));
     $: gameOver = hints.every(({completed}) => completed) || won;
+    $: tlen = targetWord.length;
+    $: if (rulesRead) autoClick();
+
+    const autoClick = () => { if (!gameOver && useAutoClick) setTimeout(() => hintClicked(currentHint)(), autoClickDelay) };
 
     const hintClicked = (hintIdx: number) => () => {
-        if (hints[hintIdx].completed || currentHint < hintIdx) {
+        if (currentHint < 0 || currentHint < hintIdx || hints[hintIdx].completed) {
             return;
         }
         hints[hintIdx].expanded = true;
     };
+
+    const hintDone = (hintIdx: number, guess = "<no guess>") => {
+        hints[hintIdx].completed = true;
+        hints[hintIdx].guess = guess; 
+        tick().then(autoClick);
+    }
 
     const isCorrect = (guess: string) => guess.toLowerCase() == targetWord.toLowerCase();
 
@@ -81,16 +93,6 @@
         if (hintIdx == 2) return " for a cool 3 stars."
         if (hintIdx == 3) return " for a respectable 2 stars."
         if (hintIdx == 4 || hintIdx == -1) return " and earned 1 star."
-    }
-
-    const handleGuessInput = (event: InputEvent) => {
-        if (!event.target) return;
-        let e: HTMLInputElement = event.target;
-        if (!e.value) {
-            e.style.width = `${targetWord.length}ch`;
-        } else {
-            e.style.width = `${e.value.length}ch`;
-        }
     }
 </script>
 
@@ -123,47 +125,53 @@
                                 {#each hints as prevHint, prevHintIdx}
                                     {#if prevHintIdx < hintIdx}
                                         <p>
-                                            <span class="hint-value">{prevHint.value}</span>: 
+                                            <span class="previous-value">{prevHint.value}</span>: 
                                             <span class="guess strike">{prevHint.guess}</span>
                                         </p>
                                     {/if}
                                 {/each}
                             </div>
-                            <div class="hint-value">
-                                {#if hint.targetBefore}
-                                    <input autofocus on:input={handleGuessInput} maxlength={targetWord.length} class="hint-inline-input" placeholder={targetPlaceholder} type="text" />
-                                {/if}
-                                <span>
-                                    {
-                                        (hint.targetBefore ? ''.repeat(hint.targetHintGap) : '')
-                                        + hint.value + 
-                                        (!hint.targetBefore ? ''.repeat(hint.targetHintGap) : '')
-                                    }
-                                {#if !hint.targetBefore}
-                                    <input autofocus on:input={handleGuessInput} maxlength={targetWord.length} class="hint-inline-input" placeholder={targetPlaceholder} type="text" />
-                                {/if}
+                            <div class="hint-number">
+                                #{hintIdx + 1}
                             </div>
-                            {#if hint.inputting && !hint.guess}
-                                <div class="buttons">
+                            <div class="hint-value">
+                                {#if hint.targetBefore && hint.guess}
+                                    <span class="guess">{hint.guess}</span>
+                                {:else if hint.targetBefore && hint.expanded && !hint.completed}
                                     <input 
                                         autofocus
-                                        type=text 
-                                        placeholder="enter your guess" 
-                                        on:change={(e) => {hint.guess = e.target.value; hint.completed = true}}
-                                    >
-                                </div>
-                            {:else if !hint.completed}
-                                <div class="buttons">
-                                    <button on:click={() => hint.inputting = true}>Guess</button>
-                                    <button on:click={() => {hint.completed = true; hint.guess = "<no guess>"}}>Next</button>
-                                </div>
-                            {/if}
-                            {#if hint.guess}
-                                <p class:correct={isCorrect(hint.guess)}>{hint.guess}</p>
-                            {/if}
+                                        style={`width: ${tlen}ch; overflow: visible; padding-left: 2rem`}
+                                        on:submit={(e) => hintDone(hintIdx, e.target.value)}
+                                        maxlength={targetWord.length}
+                                        class="hint-inline-input"
+                                        placeholder={targetPlaceholder}
+                                        type="text" 
+                                    />
+                                {/if}
+                                    <span class="value">
+                                    {
+                                        (hint.targetBefore ? ' '.repeat(hint.targetHintGap) : '')
+                                        + hint.value + 
+                                        (!hint.targetBefore ? ' '.repeat(hint.targetHintGap) : '')
+                                    }
+                                    </span>
+                                {#if !hint.targetBefore && hint.guess}
+                                    <span class="guess">{hint.guess}</span>
+                                {:else if !hint.targetBefore && hint.expanded && !hint.completed}
+                                    <input 
+                                        autofocus
+                                        style={`width: ${tlen}ch; overflow: visible; padding-right: 2rem`}
+                                        on:submit={(e) => hintDone(hintIdx, e.target.value)}
+                                        maxlength={targetWord.length}
+                                        class="hint-inline-input"
+                                        placeholder={targetPlaceholder}
+                                        type="text" 
+                                    />
+                                {/if}
+                            </div>
                         </div>
                         <div class="front">
-                            <h3>{hintIdx == currentHint ? "Click to Reveal" : ""}</h3>
+                            <h3>Hint #{hintIdx + 1}</h3>
                         </div>
                     </button>
                 {/each}
@@ -315,7 +323,7 @@
         width: 70%;
         max-height: 90%;
         padding: 3rem 4rem;
-        overflow: scroll;
+        overflow-y: auto;
     }
 
     @media (max-aspect-ratio: 1/1.5) {
@@ -578,26 +586,43 @@
         text-transform: lowercase;
     }
 
+    .hint-number {
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin: 1rem;
+        font-size: 100%;
+    }
+
     .strike {
         text-decoration: line-through;
     }
 
     .back .hint-value {
         font-size: 2rem;
-    }
-
-    .back .hint-value span {
         display: flex;
         justify-content: center;
+    }
+
+    .back .hint-value .value {
         font-weight: bold;
-        margin: 0;
+        align-self: center;
+        /* https://www.mattstobbs.com/flexbox-removing-trailing-whitespace */
+        white-space: pre-wrap;
+    }
+
+    .back .hint-value .guess {
+        align-self: center;
+        text-decoration: line-through;
     }
 
     .back .hint-inline-input {
-        text-decoration: underline;
-        margin: 0;
+        padding: 0;
+        align-self: center;
         outline: none;
+        border: none;
         display: inline;
+        text-transform: uppercase;
     }
 
     .back > p {
