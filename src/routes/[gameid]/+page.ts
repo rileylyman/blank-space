@@ -1,11 +1,12 @@
 import PocketBase from 'pocketbase';
 const pb = new PocketBase('https://pb.beeblegame.com');
 
-
 export const load = async ({ params, fetch }) => {
-    const games = await pb.collection('blankspace').getFullList(100);
-
-    const game = games.find((g) => g.id === params.gameid);
+    let game = undefined;
+    try {
+        game = await pb.collection('blankspace').getFirstListItem(`id = "${params.gameid}"`, {fetch});
+    } catch (err) {
+    }
 
     return {
         found: game !== undefined,

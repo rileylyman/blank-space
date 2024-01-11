@@ -1,13 +1,25 @@
 <script lang="ts">
+    import { redirect } from '@sveltejs/kit';
+
     interface Hint {
         value: string;
+        targetBefore: boolean;
+        targetHintGap: number;
         guess: string;
         expanded: boolean;
         completed: boolean;
         inputting: boolean;
     }
 
+    enum GameMode {
+        Easy,
+        Medium,
+        Hard,
+    }
+    let gameMode = GameMode.Easy;
+
     export let data;
+    let easyMode = false;
     let rulesRead = false;
     let won = false;
     let targetWord = data.found ? data!.game!.target.toLowerCase().trim() : "";
@@ -17,9 +29,19 @@
         data!.game!.hint3,
         data!.game!.hint4,
     ];
-    let hints: Hint[] = rawHints.map((raw) => { 
+    let homeLink = "/games";
+    $: hints = rawHints.map((raw) => { 
+        const value = raw.toLowerCase().replace(targetWord, '').trim();
+        const hintLoc = raw.indexOf(value); 
+        const targetLoc = raw.indexOf(targetWord); // TODO: check if target is actually in
+        const targetBefore = targetLoc < hintLoc;
+        const targetHintGap = targetBefore 
+            ? hintLoc - targetLoc + targetWord.length
+            : targetLoc - hintLoc + value.length;
         return {
-            value: raw.toLowerCase().replace(targetWord, '').trim(), 
+            value,
+            targetBefore,
+            targetHintGap,
             guess: "", 
             expanded: false, 
             completed: false, 
@@ -30,6 +52,7 @@
         raw.toUpperCase()
             .replace(targetWord.toUpperCase(), `<em><b>${targetWord.toUpperCase()}</b></em>`)
     );
+    $: targetPlaceholder = "*".repeat(targetWord.length);
     $: guesses = hints.map((hint) => hint.guess);
     $: remainingHints = hints.filter((hint) => !hint.guess);
     $: currentHint = hints.findIndex((hint) => !hint.completed);
@@ -59,30 +82,44 @@
         if (hintIdx == 3) return " for a respectable 2 stars."
         if (hintIdx == 4 || hintIdx == -1) return " and earned 1 star."
     }
+
+    const handleGuessInput = (event: InputEvent) => {
+        if (!event.target) return;
+        let e: HTMLInputElement = event.target;
+        if (!e.value) {
+            e.style.width = `${targetWord.length}ch`;
+        } else {
+            e.style.width = `${e.value.length}ch`;
+        }
+    }
 </script>
 
-<div id="root-container">
-        <div class="hints" 
-            class:any-expand={anyExpanded}
-            class:expand-1={hints[0].expanded && !hints[0].completed}
-            class:retract-1={hints[0].completed && !hints[1].expanded}
-            class:expand-2={hints[1].expanded && !hints[1].completed}
-            class:retract-2={hints[1].completed && !hints[2].expanded}
-            class:expand-3={hints[2].expanded && !hints[2].completed}
-            class:retract-3={hints[2].completed && !hints[3].expanded}
-            class:expand-4={hints[3].expanded && !hints[3].completed}
-            class:retract-4={hints[3].completed}
-        >
-            {#each hints as hint, hintIdx}
-                <button 
-                    class="hint" 
-                    class:revealed={hint.expanded}
-                    class:fade-away={anyExpanded && (!hint.expanded || hint.completed)}
-                    on:click={hintClicked(hintIdx)}
-                >
-                    <div class="back">
-                        {#if !hint.completed}
-                            <div class="previous">
+{#if data.found}
+    <div id="root-container">
+            <div class="hints" 
+                class:any-expand={anyExpanded}
+                class:expand-1={hints[0].expanded && !hints[0].completed}
+                class:retract-1={hints[0].completed && !hints[1].expanded}
+                class:expand-2={hints[1].expanded && !hints[1].completed}
+                class:retract-2={hints[1].completed && !hints[2].expanded}
+                class:expand-3={hints[2].expanded && !hints[2].completed}
+                class:retract-3={hints[2].completed && !hints[3].expanded}
+                class:expand-4={hints[3].expanded && !hints[3].completed}
+                class:retract-4={hints[3].completed}
+            >
+                {#each hints as hint, hintIdx}
+                    <button 
+                        class="hint" 
+                        class:revealed={hint.expanded}
+                        class:fade-away={anyExpanded && (!hint.expanded || hint.completed)}
+                        on:click={hintClicked(hintIdx)}
+                    >
+                        <div class="back">
+                            <div 
+                                class="previous" 
+                                class:show={hints[hintIdx].expanded && !hints[hintIdx].completed}
+                                class:force-hide={hints[hintIdx].completed}
+                            >
                                 {#each hints as prevHint, prevHintIdx}
                                     {#if prevHintIdx < hintIdx}
                                         <p>
@@ -92,138 +129,156 @@
                                     {/if}
                                 {/each}
                             </div>
-                        {/if}
-                        <h1>{hint.value}</h1>
-                        {#if hint.inputting && !hint.guess}
-                            <div class="buttons">
-                                <input 
-                                    autofocus
-                                    type=text 
-                                    placeholder="enter your guess" 
-                                    on:change={(e) => {hint.guess = e.target.value; hint.completed = true}}
-                                >
+                            <div class="hint-value">
+                                {#if hint.targetBefore}
+                                    <input autofocus on:input={handleGuessInput} maxlength={targetWord.length} class="hint-inline-input" placeholder={targetPlaceholder} type="text" />
+                                {/if}
+                                <span>
+                                    {
+                                        (hint.targetBefore ? ''.repeat(hint.targetHintGap) : '')
+                                        + hint.value + 
+                                        (!hint.targetBefore ? ''.repeat(hint.targetHintGap) : '')
+                                    }
+                                {#if !hint.targetBefore}
+                                    <input autofocus on:input={handleGuessInput} maxlength={targetWord.length} class="hint-inline-input" placeholder={targetPlaceholder} type="text" />
+                                {/if}
                             </div>
-                        {:else if !hint.completed}
-                            <div class="buttons">
-                                <button on:click={() => hint.inputting = true}>Guess</button>
-                                <button on:click={() => {hint.completed = true; hint.guess = "<no guess>"}}>Next</button>
-                            </div>
-                        {/if}
-                        {#if hint.guess}
-                            <p class:correct={isCorrect(hint.guess)}>{hint.guess}</p>
-                        {/if}
+                            {#if hint.inputting && !hint.guess}
+                                <div class="buttons">
+                                    <input 
+                                        autofocus
+                                        type=text 
+                                        placeholder="enter your guess" 
+                                        on:change={(e) => {hint.guess = e.target.value; hint.completed = true}}
+                                    >
+                                </div>
+                            {:else if !hint.completed}
+                                <div class="buttons">
+                                    <button on:click={() => hint.inputting = true}>Guess</button>
+                                    <button on:click={() => {hint.completed = true; hint.guess = "<no guess>"}}>Next</button>
+                                </div>
+                            {/if}
+                            {#if hint.guess}
+                                <p class:correct={isCorrect(hint.guess)}>{hint.guess}</p>
+                            {/if}
+                        </div>
+                        <div class="front">
+                            <h3>{hintIdx == currentHint ? "Click to Reveal" : ""}</h3>
+                        </div>
+                    </button>
+                {/each}
+            </div>
+        <div id="modal-container" class:hidden={rulesRead && !gameOver} class:strike={false}>
+            {#if !rulesRead}
+                <div id="modal">
+                    <h1>
+                        <b>Blank Space</b>
+                    </h1>
+                    <br/>
+                    <h2>
+                        How to Play
+                    </h2>
+                    <br/>
+                    <p>
+                        Your goal is to discover the elusive <em><b>TARGET WORD</b></em> using a
+                        series of clues. Each clue can form a compound word or a
+                        short phrase with the <em><b>TARGET WORD</b></em>.
+
+                        <br/>
+                        <br/>
+                        
+                        For instance, if the
+                        <em><b>TARGET WORD</b></em> is "space," possible clues are "blank ____,"
+                        "____ cadet," or "____-time continuum." It's important to
+                        remember that the <em><b>TARGET WORD</b></em> will always be at the
+                        beginning or end of the phrase, never in the middle.
+                    </p>
+                    <br/>
+                    <h2>
+                        Scoring
+                    </h2>
+                    <br/>
+                    <p>
+                        You score points based on how quickly you identify the
+                        <em><b>TARGET WORD</b></em>. Guessing correctly on the first clue earns you 10
+                        points, the second clue gets you 5 points, the third 3 points,
+                        and the fourth 1 point.
+                    </p>
+
+                    <br/>
+                    <div class="buttons">
+                        <button on:click={() => rulesRead = true}>Play</button>
+                        <button on:click={() => {rulesRead = true; easyMode = true;}}>Play Easy-Mode</button>
                     </div>
-                    <div class="front">
-                        <h3>{hintIdx == currentHint ? "Click to Reveal" : ""}</h3>
-                    </div>
-                </button>
-            {/each}
+                </div>
+            {:else if gameOver && !won}
+                <div id="modal">
+                    <h1>You Lost</h1>
+                    <br/>
+                    <p>The correct word was <em><b>{targetWord.toUpperCase()}</b></em>. </p>
+                    <br />
+                    <h2>Hints </h2>
+                    <ul>
+                    {#each formattedHints as hint}
+                        <li> 
+                            {@html hint}
+                        </li>
+                    {/each}
+                    </ul>
+                    <br/>
+                    <h2>Your Guesses </h2>
+                    <ul>
+                    {#each guesses as guess}
+                        {#if guess}
+                            <li> 
+                                {guess.toUpperCase()}
+                            </li>
+                        {/if}
+                    {/each}
+                    </ul>
+                    <br/>
+                    <a href={homeLink}>Go Home</a>
+                </div>
+            {:else if gameOver}
+                <div id="modal">
+                    <h1>You Won!</h1>
+                    <br/>
+                    <p>You guessed <em><b>{targetWord.toUpperCase()}</b></em> {hintString(currentHint)}</p>
+                    <br />
+                    <h2> Points </h2>
+                    <br/>
+                    <p>
+                        You left {remainingHints.length} hints remaining{scoreString(currentHint)}
+                    </p>
+                    <br/>
+                    <h2>Hints </h2>
+                    <ul>
+                    {#each formattedHints as hint}
+                        <li> 
+                            {@html hint}
+                        </li>
+                    {/each}
+                    </ul>
+                    <br/>
+                    <h2>Your Guesses </h2>
+                    <ul>
+                    {#each guesses as guess}
+                        {#if guess}
+                            <li> 
+                                {guess.toUpperCase()}
+                            </li>
+                        {/if}
+                    {/each}
+                    </ul>
+                    <br/>
+                    <a href={homeLink}>Go Home</a>
+                </div>
+            {/if}
         </div>
-    <div id="modal-container" class:hidden={rulesRead && !gameOver} class:strike={false}>
-        {#if !rulesRead}
-            <div id="modal">
-                <h1>
-                    <b>Blank Space</b>
-                </h1>
-                <br/>
-                <h2>
-                    How to Play
-                </h2>
-                <br/>
-                <p>
-                    Your goal is to discover the elusive <em><b>TARGET WORD</b></em> using a
-                    series of clues. Each clue can form a compound word or a
-                    short phrase with the <em><b>TARGET WORD</b></em>.
-
-                    <br/>
-                    <br/>
-                    
-                    For instance, if the
-                    <em><b>TARGET WORD</b></em> is "space," possible clues are "blank ____,"
-                    "____ cadet," or "____-time continuum." It's important to
-                    remember that the <em><b>TARGET WORD</b></em> will always be at the
-                    beginning or end of the phrase, never in the middle.
-                </p>
-                <br/>
-                <h2>
-                    Scoring
-                </h2>
-                <br/>
-                <p>
-                    You score points based on how quickly you identify the
-                    <em><b>TARGET WORD</b></em>. Guessing correctly on the first clue earns you 10
-                    points, the second clue gets you 5 points, the third 3 points,
-                    and the fourth 1 point.
-                </p>
-
-                <br/>
-                <button on:click={() => rulesRead = true}>Play</button>
-            </div>
-        {:else if gameOver && !won}
-            <div id="modal">
-                <h1>You Lost</h1>
-                <br/>
-                <p>The correct word was <em><b>{targetWord.toUpperCase()}</b></em>. </p>
-                <br />
-                <h2>Hints </h2>
-                <ul>
-                {#each formattedHints as hint}
-                    <li> 
-                        {@html hint}
-                    </li>
-                {/each}
-                </ul>
-                <br/>
-                <h2>Your Guesses </h2>
-                <ul>
-                {#each guesses as guess}
-                    {#if guess}
-                        <li> 
-                            {guess.toUpperCase()}
-                        </li>
-                    {/if}
-                {/each}
-                </ul>
-                <br/>
-                <button on:click={() => window.location = window.location.pathname}>Go Home</button>
-            </div>
-        {:else if gameOver}
-            <div id="modal">
-                <h1>You Won!</h1>
-                <br/>
-                <p>You guessed <em><b>{targetWord.toUpperCase()}</b></em> {hintString(currentHint)}</p>
-                <br />
-                <h2> Points </h2>
-                <br/>
-                <p>
-                    You left {remainingHints.length} hints remaining{scoreString(currentHint)}
-                </p>
-                <br/>
-                <h2>Hints </h2>
-                <ul>
-                {#each formattedHints as hint}
-                    <li> 
-                        {@html hint}
-                    </li>
-                {/each}
-                </ul>
-                <br/>
-                <h2>Your Guesses </h2>
-                <ul>
-                {#each guesses as guess}
-                    {#if guess}
-                        <li> 
-                            {guess.toUpperCase()}
-                        </li>
-                    {/if}
-                {/each}
-                </ul>
-                <br/>
-                <button on:click={() => window.location = window.location.pathname}>Go Home</button>
-            </div>
-        {/if}
     </div>
-</div>
+{:else}
+    <h1> Game not found </h1>
+{/if}
 
 <style>
     :root {
@@ -282,18 +337,27 @@
         font-size: 3rem;
     }
 
-    #modal > button {
+    #modal > .buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    #modal a, #modal button {
         display: block;
-        margin: 3rem auto 0 auto;
-        width: 10rem;
+        width: 25%;
+        margin: 0 1rem 0 1rem;
         text-align: center;
         background: white;
         border: 1px solid black;
         border-radius: 0.5rem;
         font-size: 1.5rem;
+        color: black;
+        text-decoration: none;
     }
 
-    #modal > button:hover {
+    #modal a:hover, #modal button:hover {
         background: #f0f0f0;
         cursor: pointer;
     }
@@ -490,6 +554,18 @@
         left: 0;
         padding: 1rem 2rem;
         text-align: left;
+        opacity: 0;
+        transition: opacity 2s;
+        transition-delay: 1.5s;
+    }
+
+    .previous.show {
+        opacity: 1;
+    }
+
+    .previous.force-hide {
+        opacity: 0;
+        transition: none;
     }
 
     .previous .hint-value {
@@ -504,6 +580,24 @@
 
     .strike {
         text-decoration: line-through;
+    }
+
+    .back .hint-value {
+        font-size: 2rem;
+    }
+
+    .back .hint-value span {
+        display: flex;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .back .hint-inline-input {
+        text-decoration: underline;
+        margin: 0;
+        outline: none;
+        display: inline;
     }
 
     .back > p {
@@ -533,7 +627,7 @@
         cursor: pointer;
     }
 
-    .back input, .back input:focus {
+    .back .buttons input, .back .buttons input:focus {
         border: 1px solid black;
         border-radius: 0.5rem;
         height: 4rem;
@@ -541,7 +635,7 @@
         text-transform: lowercase;
     }
 
-    .back input:focus {
+    .back .buttons input:focus {
         outline: none;
     }
 
