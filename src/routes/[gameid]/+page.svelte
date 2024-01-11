@@ -141,7 +141,7 @@
                                     <input 
                                         autofocus
                                         style={`width: ${tlen}ch; overflow: visible; padding-left: 2rem`}
-                                        on:submit={(e) => hintDone(hintIdx, e.target.value)}
+                                        on:change={(e) => hintDone(hintIdx, e.target.value)}
                                         maxlength={targetWord.length}
                                         class="hint-inline-input"
                                         placeholder={targetPlaceholder}
@@ -161,7 +161,7 @@
                                     <input 
                                         autofocus
                                         style={`width: ${tlen}ch; overflow: visible; padding-right: 2rem`}
-                                        on:submit={(e) => hintDone(hintIdx, e.target.value)}
+                                        on:change={(e) => hintDone(hintIdx, e.target.value)}
                                         maxlength={targetWord.length}
                                         class="hint-inline-input"
                                         placeholder={targetPlaceholder}
@@ -605,6 +605,7 @@
     }
 
     .back .hint-value .value {
+        font-size: 2rem;
         font-weight: bold;
         align-self: center;
         /* https://www.mattstobbs.com/flexbox-removing-trailing-whitespace */
@@ -612,11 +613,13 @@
     }
 
     .back .hint-value .guess {
+        font-size: 2rem;
         align-self: center;
         text-decoration: line-through;
     }
 
     .back .hint-inline-input {
+        font-size: 2rem;
         padding: 0;
         align-self: center;
         outline: none;
