@@ -23,6 +23,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"normalize.css": "^8.0.1",
 		"pocketbase": "^0.20.1"
 	}
 }

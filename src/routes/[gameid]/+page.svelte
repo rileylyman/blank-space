@@ -3,11 +3,20 @@
 
     interface Hint {
         value: string;
+        targetBefore: boolean;
+        targetHintGap: number;
         guess: string;
         expanded: boolean;
         completed: boolean;
         inputting: boolean;
     }
+
+    enum GameMode {
+        Easy,
+        Medium,
+        Hard,
+    }
+    let gameMode = GameMode.Easy;
 
     export let data;
     let easyMode = false;
@@ -22,8 +31,17 @@
     ];
     let homeLink = "/games";
     $: hints = rawHints.map((raw) => { 
+        const value = raw.toLowerCase().replace(targetWord, '').trim();
+        const hintLoc = raw.indexOf(value); 
+        const targetLoc = raw.indexOf(targetWord); // TODO: check if target is actually in
+        const targetBefore = targetLoc < hintLoc;
+        const targetHintGap = targetBefore 
+            ? hintLoc - targetLoc + targetWord.length
+            : targetLoc - hintLoc + value.length;
         return {
-            value: raw.toLowerCase().replace(targetWord, easyMode ? '_'.repeat(targetWord.length) : '').trim(), 
+            value,
+            targetBefore,
+            targetHintGap,
             guess: "", 
             expanded: false, 
             completed: false, 
@@ -34,6 +52,7 @@
         raw.toUpperCase()
             .replace(targetWord.toUpperCase(), `<em><b>${targetWord.toUpperCase()}</b></em>`)
     );
+    $: targetPlaceholder = "*".repeat(targetWord.length);
     $: guesses = hints.map((hint) => hint.guess);
     $: remainingHints = hints.filter((hint) => !hint.guess);
     $: currentHint = hints.findIndex((hint) => !hint.completed);
@@ -64,9 +83,15 @@
         if (hintIdx == 4 || hintIdx == -1) return " and earned 1 star."
     }
 
-    const goHome = () => {
-        redirect(302, "/games");
-    };
+    const handleGuessInput = (event: InputEvent) => {
+        if (!event.target) return;
+        let e: HTMLInputElement = event.target;
+        if (!e.value) {
+            e.style.width = `${targetWord.length}ch`;
+        } else {
+            e.style.width = `${e.value.length}ch`;
+        }
+    }
 </script>
 
 {#if data.found}
@@ -104,7 +129,20 @@
                                     {/if}
                                 {/each}
                             </div>
-                            <h1>{hint.value}</h1>
+                            <div class="hint-value">
+                                {#if hint.targetBefore}
+                                    <input autofocus on:input={handleGuessInput} maxlength={targetWord.length} class="hint-inline-input" placeholder={targetPlaceholder} type="text" />
+                                {/if}
+                                <span>
+                                    {
+                                        (hint.targetBefore ? ''.repeat(hint.targetHintGap) : '')
+                                        + hint.value + 
+                                        (!hint.targetBefore ? ''.repeat(hint.targetHintGap) : '')
+                                    }
+                                {#if !hint.targetBefore}
+                                    <input autofocus on:input={handleGuessInput} maxlength={targetWord.length} class="hint-inline-input" placeholder={targetPlaceholder} type="text" />
+                                {/if}
+                            </div>
                             {#if hint.inputting && !hint.guess}
                                 <div class="buttons">
                                     <input 
@@ -544,6 +582,24 @@
         text-decoration: line-through;
     }
 
+    .back .hint-value {
+        font-size: 2rem;
+    }
+
+    .back .hint-value span {
+        display: flex;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .back .hint-inline-input {
+        text-decoration: underline;
+        margin: 0;
+        outline: none;
+        display: inline;
+    }
+
     .back > p {
         text-decoration: line-through;
         text-transform: lowercase;
@@ -571,7 +627,7 @@
         cursor: pointer;
     }
 
-    .back input, .back input:focus {
+    .back .buttons input, .back .buttons input:focus {
         border: 1px solid black;
         border-radius: 0.5rem;
         height: 4rem;
@@ -579,7 +635,7 @@
         text-transform: lowercase;
     }
 
-    .back input:focus {
+    .back .buttons input:focus {
         outline: none;
     }
 
