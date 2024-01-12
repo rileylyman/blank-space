@@ -1,5 +1,6 @@
 <script lang="ts">
     import { tick } from 'svelte';
+    import StartScreen from './StartScreen.svelte';
 
     interface Hint {
         value: string;
@@ -19,7 +20,7 @@
     let gameMode = GameMode.Easy;
 
     export let data;
-    let useAutoClick = true;
+    let useAutoClick = false;
     let easyMode = false;
     let rulesRead = false;
     let won = false;
@@ -178,47 +179,7 @@
             </div>
         <div id="modal-container" class:hidden={rulesRead && !gameOver} class:strike={false}>
             {#if !rulesRead}
-                <div id="modal">
-                    <h1>
-                        <b>Blank Space</b>
-                    </h1>
-                    <br/>
-                    <h2>
-                        How to Play
-                    </h2>
-                    <br/>
-                    <p>
-                        Your goal is to discover the elusive <em><b>TARGET WORD</b></em> using a
-                        series of clues. Each clue can form a compound word or a
-                        short phrase with the <em><b>TARGET WORD</b></em>.
-
-                        <br/>
-                        <br/>
-                        
-                        For instance, if the
-                        <em><b>TARGET WORD</b></em> is "space," possible clues are "blank ____,"
-                        "____ cadet," or "____-time continuum." It's important to
-                        remember that the <em><b>TARGET WORD</b></em> will always be at the
-                        beginning or end of the phrase, never in the middle.
-                    </p>
-                    <br/>
-                    <h2>
-                        Scoring
-                    </h2>
-                    <br/>
-                    <p>
-                        You score points based on how quickly you identify the
-                        <em><b>TARGET WORD</b></em>. Guessing correctly on the first clue earns you 10
-                        points, the second clue gets you 5 points, the third 3 points,
-                        and the fourth 1 point.
-                    </p>
-
-                    <br/>
-                    <div class="buttons">
-                        <button on:click={() => rulesRead = true}>Play</button>
-                        <button on:click={() => {rulesRead = true; easyMode = true;}}>Play Easy-Mode</button>
-                    </div>
-                </div>
+                <StartScreen on:play={() => rulesRead = true}/>
             {:else if gameOver && !won}
                 <div id="modal">
                     <h1>You Lost</h1>
@@ -327,12 +288,14 @@
     }
 
     @media (max-aspect-ratio: 1/1.5) {
+        #modal-container {
+            background: white;
+        }
+
         #modal {
+            width: auto;
             border: none;
-            width: 100%;
-            height: 100%;
-            max-height: 100%;
-            padding: 1rem 2rem;
+            padding: 0 1rem;
         }
     }
 
@@ -514,7 +477,7 @@
     .hint {
         all: unset;
         display: block;
-        font-size: max(2vh, 2vw, 1rem);
+        font-size: 2rem;
         text-transform: uppercase;
         position: relative;
         text-align: center;
@@ -591,7 +554,7 @@
         right: 0;
         top: 0;
         margin: 1rem;
-        font-size: 100%;
+        font-size: 2rem;
     }
 
     .strike {

@@ -1,0 +1,41 @@
+button {
+    background: none;
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    text-align: left;
+    line-height: normal;
+    overflow: visible;
+}
+
+button:focus {
+    outline: none;
+}
+
+button,
+.button {
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    margin: 0 1rem;
+    width: 50%;
+    max-width: 30rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+    background: lightgrey;
+}
+
+button:focus,
+.button:focus {
+    background: light-grey;
+}
