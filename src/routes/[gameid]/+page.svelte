@@ -20,7 +20,7 @@
     let gameMode = GameMode.Easy;
 
     export let data;
-    let useAutoClick = false;
+    let useAutoClick = true;
     let easyMode = false;
     let rulesRead = false;
     let won = false;
