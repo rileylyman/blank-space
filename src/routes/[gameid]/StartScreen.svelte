@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="button-container">
-            <button on:click={() => dispatch('play')}> Play </button>
+            <button class="button" on:click={() => dispatch('play')}> Play </button>
             <a class="button" href="#rules"> See Rules </a>
         </div>
     </div>
@@ -137,6 +137,10 @@
         display: flex;
         width: 100%;
         justify-content: center; 
+    }
+
+    #main .button-container .button {
+        flex-basis: 100%;
     }
 
     #rules {

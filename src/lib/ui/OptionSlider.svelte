@@ -3,7 +3,7 @@
     export let optionIdx = 0;
 </script>
 
-<div id="root" style={`grid-template-columns: repeat(${options.length}, 1fr)`}>
+<div id="root" style={`grid-template-columns: repeat(${options.length}, minmax(0, 1fr))`}>
     {#each options as option, idx}
         <button class="option" on:click={() => optionIdx = idx}>
             {option}
