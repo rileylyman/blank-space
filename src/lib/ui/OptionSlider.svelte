@@ -47,4 +47,12 @@
         transition: grid-column 1s;
         font-weight: bold;
     }
+
+    .overlapper:hover {
+        background: white;
+    }
+
+    button {
+        border: none;
+    }
 </style>
