@@ -25,15 +25,15 @@
     let won = false;
     let targetWord = data.found ? data!.game!.target.toLowerCase().trim() : "";
     let rawHints = !data.found ? [] : [
-        data!.game!.hint1, 
-        data!.game!.hint2,
-        data!.game!.hint3,
-        data!.game!.hint4,
+        data!.game!.hint1.toLowerCase(), 
+        data!.game!.hint2.toLowerCase(),
+        data!.game!.hint3.toLowerCase(),
+        data!.game!.hint4.toLowerCase(),
     ];
     let homeLink = "/games";
     const autoClickDelay = 750;
     $: hints = rawHints.map((raw) => { 
-        const value = raw.toLowerCase().replace(targetWord, '').trim();
+        const value = raw.replace(targetWord, '').trim();
         const hintLoc = raw.indexOf(value); 
         const targetLoc = raw.indexOf(targetWord); // TODO: check if target is actually in
         const targetBefore = targetLoc < hintLoc;
@@ -140,7 +140,7 @@
                                 {:else if hint.targetBefore && hint.expanded && !hint.completed}
                                     <input 
                                         autofocus
-                                        style={`width: ${tlen}ch; overflow: visible; padding-left: 2rem`}
+                                        style={`width: ${tlen}ch`}
                                         on:change={(e) => hintDone(hintIdx, e.target.value)}
                                         maxlength={targetWord.length}
                                         class="hint-inline-input"
@@ -160,7 +160,7 @@
                                 {:else if !hint.targetBefore && hint.expanded && !hint.completed}
                                     <input 
                                         autofocus
-                                        style={`width: ${tlen}ch; overflow: visible; padding-right: 2rem`}
+                                        style={`width: ${tlen}ch`}
                                         on:change={(e) => hintDone(hintIdx, e.target.value)}
                                         maxlength={targetWord.length}
                                         class="hint-inline-input"
@@ -602,6 +602,7 @@
         font-size: 2rem;
         display: flex;
         justify-content: center;
+        font-family: 'Source Code Pro', 'Fira Sans', sans-serif;
     }
 
     .back .hint-value .value {
