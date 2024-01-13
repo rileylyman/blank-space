@@ -93,12 +93,20 @@
         place-self: stretch;
         display: grid;
         place-items: center;
+        text-transform: uppercase;
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        letter-spacing: 0.5rem;
+        transform: translateX(-0.2rem);
     }
 
     .header h3 {
         position: absolute;
         bottom: 10%;
         transform: translateX(0.25rem);
+        text-transform: lowercase;
     }
 
     .header .left {
