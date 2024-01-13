@@ -23,7 +23,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fortawesome/free-solid-svg-icons": "^6.5.1",
 		"normalize.css": "^8.0.1",
-		"pocketbase": "^0.20.1"
+		"pocketbase": "^0.20.1",
+		"svelte-fa": "^4.0.1"
 	}
 }

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Fa from 'svelte-fa';
+    import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
     import OptionSlider from '$lib/ui/OptionSlider.svelte';
     let collapse = false;
     let showContent = false;
@@ -14,6 +16,9 @@
 <div class="root" class:collapse style="transition: grid-template-rows {collapseDurationMs}ms">
     <div class="header" on:click={startCollapse}>
         <h1> <span class="left"> Blank </span> Space </h1>
+        {#if !collapse}
+            <h3> <span class="left">Slappy</span> Studios</h3>
+        {/if}
     </div>
 
     <div class="game-mode">
@@ -25,27 +30,27 @@
 
     <div class="play-button">
         {#if showContent}
-            <button>
+            <a href="/games">
                 Play
-            </button>
+            </a>
         {/if}
     </div>
 
     <div class="settings">
         {#if showContent}
-            Settings
+            <Fa icon={faSliders} size="2x" />
         {/if}
     </div>
 
     <div class="account">
         {#if showContent}
-            Account
+            <Fa icon={faUser} size="2x" />
         {/if}
     </div>
 
     <div class="rules">
         {#if showContent}
-            Rules
+            <Fa icon={faCircleInfo} size="2x" />
         {/if}
     </div>
 </div>
@@ -55,16 +60,8 @@
         font-family: 'Fira Sans', sans-serif;
     }
 
-    :global(html) {
-        height: 100%;
-    }
-
-    :global(body) {
-        height: 100%;
-        margin: 0;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background: black; 
+    :root {
+        background-color: black;
     }
 
     .root {
@@ -85,10 +82,11 @@
     }
 
     .root.collapse {
-        grid-template-rows: 0fr 1.5fr 2fr 2fr 1fr;
+        grid-template-rows: 0fr 1.5fr 1.5fr 2fr 0.5fr;
     }
 
     .header {
+        position: relative;
         grid-area: header;
         background: linear-gradient(to right, #000 0%, #000 50%, #fff 50%, #fff 100%);
         text-align: center;
@@ -97,7 +95,10 @@
         place-items: center;
     }
 
-    .root.collapse .header {
+    .header h3 {
+        position: absolute;
+        bottom: 10%;
+        transform: translateX(0.25rem);
     }
 
     .header .left {
@@ -115,7 +116,7 @@
         display: grid;
     }
 
-    .play-button button {
+    .play-button a {
         place-items: center;
         color: black;
         background: white;
@@ -124,6 +125,12 @@
         text-transform: uppercase;
         border-radius: 0.5rem;
         border: 1px solid black;
+        margin-bottom: 2rem;
+        text-decoration: none;
+    }
+
+    .play-button a:visited {
+        color: black;
     }
 
     .settings, .account, .rules {

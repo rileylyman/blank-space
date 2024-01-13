@@ -43,7 +43,7 @@
         background: black;
         color: white;
         border: 1px solid black;
-        border-radius: 1rem;
+        border-radius: 0.5rem;
         transition: grid-column 1s;
         font-weight: bold;
     }

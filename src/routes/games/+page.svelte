@@ -18,3 +18,9 @@
         <li><a href={getLink(game)}>{game.id}</a></li>
     {/each}
 </ul>
+
+<style>
+    :root {
+        background-color: white;
+    }
+</style>
