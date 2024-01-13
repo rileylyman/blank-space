@@ -20,7 +20,7 @@
     #root {
         display: grid;
         place-items: center;
-        background: lightgrey;
+        background: white;
         border: 1px solid black;
         position: relative;
     }
@@ -38,10 +38,10 @@
     .overlapper {
         width: 105%;
         height: 150%;
-        background: red;
         z-index: 1;
         position: absolute;
-        background: white;
+        background: black;
+        color: white;
         border: 1px solid black;
         border-radius: 1rem;
         transition: grid-column 1s;
