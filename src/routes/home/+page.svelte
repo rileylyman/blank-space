@@ -5,7 +5,7 @@
     let collapse = false;
     let showContent = false;
 
-    let collapseDurationMs = 2000;
+    let collapseDurationMs = 1500;
 
     const startCollapse = () => {
         collapse = true;
@@ -21,14 +21,14 @@
         {/if}
     </div>
 
-    <div class="game-mode">
+    <div class="game-mode" class:revealed={showContent}>
         {#if showContent}
             <h2> Game Mode </h2>
             <OptionSlider options={["Easy", "Medium", "Hard"]}/>
         {/if}
     </div>
 
-    <div class="play-button">
+    <div class="play-button" class:revealed={showContent}>
         {#if showContent}
             <a href="/games">
                 Play
@@ -36,19 +36,19 @@
         {/if}
     </div>
 
-    <div class="settings">
+    <div class="settings" class:revealed={showContent}>
         {#if showContent}
             <Fa icon={faSliders} size="2x" />
         {/if}
     </div>
 
-    <div class="account">
+    <div class="account" class:revealed={showContent}>
         {#if showContent}
             <Fa icon={faUser} size="2x" />
         {/if}
     </div>
 
-    <div class="rules">
+    <div class="rules" class:revealed={showContent}>
         {#if showContent}
             <Fa icon={faCircleInfo} size="2x" />
         {/if}
@@ -103,6 +103,15 @@
 
     .header .left {
         color: white;
+    }
+
+    .game-mode, .play-button, .settings, .account, .rules {
+        opacity: 0;
+        transition: opacity 1500ms ease-in-out;
+    }
+
+    .revealed {
+        opacity: 1;
     }
 
     .game-mode {
