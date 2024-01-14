@@ -2,57 +2,116 @@
     import Fa from 'svelte-fa';
     import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
     import OptionSlider from '$lib/ui/OptionSlider.svelte';
-    let collapse = false;
-    let showContent = false;
 
-    let collapseDurationMs = 1500;
-
-    const startCollapse = () => {
-        collapse = true;
-        setTimeout(() => showContent = true, collapseDurationMs);
+    enum State {
+        Start,
+        NormalRequested,
+        Normal,
+        SettingsRequested,
+        SettingsOpen
     }
+    let state = State.Start;
+    
+    let collapseDurationMs = 1500;
+    let fadeInDurationMs = 500; // Keep in sink with transition: opacity
+    const startCollapse = () => {
+        state = State.NormalRequested;
+        setTimeout(() => state = State.Normal, collapseDurationMs);
+    }
+
+    let selectedSetting = "";
+    const toggleOpenSettings = (setting: string) => () => {
+        selectedSetting = setting
+        if (state == State.Normal) {
+            state = State.SettingsRequested;
+            setTimeout(() => state = State.SettingsOpen, fadeInDurationMs);
+        } else if (state == State.SettingsOpen) {
+            state = State.NormalRequested;
+            setTimeout(() => state = State.Normal, collapseDurationMs);
+        }
+    }
+
+    $: rootCollapsed = [State.NormalRequested, State.Normal, State.SettingsRequested].includes(state);
+    $: rootOpenSettings = [State.SettingsOpen].includes(state);
+    $: headerRevealed = [State.Start, State.NormalRequested, State.Normal].includes(state);
+    $: headerContent = [State.Start, State.NormalRequested, State.Normal, State.SettingsRequested].includes(state);
+    $: headerSubContent = [State.Start].includes(state);
+    $: gameModeRevealed = [State.Normal].includes(state);
+    $: gameModeContent = [State.Normal, State.SettingsRequested].includes(state);
+    $: playButtonRevealed = [State.Normal].includes(state);
+    $: playButtonContent = [State.Normal, State.SettingsRequested].includes(state);
+    $: settingsRevealed = [State.Normal, State.SettingsRequested, State.SettingsOpen].includes(state);
+    $: settingsContent = [State.Normal, State.SettingsRequested, State.SettingsOpen].includes(state);
+    $: accountRevealed = settingsRevealed;
+    $: accountContent = settingsContent;
+    $: rulesRevealed = settingsRevealed;
+    $: rulesContent = settingsContent;
 </script>
 
-<div class="root" class:collapse style="transition: grid-template-rows {collapseDurationMs}ms">
-    <div class="header" on:click={startCollapse}>
-        <h1> <span class="left"> Blank </span> Space </h1>
-        {#if !collapse}
-            <h3> <span class="left">Slappy</span> Studios</h3>
+<div 
+    class="root" 
+    class:collapse={rootCollapsed} 
+    class:open-settings={rootOpenSettings}
+>
+    <div 
+        class="header" 
+        class:revealed={headerRevealed} 
+        on:click={startCollapse}
+    >
+        {#if headerContent}
+            <h1> <span class="left"> Blank </span> Space </h1>
+            {#if headerSubContent}
+                <h3> <span class="left">Slappy</span> Studios</h3>
+            {/if}
         {/if}
     </div>
 
-    <div class="game-mode" class:revealed={showContent}>
-        {#if showContent}
+    <div class="game-mode" class:revealed={gameModeRevealed}>
+        {#if gameModeContent}
             <h2> Game Mode </h2>
             <OptionSlider options={["Easy", "Medium", "Hard"]}/>
         {/if}
     </div>
 
-    <div class="play-button" class:revealed={showContent}>
-        {#if showContent}
+    <div class="play-button" class:revealed={playButtonRevealed}>
+        {#if playButtonContent}
             <a href="/games">
                 Play
             </a>
         {/if}
     </div>
 
-    <div class="settings" class:revealed={showContent}>
-        {#if showContent}
+    <button 
+        class="settings" 
+        class:revealed={settingsRevealed} 
+        class:selected={selectedSetting === "settings"}
+        on:click={toggleOpenSettings("settings")}>
+        {#if settingsContent}
             <Fa icon={faSliders} size="2x" />
         {/if}
-    </div>
+    </button>
 
-    <div class="account" class:revealed={showContent}>
-        {#if showContent}
+    <button 
+        class="account" 
+        class:revealed={accountRevealed}
+        class:selected={selectedSetting === "account"}
+        on:click={toggleOpenSettings("account")}
+    >
+        {#if accountContent}
             <Fa icon={faUser} size="2x" />
         {/if}
-    </div>
+    </button>
 
-    <div class="rules" class:revealed={showContent}>
-        {#if showContent}
+    <button 
+        class="rules" 
+        class:revealed={rulesRevealed}
+        class:selected={selectedSetting === "rules"}
+        on:click={toggleOpenSettings("rules")}
+    >
+        {#if rulesContent}
             <Fa icon={faCircleInfo} size="2x" />
         {/if}
-    </div>
+    </button>
 </div>
 
 <style>
@@ -83,6 +142,12 @@
 
     .root.collapse {
         grid-template-rows: 0fr 1.5fr 1.5fr 2fr 0.5fr;
+        transition: grid-template-rows 1500ms;
+    }
+
+    .root.open-settings {
+        grid-template-rows: 0fr 0fr 0fr 0fr 1fr;
+        transition: grid-template-rows 500ms;
     }
 
     .header {
@@ -113,9 +178,9 @@
         color: white;
     }
 
-    .game-mode, .play-button, .settings, .account, .rules {
+    .header, .game-mode, .play-button, .settings, .account, .rules {
         opacity: 0;
-        transition: opacity 1500ms ease-in-out;
+        transition: opacity 500ms ease-in-out;
     }
 
     .revealed {
@@ -154,6 +219,15 @@
         display: grid;
         place-items: center;
         place-self: stretch;
+        border: none;
+        outline: none;
+        padding: 0;
+        background: white;
+    }
+
+    .settings.selected, .account.selected, .rules.selected {
+        background: black;
+        color: white;
     }
 
     .settings {
