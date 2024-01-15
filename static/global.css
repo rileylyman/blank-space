@@ -1,3 +1,7 @@
+html,
+body {
+    font-family: 'Fira Sans', sans-serif;
+}
 /* Styling the scrollbar track (background) */
 ::-webkit-scrollbar {
     width: 12px;
