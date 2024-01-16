@@ -66,7 +66,7 @@
         margin: 0 auto;
     }
 
-    a, button {
+    button {
         text-decoration: none;
         outline: none;
         border: none;

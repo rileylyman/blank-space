@@ -1,11 +1,11 @@
 <script lang="ts">
     import { State } from '$lib/loginstate';
-    import { page } from '$app/stores';
 
     let error = "";
     let allowPasswordReset = true;
     $: welcomeMessage = state == State.LogIn ? 'Welcome Back' : 'Create your account';
 
+    export let data;
     export let form;
     let state = form?.state ?? State.Prompt;
     $: errors = form?.errors?.filter(err => err.v).map(err => {
@@ -18,11 +18,23 @@
 <div id="root">
     <h1> Slappy Games </h1>
     {#if state == State.Prompt}
-        <div class="login">
-            <button on:click={() => state = State.LogIn}>Log in</button>
-            <button on:click={() => state = State.SignUp}>Sign up</button>
-            <button style="margin-top: 2rem"> Continue as guest </button>
-        </div>
+        {#if data.user.loggedIn}
+            <h2> Welcome back, {data.user.username}! </h2>
+            <div class="login">
+                <form action="?/redirect_me" method="POST">
+                    <button type="submit">Log back in</button>
+                </form>
+                <form action="?/logout" method="POST">
+                    <button type="submit">Sign out</button>
+                </form>
+            </div>
+        {:else}
+            <div class="login">
+                <button on:click={() => state = State.LogIn}>Log in</button>
+                <button on:click={() => state = State.SignUp}>Sign up</button>
+                <button style="margin-top: 2rem"> Continue as guest </button>
+            </div>
+        {/if}
     {:else if state == State.PasswordReset}
         <div class="login">
             <h2> Password reset </h2>
@@ -41,6 +53,12 @@
 
                     <label for="password"> password </label>
                     <input id="password" name="password" type="password" autocomplete="current-password"/>
+
+                    <ul>
+                        {#each errors as e}
+                            <li>{e}</li>
+                        {/each}
+                    </ul>
 
                     <button style="margin-top: 3rem" type="submit">Submit</button>
                     <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>

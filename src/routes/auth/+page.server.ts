@@ -1,15 +1,44 @@
 import { type RequestEvent, redirect, fail } from '@sveltejs/kit';
 import { State } from '$lib/loginstate';
-import PocketBase from 'pocketbase';
+
+const redirectMe = async (event: RequestEvent) => {
+    const cookies = event.request.headers.get('cookie')?.split(';');
+    console.log(cookies);
+    let wantRedirect = '/';
+    if (cookies) {
+        for (let cookie of cookies) {
+            const [key, value] = cookie.split('=');
+            if (key.trim() === 'wants_redirect') {
+                wantRedirect = decodeURIComponent(value.trim());
+                break;
+            }
+        }
+    }
+    console.log(`redirecting to "${wantRedirect}"`)
+
+    event.cookies.delete('wants_redirect', { path: '/auth'});
+    redirect(302, wantRedirect);
+}
 
 export const actions = {
     login: async (event: RequestEvent) => {
-        const form = await event.request.formData();
-        let state = State.LogIn;
+        const {
+            email,
+            password,
+        } = Object.fromEntries(await event.request.formData());
+        let ret = {
+            state: State.LogIn,
+            email,
+        };
 
-        return {
-            state,
+        try {
+            await event.locals.pb.collection('users').authWithPassword(email, password);
+        } catch (err) {
+            ret.errors = [{ k: 'Error', v: 'incorrect email or password' }];
+            return ret;
         }
+
+        await redirectMe(event);
     },
     register: async (event: RequestEvent) => {
         const { 
@@ -47,21 +76,8 @@ export const actions = {
 
         redirect(302, '/auth/verify?stage=wait');
     },
-    redirect_me: async (event: RequestEvent) => {
-        const cookies = event.request.headers.get('cookie')?.split(';');
-        console.log(cookies);
-        let wantRedirect = '/';
-        if (cookies) {
-            for (let cookie of cookies) {
-                const [key, value] = cookie.split('=');
-                if (key.trim() === 'wants_redirect') {
-                    wantRedirect = decodeURIComponent(value.trim());
-                    break;
-                }
-            }
-        }
-        console.log(`redirecting to "${wantRedirect}"`)
-
-        redirect(302, wantRedirect);
-    }
+    logout: async (event: RequestEvent) => {
+        event.locals.pb.authStore.clear();
+    },
+    redirect_me: redirectMe,
 }
