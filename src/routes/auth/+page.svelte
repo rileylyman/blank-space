@@ -6,10 +6,8 @@
     let allowPasswordReset = true;
     $: welcomeMessage = state == State.LogIn ? 'Welcome Back' : 'Create your account';
 
-
     export let form;
     let state = form?.state ?? State.Prompt;
-    let redirectTo = form?.redirectTo ?? $page.url.searchParams.get('redirectTo');
     $: errors = form?.errors?.filter(err => err.v).map(err => {
         if (!err.v) return null;
         return `${err.k}: ${err.v}`;
@@ -44,8 +42,6 @@
                     <label for="password"> password </label>
                     <input id="password" name="password" type="password" autocomplete="current-password"/>
 
-                    <input type="hidden" name="redirectTo" value={redirectTo}>
-
                     <button style="margin-top: 3rem" type="submit">Submit</button>
                     <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>
                 </form>
@@ -62,8 +58,6 @@
 
                     <label for="password-confirm"> confirm password </label>
                     <input id="password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" />
-
-                    <input type="hidden" name="redirectTo" value={redirectTo}>
 
                     <ul>
                         {#each errors as e}

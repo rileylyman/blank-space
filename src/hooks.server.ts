@@ -12,9 +12,14 @@ export const handle = async ({event, resolve}) => {
     }
     event.locals.pb = pb;
 
-    // if (!pb.authStore.isValid && !event.url.pathname.startsWith('/auth')) {
-    //     return redirect(302, `/auth?return=${event.url.pathname}`);
-    // }
+    if (!pb.authStore.isValid && !event.url.pathname.startsWith('/auth')) {
+        event.cookies.set('wants_redirect', event.url.pathname, {
+            httpOnly: true,
+            secure: true,
+            path: '/auth',
+        });
+        return redirect(302, `/auth`);
+    }
 
     const response = await resolve(event);
 

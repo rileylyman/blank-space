@@ -5,13 +5,10 @@ import PocketBase from 'pocketbase';
 export const actions = {
     login: async (event: RequestEvent) => {
         const form = await event.request.formData();
-        const redirectTo = form.get('redirectTo');
-        console.log(redirectTo);
         let state = State.LogIn;
 
         return {
             state,
-            redirectTo,
         }
     },
     register: async (event: RequestEvent) => {
@@ -20,26 +17,24 @@ export const actions = {
             email, 
             password, 
             passwordConfirm, 
-            redirectTo 
         } = Object.fromEntries(await event.request.formData());
         let ret = {
             state: State.SignUp,
-            redirectTo,
             email,
             username,
         };
 
-        const pb = new PocketBase('https://pb.slappygames.com');
         try {
-            await pb.collection('users').create({
+            await event.locals.pb.collection('users').create({
                 username,
                 email,
-                emailVisibility: false,
+                emailVisibility: true,
                 password,
                 passwordConfirm,
                 verified: false,
             });
-            await pb.collection('users').requestVerification(email);
+            await event.locals.pb.collection('users').requestVerification(email);
+            await event.locals.pb.collection('users').authWithPassword(email, password);
         } catch (err) {
             ret.errors = [
                 { k: 'Username', v: err.response.data.username?.message },
@@ -50,7 +45,23 @@ export const actions = {
             return fail(400, ret);
         }
 
-        const redirectLink = redirectTo ? `&redirectTo=${redirectTo}` : '';
-        redirect(302, `/auth/verify?stage=wait&email=${email}${redirectLink}`)
+        redirect(302, '/auth/verify?stage=wait');
     },
+    redirect_me: async (event: RequestEvent) => {
+        const cookies = event.request.headers.get('cookie')?.split(';');
+        console.log(cookies);
+        let wantRedirect = '/';
+        if (cookies) {
+            for (let cookie of cookies) {
+                const [key, value] = cookie.split('=');
+                if (key.trim() === 'wants_redirect') {
+                    wantRedirect = decodeURIComponent(value.trim());
+                    break;
+                }
+            }
+        }
+        console.log(`redirecting to "${wantRedirect}"`)
+
+        redirect(302, wantRedirect);
+    }
 }
