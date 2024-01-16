@@ -23,7 +23,7 @@
         <div class="login">
             <button on:click={() => state = State.LogIn}>Log in</button>
             <button on:click={() => state = State.SignUp}>Sign up</button>
-            <button> Continue as guest </button>
+            <button style="margin-top: 2rem"> Continue as guest </button>
         </div>
     {:else if state == State.PasswordReset}
         <div class="login">
@@ -46,7 +46,8 @@
 
                     <input type="hidden" name="redirectTo" value={redirectTo}>
 
-                    <button type="submit">Submit</button>
+                    <button style="margin-top: 3rem" type="submit">Submit</button>
+                    <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>
                 </form>
             {:else if state == State.SignUp}
                 <form action="?/register" method="POST">
@@ -71,6 +72,7 @@
                     </ul>
 
                     <button type="submit">Submit</button>
+                    <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>
                 </form>
             {/if}
             
@@ -99,11 +101,14 @@
         flex-direction: column;
         height: 100vh;
         height: 100svh;
+        max-height: 100vh;
         width: 100vw;
         align-items: center;
+        overflow: hidden;
     }
 
     h1 {
+        margin-top: 3rem;
         text-transform: uppercase;
     }
 
@@ -113,10 +118,6 @@
         align-self: center;
         width: 100%;
         align-items: center;
-    }
-    
-    .login button:last-child {
-        margin-top: 2rem;
     }
 
     button, input {

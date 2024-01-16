@@ -15,14 +15,23 @@ export const actions = {
         }
     },
     register: async (event: RequestEvent) => {
-        const {username, email, password, passwordConfirm, redirectTo } = Object.fromEntries(await event.request.formData());
-        console.log(email, password, passwordConfirm, redirectTo);
-        let state = State.SignUp;
+        const { 
+            username, 
+            email, 
+            password, 
+            passwordConfirm, 
+            redirectTo 
+        } = Object.fromEntries(await event.request.formData());
+        let ret = {
+            state: State.SignUp,
+            redirectTo,
+            email,
+            username,
+        };
 
         const pb = new PocketBase('https://pb.slappygames.com');
         try {
-            console.log("attempting to create");
-            const user = await pb.collection('users').create({
+            await pb.collection('users').create({
                 username,
                 email,
                 emailVisibility: false,
@@ -30,27 +39,18 @@ export const actions = {
                 passwordConfirm,
                 verified: false,
             });
-            console.log(user);
+            await pb.collection('users').requestVerification(email);
         } catch (err) {
-            console.log(err.response);
-            return fail(400, {
-                state, 
-                redirectTo,
-                email,
-                username,
-                errors: [
-                    { k: 'Username', v: err.response.data.username?.message },
-                    { k: 'Email', v: err.response.data.email?.message },
-                    { k: 'Password', v: err.response.data.password?.message },
-                    { k: 'Password', v: err.response.data.passwordConfirm?.message },
-                ]
-            });
+            ret.errors = [
+                { k: 'Username', v: err.response.data.username?.message },
+                { k: 'Email', v: err.response.data.email?.message },
+                { k: 'Password', v: err.response.data.password?.message },
+                { k: 'Password', v: err.response.data.passwordConfirm?.message },
+            ]
+            return fail(400, ret);
         }
 
-        return {
-            state,
-            email,
-            redirectTo,
-        }
+        const redirectLink = redirectTo ? `&redirectTo=${redirectTo}` : '';
+        redirect(302, `/auth/verify?stage=wait&email=${email}${redirectLink}`)
     },
 }
