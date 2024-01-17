@@ -8,11 +8,6 @@
     export let data;
     export let form;
     let state = form?.state ?? State.Prompt;
-    $: errors = form?.errors?.filter(err => err.v).map(err => {
-        if (!err.v) return null;
-        return `${err.k}: ${err.v}`;
-    }) ?? [];
-    console.log(form);
 </script>
 
 <div id="root">
@@ -55,7 +50,7 @@
                     <input id="password" name="password" type="password" autocomplete="current-password"/>
 
                     <ul>
-                        {#each errors as e}
+                        {#each form?.errors ?? [] as e}
                             <li>{e}</li>
                         {/each}
                     </ul>
@@ -78,7 +73,7 @@
                     <input id="password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" />
 
                     <ul>
-                        {#each errors as e}
+                        {#each form?.errors ?? [] as e}
                             <li>{e}</li>
                         {/each}
                     </ul>

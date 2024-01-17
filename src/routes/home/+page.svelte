@@ -53,7 +53,7 @@
     class:collapse={rootCollapsed} 
     class:open-settings={rootOpenSettings}
 >
-    <div 
+    <button 
         class="header" 
         class:revealed={headerRevealed} 
         on:click={startCollapse}
@@ -64,7 +64,7 @@
                 <h3> <span class="left">Slappy</span> Studios</h3>
             {/if}
         {/if}
-    </div>
+    </button>
 
     <div class="game-mode" class:revealed={gameModeRevealed}>
         {#if gameModeContent}
@@ -159,6 +159,8 @@
         display: grid;
         place-items: center;
         text-transform: uppercase;
+        outline: none;
+        border: none;
     }
 
     .header h1 {

@@ -97,6 +97,8 @@
     }
 </script>
 
+<!-- svelte-ignore a11y-autofocus -->
+
 {#if data.found}
     <div id="root-container">
             <div class="hints" 
@@ -142,7 +144,7 @@
                                     <input 
                                         autofocus
                                         style={`width: ${tlen}ch`}
-                                        on:change={(e) => hintDone(hintIdx, e.target.value)}
+                                        on:change={(e) => hintDone(hintIdx, e.currentTarget.value)}
                                         maxlength={targetWord.length}
                                         class="hint-inline-input"
                                         placeholder={targetPlaceholder}
@@ -162,7 +164,7 @@
                                     <input 
                                         autofocus
                                         style={`width: ${tlen}ch`}
-                                        on:change={(e) => hintDone(hintIdx, e.target.value)}
+                                        on:change={(e) => hintDone(hintIdx, e.currentTarget.value)}
                                         maxlength={targetWord.length}
                                         class="hint-inline-input"
                                         placeholder={targetPlaceholder}
@@ -308,14 +310,7 @@
         font-size: 3rem;
     }
 
-    #modal > .buttons {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin-top: 3rem;
-    }
-
-    #modal a, #modal button {
+    #modal a {
         display: block;
         width: 25%;
         margin: 0 1rem 0 1rem;
@@ -328,7 +323,7 @@
         text-decoration: none;
     }
 
-    #modal a:hover, #modal button:hover {
+    #modal a:hover {
         background: #f0f0f0;
         cursor: pointer;
     }
@@ -344,9 +339,6 @@
         width: 90vw;
         max-width: 1500px;
         height: 65%;
-    }
-
-    .hints.any-expand {
     }
 
     .hints.expand-1 {
@@ -515,10 +507,6 @@
         background-color: #f0f0f0;
     }
 
-    .front > h1, .back > h1 {
-        font-size: 1.5em;
-    }
-
     .back > .previous {
         position: absolute;
         top: 0;
@@ -537,10 +525,6 @@
     .previous.force-hide {
         opacity: 0;
         transition: none;
-    }
-
-    .previous .hint-value {
-        font-weight: bold;
     }
 
     .previous .guess {
@@ -590,33 +574,6 @@
         border: none;
         display: inline;
         text-transform: uppercase;
-    }
-
-    .back > p {
-        text-decoration: line-through;
-        text-transform: lowercase;
-        font-style: italic;
-    }
-
-    .back > p.correct {
-        text-decoration: none;
-    }
-
-    .back > .buttons {
-        width: 100%;
-    }
-
-    .back > .buttons > button {
-        width: 10rem;
-        text-transform: uppercase;
-        background: white;
-        border: 1px solid black;
-        border-radius: 0.5rem;
-    }
-
-    .back > .buttons > button:hover {
-        background: #f0f0f0;
-        cursor: pointer;
     }
 
     .back .buttons input, .back .buttons input:focus {

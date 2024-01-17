@@ -22,36 +22,48 @@ const redirectMe = async (event: RequestEvent) => {
 
 export const actions = {
     login: async (event: RequestEvent) => {
-        const {
-            email,
-            password,
-        } = Object.fromEntries(await event.request.formData());
+        const form = await event.request.formData();
+        const email = form.get('email')?.toString();
+        const password = form.get('password')?.toString();
+
         let ret = {
             state: State.LogIn,
             email,
+            errors: new Array<string>(),
         };
+        
+        if (!email || !password) {
+            ret.errors.push("error: all fields must be filled out");
+            return fail(400, ret);
+        }
+
 
         try {
             await event.locals.pb.collection('users').authWithPassword(email, password);
         } catch (err) {
-            ret.errors = [{ k: 'Error', v: 'incorrect email or password' }];
-            return ret;
+            ret.errors.push('error: incorrect email or password');
+            return fail(400, ret);
         }
 
         await redirectMe(event);
     },
     register: async (event: RequestEvent) => {
-        const { 
-            username, 
-            email, 
-            password, 
-            passwordConfirm, 
-        } = Object.fromEntries(await event.request.formData());
+        const form = await event.request.formData();
+        const email = form.get('email')?.toString();
+        const username = form.get('username')?.toString();
+        const password = form.get('password')?.toString();
+        const passwordConfirm = form.get('passwordConfirm')?.toString();
         let ret = {
             state: State.SignUp,
             email,
             username,
+            errors: new Array<string>(),
         };
+
+        if (!email || !username || !password || !passwordConfirm) {
+            ret.errors.push("error: all fields must be filled out");
+            return fail(400, ret);
+        }
 
         try {
             await event.locals.pb.collection('users').create({
@@ -64,13 +76,17 @@ export const actions = {
             });
             await event.locals.pb.collection('users').requestVerification(email);
             await event.locals.pb.collection('users').authWithPassword(email, password);
-        } catch (err) {
-            ret.errors = [
-                { k: 'Username', v: err.response.data.username?.message },
-                { k: 'Email', v: err.response.data.email?.message },
-                { k: 'Password', v: err.response.data.password?.message },
-                { k: 'Password', v: err.response.data.passwordConfirm?.message },
-            ]
+        } catch (err: any) {
+            if (!('response' in err && 'data' in err.response)) {
+                ret.errors.push("error: unknown error");
+                return fail(400, ret);
+            }
+            const errorKeys = ['username', 'email', 'password', 'passwordConfirm'];
+            for (let key of errorKeys) {
+                if (err.response.data[key]) {
+                    ret.errors.push(`${key}: ${err.response.data[key].message}`)
+                }
+            }
             return fail(400, ret);
         }
 
