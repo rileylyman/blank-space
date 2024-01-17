@@ -6,7 +6,7 @@
     export let data;
     let games: Game[] = data!.games!;
 
-    const getLink = (game: Game) =>`/${game.id}`;
+    const getLink = (game: Game) =>`/games/blankspace/${game.id}`;
 
 </script>
 

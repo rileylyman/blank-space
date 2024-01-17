@@ -75,7 +75,7 @@
 
     <div class="play-button" class:revealed={playButtonRevealed}>
         {#if playButtonContent}
-            <a href="/games">
+            <a href="/games/blankspace/list">
                 Play
             </a>
         {/if}
