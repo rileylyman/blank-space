@@ -13,8 +13,8 @@
 <div id="root">
     <h1> Slappy Games </h1>
     {#if state == State.Prompt}
-        {#if data.user.loggedIn}
-            <h2> Welcome back, {data.user.username}! </h2>
+        {#if data.pbUser}
+            <h2> Welcome back, {data.pbUser.username}! </h2>
             <div class="login">
                 <form action="?/redirect_me" method="POST">
                     <button type="submit">Log back in</button>

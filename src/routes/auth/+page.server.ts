@@ -3,8 +3,8 @@ import { State } from '$lib/loginstate';
 
 const redirectMe = async (event: RequestEvent) => {
     const cookies = event.request.headers.get('cookie')?.split(';');
-    console.log(cookies);
     let wantRedirect = '/';
+
     if (cookies) {
         for (let cookie of cookies) {
             const [key, value] = cookie.split('=');
@@ -14,7 +14,6 @@ const redirectMe = async (event: RequestEvent) => {
             }
         }
     }
-    console.log(`redirecting to "${wantRedirect}"`)
 
     event.cookies.delete('wants_redirect', { path: '/auth'});
     redirect(302, wantRedirect);

@@ -1,21 +1,14 @@
-import { type RequestEvent } from '@sveltejs/kit';
+import { type ServerLoadEvent } from '@sveltejs/kit';
 
-export const load = async (event: RequestEvent) => {
-    if (event.locals.pb.authStore.isValid) {
-        const model = event.locals.pb.authStore.model!;
+export const load = async (event: ServerLoadEvent) => {
+    const pb = event.locals.pb;
+    if (pb.authStore.isValid && pb.authStore.model && !pb.authStore.isAdmin) {
+        const model = pb.authStore.model;
         return {
-            user: {
-                email: model.email,
-                username: model.username,
-                verified: model.verified,
-                loggedIn: true,
-            }
+            pbUser: model,
         }
-    } else {
-        return {
-            user: {
-                loggedIn: false,
-            }
-        }
+    } 
+    return {
+        pbUser: null,
     }
 }

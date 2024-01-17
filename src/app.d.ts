@@ -1,19 +1,13 @@
-// See https://kit.svelte.dev/docs/types#app
-// for information about these interfaces
-import PocketBase from 'pocketbase';
+import type TypedPocketBase, { type PbUser } from '$lib/schema';
+
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			pb: PocketBase;
+			pb: TypedPocketBase;
 		}
 		interface PageData {
-			user: {
-				loggedIn: boolean;
-				verified: boolean;
-				username: string;
-				email: string;
-			}
+			pbUser: PbUser?;
 		}
 		// interface PageState {}
 		// interface Platform {}

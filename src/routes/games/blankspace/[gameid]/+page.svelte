@@ -24,13 +24,13 @@
     let easyMode = false;
     let rulesRead = false;
     let won = false;
-    let targetWord = data.found ? data!.game!.target.toLowerCase().trim() : "";
-    let rawHints = !data.found ? [] : [
-        data!.game!.hint1.toLowerCase(), 
-        data!.game!.hint2.toLowerCase(),
-        data!.game!.hint3.toLowerCase(),
-        data!.game!.hint4.toLowerCase(),
-    ];
+    let targetWord = data.game?.target.toLowerCase().trim() ?? "";
+    let rawHints = data.game ? [
+        data.game.hint1.toLowerCase(), 
+        data.game.hint2.toLowerCase(),
+        data.game.hint3.toLowerCase(),
+        data.game.hint4.toLowerCase(),
+    ] : [];
     let homeLink = "/games";
     const autoClickDelay = 750;
     $: hints = rawHints.map((raw) => { 
@@ -99,7 +99,7 @@
 
 <!-- svelte-ignore a11y-autofocus -->
 
-{#if data.found}
+{#if data.game}
     <div id="root-container">
             <div class="hints" 
                 class:any-expand={anyExpanded}
