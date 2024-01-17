@@ -31,7 +31,7 @@
         data.game.hint3.toLowerCase(),
         data.game.hint4.toLowerCase(),
     ] : [];
-    let homeLink = "/games";
+    let homeLink = "/games/blankspace?skip=true";
     const autoClickDelay = 750;
     $: hints = rawHints.map((raw) => { 
         const value = raw.replace(targetWord, '').trim();

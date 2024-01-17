@@ -89,7 +89,7 @@ export const actions = {
             return fail(400, ret);
         }
 
-        redirect(302, '/auth/verify?stage=wait');
+        redirect(302, '/auth/verify');
     },
     logout: async (event: RequestEvent) => {
         event.locals.pb.authStore.clear();

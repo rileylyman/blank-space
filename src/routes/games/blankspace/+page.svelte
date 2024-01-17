@@ -2,6 +2,7 @@
     import Fa from 'svelte-fa';
     import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
     import OptionSlider from '$lib/ui/OptionSlider.svelte';
+    import { page } from '$app/stores';
 
     enum State {
         Start,
@@ -10,7 +11,7 @@
         SettingsRequested,
         SettingsOpen
     }
-    let state = State.Start;
+    let state = $page.url.searchParams.get('skip') ? State.Normal : State.Start;
     
     let collapseDurationMs = 1500;
     let fadeInDurationMs = 500; // Keep in sink with transition: opacity
