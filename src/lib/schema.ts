@@ -25,6 +25,7 @@ export interface BsGameCompletion {
     user: string;
     elapsed_ms: number;
     guess_index: number;
+    failed: boolean;
 }
 
 export interface BsGameFeedback {

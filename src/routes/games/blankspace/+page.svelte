@@ -2,6 +2,7 @@
     import Fa from 'svelte-fa';
     import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
     import OptionSlider from '$lib/ui/OptionSlider.svelte';
+    import BsGameCard from '$lib/ui/BsGameCard.svelte';
     import { page } from '$app/stores';
 
     enum State {
@@ -69,8 +70,12 @@
 
     <div class="game-mode" class:revealed={gameModeRevealed}>
         {#if gameModeContent}
-            <h2> Game Mode </h2>
-            <OptionSlider options={["Easy", "Medium", "Hard"]}/>
+            <!-- <h2> Game Mode </h2>
+            <OptionSlider options={["Easy", "Medium", "Hard"]}/>  -->
+            <h2> Wednesday, Jan. 17 </h2>
+            <div class="card-holder">
+                <BsGameCard />
+            </div>
         {/if}
     </div>
 
@@ -142,7 +147,7 @@
     }
 
     .root.collapse {
-        grid-template-rows: 0fr 1.5fr 1.5fr 2fr 0.5fr;
+        grid-template-rows: 0fr 1fr 1.5fr 1fr 0.5fr;
         transition: grid-template-rows 1500ms;
     }
 
@@ -194,6 +199,12 @@
         grid-area: mode;
         padding: 0 1rem;
         text-align: center;
+    }
+
+    .card-holder {
+        grid-area: mode;
+        width: 75vw;
+        height: 10rem;
     }
 
     .play-button {
