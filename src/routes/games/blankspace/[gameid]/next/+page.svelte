@@ -20,65 +20,68 @@
             index,
         }
     });
-    let doneHints: Hint[] = [];
-    let currentHint = availHints.shift()!;
-    let indices = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-    const handleInput = (e: Event & { currentTarget: HTMLInputElement}) => {
-        currentHint.guess = e.currentTarget.value;
-        doneHints = [currentHint, ...doneHints];
-        currentHint = availHints.shift()!;
+    let scrollContainer: HTMLDivElement | null = null;
+    let screenWidth = 0;
+    const handleInput = (e: Event & { currentTarget: HTMLInputElement }) => {
+        if (!scrollContainer) return;
+        scrollContainer.scrollLeft += screenWidth;
     }
 </script>
 
+<svelte:window bind:outerWidth={screenWidth} />
+
 <div id="root">
-    {#each indices as idx}
-        {#if idx === -1}
-            <div class="card full-width">
-                <input on:change={handleInput} type="text" placeholder={currentHint.hint} />
+    <div>
+        <p> Your Guesses: </p>
+    </div>
+    <div
+        class="card-container"
+        bind:this={scrollContainer}
+        on:touchmove|preventDefault={() => {}}
+        on:scroll|preventDefault={() => {}}
+    >
+        {#each availHints as { hint }}
+            <div class="card">
+                <input on:change={handleInput} type="text" placeholder={hint} />
             </div>
-        {:else if (idx % 2) === 0}
-            {#if idx / 2 < availHints.length}
-                <div class="card">
-                    <p> Hint #{availHints[idx / 2].index + 1} </p>
-                </div>
-            {:else}
-                <div />
-            {/if}
-        {:else}
-            {#if idx / 2 < doneHints.length}
-                <div class="card">
-                    <p> {doneHints[idx / 2].hint}: {doneHints[idx / 2].guess} </p>
-                </div>
-            {:else}
-                <div />
-            {/if}
-        {/if}
-    {/each}
+        {/each}
+    </div>
 </div>
 
 <style>
     #root {
-        height: 80vh;
+        height: 100vh;
+        height: 100svh;
         display: grid;
-        grid-template-rows: repeat(5, 1fr);
-        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 0.5fr 1.3fr 1fr 1fr;
         overflow: hidden;
         place-items: center;
     }
 
+    .card-container {
+        height: 100%; 
+        width: 100%; 
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+    }
+
+    .card-container::-webkit-scrollbar {
+        display: none;
+    }
+
     .card {
         background: lightgrey;
-        margin: 0.5rem 1rem;
         border-radius: 0.5rem;
         border: 1px solid black;
         display: grid;
         place-items: center;
-        width: 40vw;
-        height: 80%;
-    }
-
-    .full-width {
-        grid-column: span 2;
+        width: 90vw;
+        margin: 0 5vw;
+        height: 90%;
     }
 </style>
