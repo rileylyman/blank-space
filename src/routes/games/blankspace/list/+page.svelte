@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { bsGameLink } from '$lib/links.js';
+
     export let data;
 </script>
 
@@ -7,7 +9,7 @@
 <h2> All Games </h2>
 <ul>
     {#each data.games as game}
-        <li><a href={`/games/blankspace/${game.id}`}>{game.id}</a></li>
+        <li><a href={bsGameLink(game.id)}>{game.id}</a></li>
     {/each}
 </ul>
 

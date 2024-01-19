@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { AUTH_REDIRECT_ME_ACTION } from '$lib/links.js';
+
     export let data;
 
     let resendButton = 'Resend email';
@@ -24,7 +26,7 @@
         {#if data?.verified}
             <h2> Email verified </h2>
             <p> You're all set. Click the link below to sign in. Welcome to Slappy Games! </p>
-            <form action="/auth?/redirect_me" method="POST">
+            <form action={AUTH_REDIRECT_ME_ACTION} method="POST">
                 <button type="submit"> Log in </button>
             </form>
         {:else}
@@ -44,7 +46,7 @@
             > 
                 {resendButton} 
             </button>
-            <form action="/auth?/redirect_me" method="POST">
+            <form action={AUTH_REDIRECT_ME_ACTION} method="POST">
                 <button type="submit"> Go home </button>
             </form>
         {/if}

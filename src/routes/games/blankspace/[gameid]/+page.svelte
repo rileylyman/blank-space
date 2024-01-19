@@ -1,6 +1,7 @@
 <script lang="ts">
     import { tick } from 'svelte';
     import StartScreen from './StartScreen.svelte';
+    import { BS_HOME_SKIP } from '$lib/links';
 
     interface Hint {
         value: string;
@@ -31,7 +32,6 @@
         data.game.hint3.toLowerCase(),
         data.game.hint4.toLowerCase(),
     ] : [];
-    let homeLink = "/games/blankspace?skip=true";
     const autoClickDelay = 750;
     $: hints = rawHints.map((raw) => { 
         const value = raw.replace(targetWord, '').trim();
@@ -208,7 +208,7 @@
                     {/each}
                     </ul>
                     <br/>
-                    <a href={homeLink}>Go Home</a>
+                    <a href={BS_HOME_SKIP}>Go Home</a>
                 </div>
             {:else if gameOver}
                 <div id="modal">
@@ -242,7 +242,7 @@
                     {/each}
                     </ul>
                     <br/>
-                    <a href={homeLink}>Go Home</a>
+                    <a href={BS_HOME_SKIP}>Go Home</a>
                 </div>
             {/if}
         </div>

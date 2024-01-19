@@ -1,4 +1,10 @@
 <script lang="ts">
+    import {
+        AUTH_REDIRECT_ME_ACTION,
+        AUTH_LOGOUT_ACTION,
+        AUTH_LOGIN_ACTION,
+        AUTH_REGISTER_ACTION
+    } from '$lib/links.js';
     import { State } from '$lib/loginstate';
 
     let error = "";
@@ -16,10 +22,10 @@
         {#if data.pbUser}
             <h2> Welcome back, {data.pbUser.username}! </h2>
             <div class="login">
-                <form action="?/redirect_me" method="POST">
+                <form action={AUTH_REDIRECT_ME_ACTION} method="POST">
                     <button type="submit">Log back in</button>
                 </form>
-                <form action="?/logout" method="POST">
+                <form action={AUTH_LOGOUT_ACTION} method="POST">
                     <button type="submit">Sign out</button>
                 </form>
             </div>
@@ -42,7 +48,7 @@
             <h2> {welcomeMessage} </h2>
 
             {#if state == State.LogIn}
-                <form action="?/login" method="POST">
+                <form action={AUTH_LOGIN_ACTION} method="POST">
                     <label for="email"> email </label>
                     <input id="email" name="email" type="text" autocomplete="username" value={form?.email ?? ''}/>
 
@@ -59,7 +65,7 @@
                     <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>
                 </form>
             {:else if state == State.SignUp}
-                <form action="?/register" method="POST">
+                <form action={AUTH_REGISTER_ACTION} method="POST">
                     <label for="username"> username </label>
                     <input id="username" name="username" type="text" autocomplete="username" value={form?.username ?? ''} />
 

@@ -1,5 +1,6 @@
 import { type RequestEvent, redirect, fail } from '@sveltejs/kit';
 import { State } from '$lib/loginstate';
+import { AUTH_VERIFY, AUTH_HOME } from '$lib/links.js';
 
 const redirectMe = async (event: RequestEvent) => {
     const cookies = event.request.headers.get('cookie')?.split(';');
@@ -15,7 +16,7 @@ const redirectMe = async (event: RequestEvent) => {
         }
     }
 
-    event.cookies.delete('wants_redirect', { path: '/auth'});
+    event.cookies.delete('wants_redirect', { path: AUTH_HOME});
     redirect(302, wantRedirect);
 }
 
@@ -89,7 +90,7 @@ export const actions = {
             return fail(400, ret);
         }
 
-        redirect(302, '/auth/verify');
+        redirect(302, AUTH_VERIFY);
     },
     logout: async (event: RequestEvent) => {
         event.locals.pb.authStore.clear();

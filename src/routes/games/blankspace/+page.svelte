@@ -4,6 +4,7 @@
     import OptionSlider from '$lib/ui/OptionSlider.svelte';
     import BsGameCard from '$lib/ui/BsGameCard.svelte';
     import { page } from '$app/stores';
+    import { BS_GAME_LIST } from '$lib/links';
 
     enum State {
         Start,
@@ -81,7 +82,7 @@
 
     <div class="play-button" class:revealed={playButtonRevealed}>
         {#if playButtonContent}
-            <a href="/games/blankspace/list">
+            <a href={BS_GAME_LIST}>
                 Play
             </a>
         {/if}
