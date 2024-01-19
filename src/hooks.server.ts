@@ -26,5 +26,6 @@ export const handle = async ({event, resolve}) => {
     const response = await resolve(event);
 
     response.headers.append('set-cookie', event.locals.pb.authStore.exportToCookie());
+    response.headers.append('Access-Control-Allow-Origin', 'https://e758b93b0681.ngrok.app');
     return response;
 }

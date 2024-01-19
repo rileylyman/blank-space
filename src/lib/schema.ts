@@ -18,6 +18,8 @@ export interface BsGame {
     pity_hint: string;
     notes: string;
 }
+export const bsGameHints = (g: BsGame): string[] =>
+    [g.hint1, g.hint2, g.hint3, g.hint4, g.pity_hint];
 
 export interface BsGameCompletion {
     id: string;
