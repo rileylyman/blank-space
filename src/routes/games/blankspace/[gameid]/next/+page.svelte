@@ -7,10 +7,11 @@
     }
 
     import { bsGameHints } from '$lib/schema';
+    import GuessInput from './GuessInput.svelte';
     export let data;
     const game = data.game;
 
-    let availHints = bsGameHints(game).map((fullHint: string, index: number) => {
+    let hints = bsGameHints(game).map((fullHint: string, index: number) => {
         const hint = fullHint.replace(game.target, '').trim();
         const before = fullHint.indexOf(game.target) < fullHint.indexOf(hint);
         return {
@@ -22,7 +23,13 @@
     });
 
     let currentHint = 0;
-    const handleInput = (e: Event & { currentTarget: HTMLInputElement }) => {
+    let inputValues = ["", "", "", "", "", ""];
+    const handleInput = (idx: number) => async () => {
+        if (idx >= hints.length) return;
+
+        hints[idx].guess = inputValues[idx];
+        showHint[idx] = false;
+
         currentHint += 1;
     }
     let reveal = true;
@@ -33,20 +40,30 @@
     <div>
     </div>
     <div class="card-container">
-        {#each availHints as { hint }, idx}
+        {#each hints as { hint, before, guess }, idx}
             <div 
                 class="card"
                 class:away={currentHint < idx}
-                class:revealed={idx <= currentHint && reveal}
-                class:current={currentHint === idx}
                 class:hint-shown={showHint[idx]}
             >
                 <div class="hint-side">
-                    <button on:click={() => showHint[idx] = false}> Show Back </button>
+                    {#if before}
+                        <div>
+                            <GuessInput on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
+                            <span> {hint} </span>
+                        </div>
+                    {:else}
+                        <div>
+                            <span> {hint} </span> 
+                            <GuessInput on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
+                        </div>
+                    {/if}
                 </div>
-                <div class="back-side">
-                    <button on:click={() => showHint[idx] = true}> Show Hint </button>
-                </div>
+                <button on:click={() => showHint[idx] = true} class="back-side">
+                    {#if guess}
+                        <p> {guess} </p>
+                    {/if}
+                </button>
             </div>
         {/each}
     </div>
@@ -75,12 +92,7 @@
         width: 90vw;
         margin: 0 5vw;
         height: 100%;
-        transform-style: preserve-3d;
-        transition: transform 1s;
-    }
-
-    .card.current {
-        background: white;
+        background: transparent;
     }
 
     .hint-side, .back-side {
@@ -93,17 +105,31 @@
         display: grid;
         transition: transform 500ms;
         place-items: center;
-        z-index: 2;
+        transform-style: preserve-3d;
+        transition: transform 1s;
+        outline: none;
     }
 
     .hint-side {
         transform: rotateX(180deg);
-        background: white;
     }
 
     .back-side {
         transform: rotateX(0deg);
         background: #f0f0f0;
+        align-items: start;
+    }
+
+    .hint-side div {
+        display: flex;
+        justify-content: center;
+        font-family: 'Source Code Pro', 'Fira Sans', sans-serif;
+    }
+
+    .hint-side span {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
     }
 
     .hint-shown > .hint-side {
@@ -119,62 +145,42 @@
     }
 
     .card:nth-child(1) {
+        transform: translateY(-25%);
     }
 
     .card:nth-child(1).away {
         transform: translateX(100vw);
     }
 
-    .card:nth-child(1).revealed {
-        transition: transform 300ms;
-        transform: translateY(-25%);
-    }
-
     .card:nth-child(2) {
+        transform: translateY(0%);
     }
 
     .card:nth-child(2).away {
         transform: translateY(10%) translateX(100vw);
     }
 
-    .card:nth-child(2).revealed {
-        transition: transform 300ms;
-        transform: translateY(0%);
-    }
-
     .card:nth-child(3) {
+        transform: translateY(25%);
     }
 
     .card:nth-child(3).away {
         transform: translateY(20%) translateX(100vw);
     }
 
-    .card:nth-child(3).revealed {
-        transition: transform 300ms;
-        transform: translateY(25%);
-    }
-
     .card:nth-child(4) {
+        transform: translateY(50%);
     }
 
     .card:nth-child(4).away {
         transform: translateY(30%) translateX(100vw);
     }
 
-    .card:nth-child(4).revealed {
-        transition: transform 300ms;
-        transform: translateY(50%);
-    }
-
     .card:nth-child(5) {
+        transform: translateY(75%);
     }
 
     .card:nth-child(5).away {
         transform: translateY(40%) translateX(100vw);
-    }
-
-    .card:nth-child(5).revealed {
-        transition: transform 300ms;
-        transform: translateY(75%);
     }
 </style>
