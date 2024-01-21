@@ -123,6 +123,11 @@
     h1 {
         margin-top: 3rem;
         text-transform: uppercase;
+        font-weight: 500;
+    }
+
+    h2 {
+        font-weight: 400;
     }
 
     .login {
@@ -137,7 +142,6 @@
         outline: none;
         height: 3rem;
         border-radius: 0.5rem;
-        font-weight: bold;
         margin-bottom: 0.5rem;
         text-align: center;
         width: 60%;

@@ -172,6 +172,7 @@
 
     .header h1 {
         font-size: 2.5rem;
+        font-weight: 500;
         letter-spacing: 0.5rem;
         transform: translateX(-0.2rem);
     }
@@ -179,8 +180,9 @@
     .header h3 {
         position: absolute;
         bottom: 10%;
-        transform: translateX(0.25rem);
+        transform: translateX(0.15rem);
         text-transform: lowercase;
+        font-weight: 400;
     }
 
     .header .left {
@@ -200,6 +202,10 @@
         grid-area: mode;
         padding: 0 1rem;
         text-align: center;
+    }
+
+    .game-mode h2 {
+        font-weight: 400;
     }
 
     .card-holder {

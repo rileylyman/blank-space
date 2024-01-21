@@ -7,7 +7,9 @@
     }
 
     import { bsGameHints } from '$lib/schema';
+    import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
+    import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
     export let data;
     const game = data.game;
 
@@ -28,9 +30,17 @@
         if (idx >= hints.length) return;
 
         hints[idx].guess = inputValues[idx];
+
+        await sleepMs(1500);
+
         showHint[idx] = false;
 
+        await sleepMs(1000);
+
         currentHint += 1;
+    }
+    const handleKeyPress = ({ detail: { key }}: { detail: { key: string }}) => {
+        console.log(key);
     }
     let reveal = true;
     let showHint = [false, false, false, false, false];
@@ -49,23 +59,32 @@
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={hints[idx].guess != ""} on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={hints[idx].guess != ""} on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
                         </div>
                     {/if}
                 </div>
                 <button on:click={() => showHint[idx] = true} class="back-side">
-                    {#if guess}
-                        <p> {guess} </p>
+                    {#if guess && before}
+                        <div class="top-guess"> <span> {guess} </span> {hint}  </div>
+                    {:else if guess}
+                        <div class="top-guess"> {hint} <span> {guess} </span> </div>
+                    {:else}
+                        <div />
                     {/if}
+                    <h1> Hint #{idx + 1} </h1>
                 </button>
             </div>
         {/each}
+    </div>
+    <div />
+    <div>
+        <VirtualKeyboard on:keypress={handleKeyPress} />
     </div>
 </div>
 
@@ -73,7 +92,7 @@
     #root {
         height: 100vh;
         display: grid;
-        grid-template-rows: 5rem 10rem 1fr 1fr;
+        grid-template-rows: 5rem 10rem 10rem 1fr;
         overflow: hidden;
         place-items: stretch;
     }
@@ -93,6 +112,7 @@
         margin: 0 5vw;
         height: 100%;
         background: transparent;
+        transition: transform 500ms ease-in-out;
     }
 
     .hint-side, .back-side {
@@ -105,19 +125,25 @@
         display: grid;
         transition: transform 500ms;
         place-items: center;
-        transform-style: preserve-3d;
-        transition: transform 1s;
+        transition: transform 1s ease-in-out;
         outline: none;
     }
 
     .hint-side {
         transform: rotateX(180deg);
+        background: white;
     }
 
     .back-side {
+        display: grid;
+        grid-template-rows: 25% 1fr 25%;
         transform: rotateX(0deg);
         background: #f0f0f0;
         align-items: start;
+    }
+
+    .back-side h1 {
+        margin-top: 1rem;
     }
 
     .hint-side div {
@@ -130,6 +156,17 @@
         font-size: 1.5rem;
         font-weight: bold;
         text-transform: uppercase;
+    }
+
+    .back-side div {
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-top: 0.5rem;
+    }
+
+    .back-side div span {
+        text-decoration: line-through;
+        font-weight: normal;
     }
 
     .hint-shown > .hint-side {

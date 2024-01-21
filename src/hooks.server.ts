@@ -20,12 +20,17 @@ export const handle = async ({event, resolve}) => {
             secure: true,
             path: AUTH_HOME,
         });
-        return redirect(302, AUTH_HOME);
+        // return redirect(302, AUTH_HOME);
     }
 
     const response = await resolve(event);
 
     response.headers.append('set-cookie', event.locals.pb.authStore.exportToCookie());
-    response.headers.append('Access-Control-Allow-Origin', 'https://e758b93b0681.ngrok.app');
+    if (process.env.NODE_ENV === 'development') {
+      response.headers.append(
+          'cache-control', 'no-cache, no-store, must-revalidate');
+      response.headers.append('pragma', 'no-cache');
+      response.headers.append('expires', '0');
+    }
     return response;
 }
