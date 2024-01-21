@@ -26,7 +26,7 @@
 
     let currentHint = 0;
     let inputValues = ["", "", "", "", "", ""];
-    const handleInput = (idx: number) => async () => {
+    const handleGuess = async (idx: number) => {
         if (idx >= hints.length) return;
 
         hints[idx].guess = inputValues[idx];
@@ -38,11 +38,25 @@
         await sleepMs(1000);
 
         currentHint += 1;
+
+        await sleepMs(750);
+
+        showHint[currentHint] = true;
+
+        return Promise.resolve();
     }
-    const handleKeyPress = ({ detail: { key }}: { detail: { key: string }}) => {
-        console.log(key);
+    const handleKeyPress = async ({ detail: { key }}: { detail: { key: string }}) => {
+        if (key === 'ENTER') {
+            handleGuess(currentHint);
+            return;
+        }
+
+        if (key === 'DEL') {
+            inputValues[currentHint] = inputValues[currentHint].slice(0, -1)
+        } else {
+            inputValues[currentHint] += key;
+        }
     }
-    let reveal = true;
     let showHint = [false, false, false, false, false];
 </script>
 
@@ -59,13 +73,13 @@
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput strike={hints[idx].guess != ""} on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={hints[idx].guess != ""} bind:value={inputValues[idx]}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput strike={hints[idx].guess != ""} on:change={handleInput(idx)} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={hints[idx].guess != ""} bind:value={inputValues[idx]}/>
                         </div>
                     {/if}
                 </div>

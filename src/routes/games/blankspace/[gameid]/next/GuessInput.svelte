@@ -1,14 +1,16 @@
 <script lang="ts">
     export let value: string;
     export let strike: boolean;
+    $: shownValue = value ? value : String.fromCharCode(160);
 </script>
 
 <div class:strike>
-    <input bind:value on:change style={`width: ${value.length + 1}ch`} type=text />
+    <span style={`width: calc(${shownValue.length + 1}ch + 2rem)`}> {shownValue} </span>
 </div>
 
 <style>
-input {
+span {
+    font-family: 'Source Code Pro', 'Fira Sans', sans-serif;
     border: none;
     outline: none;
     font-size: 1.5rem;
@@ -30,7 +32,7 @@ div {
 div::after {
     position: absolute;
     top: 50%;
-    left: 0;
+    left: 0.5rem;
     width: 0;
     height: 1px;
     background: black;
@@ -44,7 +46,7 @@ div.strike::after {
 
 @keyframes strike {
     to {
-        width: 100%;
+        width: calc(100% - 2rem);
     }
 }
 
