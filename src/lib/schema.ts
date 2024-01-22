@@ -29,13 +29,12 @@ export const bsGameAllLowercase = (g: BsGame) => {
       g.pity_hint = g.pity_hint.toLocaleLowerCase();
 }
 
-export interface BsGameCompletion {
+export interface BsGameProgress {
     id: string;
     bs_game: string;
     user: string;
-    elapsed_ms: number;
-    guess_index: number;
-    failed: boolean;
+    guesses: string;
+    won: boolean;
 }
 
 export interface BsGameFeedback {
@@ -50,6 +49,6 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
     collection(idOrName: 'bs_games'): RecordService<BsGame>;
-    collection(idOrName: 'bs_game_completions'): RecordService<BsGameCompletion>;
+    collection(idOrName: 'bs_game_progress'): RecordService<BsGameProgress>;
     collection(idOrName: 'bs_game_feedback'): RecordService<BsGameFeedback>;
 }
