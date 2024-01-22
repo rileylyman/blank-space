@@ -4,12 +4,15 @@
 
     let deleteButton: HTMLButtonElement | null = null;
     let enterButton: HTMLButtonElement | null = null;
+    let shiftButton: HTMLButtonElement | null = null;
 
     const handleKeyClick = (e: Event & { currentTarget: HTMLButtonElement }) => {
         if (e.currentTarget === deleteButton) {
             dispatch('keypress', { enter: false, del: true, key: e.currentTarget.textContent });
         } else if (e.currentTarget === enterButton) {
             dispatch('keypress', { enter: true, del: false, key: e.currentTarget.textContent });
+        } else if (e.currentTarget === shiftButton) {
+            // do nothing
         } else {
             dispatch('keypress', { enter: false, del: false, key: e.currentTarget.textContent });
         }
@@ -81,7 +84,7 @@
         L
     </button>
     <div class="empty-half" />
-    <button on:click|preventDefault={handleKeyClick} value="SHIFT" class="key wide">
+    <button bind:this={shiftButton} on:click|preventDefault={handleKeyClick} value="SHIFT" class="key wide">
         SHFT
     </button>
     <button on:click|preventDefault={handleKeyClick} value="Z" class="key popup">
@@ -113,10 +116,8 @@
 <style>
     #root {
         display: grid;
-        grid-template-rows: repeat(4, 3rem);
+        grid-template-rows: repeat(4, 3.5rem);
         grid-template-columns: repeat(20, 1fr);
-        grid-column-gap: 0.25rem;
-        grid-row-gap: 0.6rem;
         padding: 0.5rem;
         box-sizing: border-box;
         width: 100%;
@@ -138,7 +139,10 @@
         outline: none;
         border: none;
         background: #c0c0c0;
-        border-radius: 0.25rem;
+        border-radius: 0.5rem;
+        border: 0.125rem solid white;
+        border-bottom-width: 0.3rem;
+        border-top-width: 0.3rem;
         font-weight: 800;
         user-select: none;
         -webkit-user-select: none;
@@ -146,7 +150,7 @@
 
     .key:active {
         background: #808080;
-        outline: 3px solid #c0c0c07f;
+        border-color: #c0c0c07f;
     }
 
     .key::before {
