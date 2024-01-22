@@ -2,11 +2,15 @@
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
+    export let enterDisabled: boolean;
+    export let invalidWord: boolean;
+
     let deleteButton: HTMLButtonElement | null = null;
     let enterButton: HTMLButtonElement | null = null;
     let shiftButton: HTMLButtonElement | null = null;
 
     const handleKeyClick = (e: Event & { currentTarget: HTMLButtonElement }) => {
+        invalidWord = false;
         if (e.currentTarget === deleteButton) {
             dispatch('keypress', { enter: false, del: true, key: e.currentTarget.textContent });
         } else if (e.currentTarget === enterButton) {
@@ -21,8 +25,8 @@
 
 <div id="root">
     <div style="grid-column: span 4" />
-    <button bind:this={enterButton} on:click|preventDefault={handleKeyClick} value="ENTER" class="key ultrawide">
-        ENTER YOUR GUESS
+    <button bind:this={enterButton} class:invalid={invalidWord} disabled={enterDisabled} on:click|preventDefault={handleKeyClick} value="ENTER" class="key ultrawide">
+        { invalidWord ? 'NOT A WORD' : 'ENTER YOUR GUESS'}
     </button>
     <div style="grid-column: span 4" />
     <button on:click|preventDefault={handleKeyClick} value="Q" class="key popup">
@@ -182,5 +186,17 @@
     .ultrawide {
         grid-column: span 12;
         font-size: 1.2rem;
+        transition: background 250ms, color 25ms;
     }
+
+    .invalid {
+        background: rgb(235, 133, 128);
+    }
+
+    button:disabled {
+        pointer-events: none;
+        background: #e0e0e0;
+        color: #999;
+    }
+
 </style>

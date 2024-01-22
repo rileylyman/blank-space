@@ -41,7 +41,7 @@ div::after {
 }
 
 div.strike::after {
-    animation: strike 1s forwards 500ms ease-in-out;
+    animation: strike 500ms forwards 250ms ease-in-out;
 }
 
 @keyframes strike {

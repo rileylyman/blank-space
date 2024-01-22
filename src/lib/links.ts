@@ -11,3 +11,5 @@ export const AUTH_REGISTER_ACTION = "/auth?/register";
 
 export const bsGameLinkOld = (gameId: string) => `/games/blankspace/${gameId}`;
 export const bsGameLink = (gameId: string) => `/games/blankspace/${gameId}/next`;
+
+export const dictionaryWordApi = (word: string) => `/dictionary?word=${word}`;

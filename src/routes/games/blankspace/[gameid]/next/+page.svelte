@@ -7,6 +7,7 @@
     }
 
     import { bsGameHints } from '$lib/schema';
+    import { dictionaryWordApi } from '$lib/links';
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
@@ -26,12 +27,19 @@
 
     let currentHint = 0;
     let inputValues = ["", "", "", "", "", ""];
+    let invalidWord = false;
     const handleGuess = async (idx: number) => {
         if (idx >= hints.length) return;
 
+        const { isWord } = await (await fetch(dictionaryWordApi(inputValues[idx]))).json();
+        if (!isWord) {
+            invalidWord = true;
+            return;
+        }
+
         hints[idx].guess = inputValues[idx];
 
-        await sleepMs(1500);
+        await sleepMs(1000);
 
         showHint[idx] = false;
 
@@ -46,6 +54,9 @@
         return Promise.resolve();
     }
     const handleKeyPress = async ({ detail: { key, del, enter }}: { detail: { key: string, del: boolean, enter: boolean }}) => {
+        if (hints[currentHint].guess || !showHint[currentHint]) {
+            return;
+        }
         if (enter) {
             handleGuess(currentHint);
             return;
@@ -55,6 +66,13 @@
             return;
         }
         inputValues[currentHint] += key;
+    }
+
+    const handleHintClick = (idx: number) => () => {
+        if (idx != 0 || hints[idx].guess) {
+            return;
+        }
+        showHint[idx] = true;
     }
     let showHint = [false, false, false, false, false];
 </script>
@@ -82,7 +100,7 @@
                         </div>
                     {/if}
                 </div>
-                <button on:click={() => showHint[idx] = true} class="back-side">
+                <button on:click={handleHintClick(idx)} class="back-side">
                     {#if guess && before}
                         <div class="top-guess"> <span> {guess} </span> {hint}  </div>
                     {:else if guess}
@@ -90,14 +108,16 @@
                     {:else}
                         <div />
                     {/if}
-                    <h1> Hint #{idx + 1} </h1>
+                    {#if !guess}
+                        <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Click to Start'} </h1>
+                    {/if}
                 </button>
             </div>
         {/each}
     </div>
     <div />
     <div style="align-self: end; margin-bottom: 1rem">
-        <VirtualKeyboard on:keypress={handleKeyPress} />
+        <VirtualKeyboard bind:invalidWord enterDisabled={!inputValues[currentHint]} on:keypress={handleKeyPress} />
     </div>
 </div>
 
@@ -200,7 +220,7 @@
     }
 
     .card:nth-child(1).away {
-        transform: translateX(100vw);
+        transform: translateY(-25%) translateX(100vw);
     }
 
     .card:nth-child(2) {
@@ -208,7 +228,7 @@
     }
 
     .card:nth-child(2).away {
-        transform: translateY(10%) translateX(100vw);
+        transform: translateY(0%) translateX(100vw);
     }
 
     .card:nth-child(3) {
@@ -216,7 +236,7 @@
     }
 
     .card:nth-child(3).away {
-        transform: translateY(20%) translateX(100vw);
+        transform: translateY(25%) translateX(100vw);
     }
 
     .card:nth-child(4) {
@@ -224,7 +244,7 @@
     }
 
     .card:nth-child(4).away {
-        transform: translateY(30%) translateX(100vw);
+        transform: translateY(50%) translateX(100vw);
     }
 
     .card:nth-child(5) {
@@ -232,6 +252,6 @@
     }
 
     .card:nth-child(5).away {
-        transform: translateY(40%) translateX(100vw);
+        transform: translateY(75%) translateX(100vw);
     }
 </style>
