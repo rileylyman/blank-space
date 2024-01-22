@@ -9,55 +9,7 @@ import { type RequestEvent, json } from "@sveltejs/kit"
 import { BsRequestParser, type BsRequest, type BsResponse } from "$lib/blankspace-game-api";
 import { fromZodError } from 'zod-validation-error';
 
-const getGame = async (pb: TypedPocketBase, gameId: string): Promise<[BsGame | null, string | null]> => {
-    let game: BsGame;
-    try {
-        game = await pb
-            .collection('bs_games')
-            .getOne(gameId);
-        bsGameAllLowercase(game);
-        return [game, null];
-    } catch (_) {
-        return [null, 'invalid game id'];
-    }
-}
-
-const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: string }): Promise<[BsGameProgress | null, string | null]> => {
-    let progress: BsGameProgress;
-    try {
-        progress = await pb
-            .collection('bs_game_progress')
-            .getFirstListItem(`user.id = "${args.userId}" && bs_game.id = "${args.gameId}"`);
-    } catch (_) {
-        progress = { id: "", bs_game: args.gameId, user: args.userId, guesses: "", won: false };
-        try {
-            progress = await pb
-                .collection('bs_game_progress')
-                .create(progress);
-        } catch (_) {
-            return [null, 'could not create progress'];
-        }
-    }
-    return [progress, null];
-}
-
-const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, guess: string | undefined}, string | null] => {
-    let ret = { userId: "", gameId: "", guess: "" };
-    if (!event.locals.pb.authStore.isValid || !event.locals.pb.authStore.model?.id) {
-        return [ret, 'not authenticated'];
-    }
-    const userId = event.locals.pb.authStore.model.id;
-
-    const res = BsRequestParser.safeParse(Object.fromEntries(event.url.searchParams));
-    if (!res.success) {
-        return [ret, fromZodError(res.error).toString()];
-    }
-    const { gameId, guess } = res.data;
-
-    return [{ userId, gameId, guess}, null];
-}
-
-export const GET = async (event: RequestEvent) => {
+export const POST = async (event: RequestEvent) => {
     let response: BsResponse = {
         result: null,
         error: null,
@@ -112,4 +64,52 @@ export const GET = async (event: RequestEvent) => {
     }
 
     return json(response);
+}
+
+const getGame = async (pb: TypedPocketBase, gameId: string): Promise<[BsGame | null, string | null]> => {
+    let game: BsGame;
+    try {
+        game = await pb
+            .collection('bs_games')
+            .getOne(gameId);
+        bsGameAllLowercase(game);
+        return [game, null];
+    } catch (_) {
+        return [null, 'invalid game id'];
+    }
+}
+
+const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: string }): Promise<[BsGameProgress | null, string | null]> => {
+    let progress: BsGameProgress;
+    try {
+        progress = await pb
+            .collection('bs_game_progress')
+            .getFirstListItem(`user.id = "${args.userId}" && bs_game.id = "${args.gameId}"`);
+    } catch (_) {
+        progress = { id: "", bs_game: args.gameId, user: args.userId, guesses: "", won: false };
+        try {
+            progress = await pb
+                .collection('bs_game_progress')
+                .create(progress);
+        } catch (_) {
+            return [null, 'could not create progress'];
+        }
+    }
+    return [progress, null];
+}
+
+const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, guess: string | undefined}, string | null] => {
+    let ret = { userId: "", gameId: "", guess: "" };
+    if (!event.locals.pb.authStore.isValid || !event.locals.pb.authStore.model?.id) {
+        return [ret, 'not authenticated'];
+    }
+    const userId = event.locals.pb.authStore.model.id;
+
+    const res = BsRequestParser.safeParse(Object.fromEntries(event.url.searchParams));
+    if (!res.success) {
+        return [ret, fromZodError(res.error).toString()];
+    }
+    const { gameId, guess } = res.data;
+
+    return [{ userId, gameId, guess}, null];
 }
