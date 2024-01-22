@@ -2,12 +2,26 @@
     import { createEventDispatcher } from "svelte";
     const dispatch = createEventDispatcher();
 
+    let deleteButton: HTMLButtonElement | null = null;
+    let enterButton: HTMLButtonElement | null = null;
+
     const handleKeyClick = (e: Event & { currentTarget: HTMLButtonElement }) => {
-        dispatch('keypress', { key: e.currentTarget.textContent });
+        if (e.currentTarget === deleteButton) {
+            dispatch('keypress', { enter: false, del: true, key: e.currentTarget.textContent });
+        } else if (e.currentTarget === enterButton) {
+            dispatch('keypress', { enter: true, del: false, key: e.currentTarget.textContent });
+        } else {
+            dispatch('keypress', { enter: false, del: false, key: e.currentTarget.textContent });
+        }
     }
 </script>
 
 <div id="root">
+    <div style="grid-column: span 4" />
+    <button bind:this={enterButton} on:click|preventDefault={handleKeyClick} value="ENTER" class="key ultrawide">
+        ENTER YOUR GUESS
+    </button>
+    <div style="grid-column: span 4" />
     <button on:click|preventDefault={handleKeyClick} value="Q" class="key popup">
         Q
     </button>
@@ -67,8 +81,8 @@
         L
     </button>
     <div class="empty-half" />
-    <button on:click|preventDefault={handleKeyClick} value="ENTER" class="key wide">
-       ENTER 
+    <button on:click|preventDefault={handleKeyClick} value="SHIFT" class="key wide">
+        SHFT
     </button>
     <button on:click|preventDefault={handleKeyClick} value="Z" class="key popup">
         Z
@@ -91,15 +105,15 @@
     <button on:click|preventDefault={handleKeyClick} value="M" class="key popup">
         M
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="DEL" class="key wide">
-       DEL
+    <button bind:this={deleteButton} on:click|preventDefault={handleKeyClick} value="DEL" class="key wide">
+        DEL
     </button>
 </div>
 
 <style>
     #root {
         display: grid;
-        grid-template-rows: repeat(3, 3rem);
+        grid-template-rows: repeat(4, 3rem);
         grid-template-columns: repeat(20, 1fr);
         grid-column-gap: 0.25rem;
         grid-row-gap: 0.6rem;
@@ -156,8 +170,13 @@
         opacity: 1;
     }
 
-    .key.wide {
+    .wide {
         grid-column: span 3;
         font-size: 0.75rem;
+    }
+
+    .ultrawide {
+        grid-column: span 12;
+        font-size: 1.2rem;
     }
 </style>

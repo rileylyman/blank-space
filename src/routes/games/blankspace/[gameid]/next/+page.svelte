@@ -45,17 +45,16 @@
 
         return Promise.resolve();
     }
-    const handleKeyPress = async ({ detail: { key }}: { detail: { key: string }}) => {
-        if (key === 'ENTER') {
+    const handleKeyPress = async ({ detail: { key, del, enter }}: { detail: { key: string, del: boolean, enter: boolean }}) => {
+        if (enter) {
             handleGuess(currentHint);
             return;
         }
-
-        if (key === 'DEL') {
+        if (del) {
             inputValues[currentHint] = inputValues[currentHint].slice(0, -1)
-        } else {
-            inputValues[currentHint] += key;
+            return;
         }
+        inputValues[currentHint] += key;
     }
     let showHint = [false, false, false, false, false];
 </script>
@@ -97,7 +96,7 @@
         {/each}
     </div>
     <div />
-    <div>
+    <div style="align-self: end; margin-bottom: 1rem">
         <VirtualKeyboard on:keypress={handleKeyPress} />
     </div>
 </div>
@@ -105,6 +104,7 @@
 <style>
     #root {
         height: 100vh;
+        height: 100svh;
         display: grid;
         grid-template-rows: 5rem 10rem 10rem 1fr;
         overflow: hidden;
