@@ -30,7 +30,7 @@
     }
 
     const handleGuess = async () => {
-        if (!flippedHint) return;
+        if (flippedHint === null) return;
         const guess = hints[flippedHint].guess;
         const { isWord } = await (await fetch(dictionaryWordApi(guess))).json();
         if (!isWord) {

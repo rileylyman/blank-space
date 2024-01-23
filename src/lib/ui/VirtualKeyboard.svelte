@@ -21,7 +21,23 @@
             dispatch('keypress', { enter: false, del: false, key: e.currentTarget.textContent });
         }
     }
+
+    const handleWindowKeyPress = (e: KeyboardEvent) => {
+        console.log(e);
+        if (!/^[a-zA-Z]$/.test(e.key) && e.key !== "Enter" && e.key !== "Backspace") {
+            return;
+        }
+        if (e.key === "Backspace") {
+            dispatch('keypress', { enter: false, del: true, key: e.key });
+        } else if (e.key === "Enter") {
+            dispatch('keypress', { enter: true, del: false, key: e.key });
+        } else {
+            dispatch('keypress', { enter: false, del: false, key: e.key });
+        }
+    }
 </script>
+
+<svelte:window on:keydown={handleWindowKeyPress} />
 
 <div id="root">
     <div style="grid-column: span 4" />
