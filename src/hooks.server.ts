@@ -20,7 +20,7 @@ export const handle = async ({event, resolve}) => {
             secure: true,
             path: AUTH_HOME,
         });
-        // return redirect(302, AUTH_HOME);
+        return redirect(302, AUTH_HOME);
     }
 
     const response = await resolve(event);
