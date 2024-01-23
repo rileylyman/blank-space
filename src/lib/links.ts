@@ -13,3 +13,6 @@ export const bsGameLinkOld = (gameId: string) => `/games/blankspace/${gameId}`;
 export const bsGameLink = (gameId: string) => `/games/blankspace/${gameId}/next`;
 
 export const dictionaryWordApi = (word: string) => `/api/dictionary?word=${word}`;
+export const blankspaceApi = (gameId: string) => `/api/blankspace?gameId=${gameId}`;
+export const blankspaceApiGuess = (gameId: string, guess: string) => 
+    `/api/blankspace?gameId=${gameId}&guess=${guess}`;

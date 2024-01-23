@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const BsRequestParser = z.object({
-    gameId: z.string().regex(/^[a-z0-9]+$/).length(15),
-    guess: z.string().regex(/^[a-z]+$/).optional()
+    gameId: z.string().regex(/^[a-zA-Z0-9]+$/).length(15),
+    guess: z.string().regex(/^[a-zA-Z]+$/).optional()
 });
 export type BsRequest = z.infer<typeof BsRequestParser>;
 

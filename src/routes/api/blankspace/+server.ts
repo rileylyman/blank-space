@@ -36,6 +36,7 @@ export const POST = async (event: RequestEvent) => {
     let guesses = progress.guesses.split(',').filter((s) => s);
     let guessAllowed = !progress.won && guesses.length < hints.length;
     if (guess && guessAllowed) {
+        guess = guess.toLocaleLowerCase();
         guesses.push(guess);
     } else if (guess && !guessAllowed) {
         response.error = "you cannot make any more guesses";

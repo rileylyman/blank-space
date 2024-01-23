@@ -1,43 +1,56 @@
 <script lang="ts">
-    interface Hint {
-        hint: string;
-        before: boolean;
-        guess: string;
-        index: number;
-    }
-
-    import { bsGameHints } from '$lib/schema';
-    import { dictionaryWordApi } from '$lib/links';
+    import { dictionaryWordApi, blankspaceApi, blankspaceApiGuess } from '$lib/links';
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
+    import { BsResponseParser } from '$lib/blankspace-game-api';
+    import { error } from '@sveltejs/kit';
+    import { tick } from 'svelte';
     export let data;
-    const game = data.game;
 
-    let hints = bsGameHints(game).map((fullHint: string, index: number) => {
-        const hint = fullHint.replace(game.target, '').trim();
-        const before = fullHint.indexOf(game.target) < fullHint.indexOf(hint);
-        return {
-            hint,
-            before,
-            guess: "",
-            index,
-        }
-    });
-
-    let currentHint = 0;
+    let hints = [data.bsResponse.result!.nextHint!];
     let inputValues = ["", "", "", "", "", ""];
+    let guesses = ["", "", "", "", ""];
+    let showHint = [false, false, false, false, false];
     let invalidWord = false;
-    const handleGuess = async (idx: number) => {
-        if (idx >= hints.length) return;
+    let currentHint = 0;
 
-        const { isWord } = await (await fetch(dictionaryWordApi(inputValues[idx]))).json();
+    $: target = data.bsResponse.result?.target;
+    $: won = data.bsResponse.result?.won;
+
+    const submitGuess = async (guess: string): Promise<boolean> => {
+        const res = await fetch(blankspaceApiGuess(data.gameId, guess), { method: "POST" });
+        const resJson = await res.json();
+        const parseRes = BsResponseParser.safeParse(resJson);
+        if (!parseRes.success || parseRes.data.error || !parseRes.data.result) {
+            error(500);
+        }
+
+        data.bsResponse = parseRes.data;
+        await tick();
+
+        if (parseRes.data.result.nextHint) {
+            hints.push(parseRes.data.result.nextHint);
+        }
+
+        return parseRes.data.result.won;
+    }
+
+    const handleGuess = async (idx: number) => {
+        const guess = inputValues[idx];
+
+        const { isWord } = await (await fetch(dictionaryWordApi(guess))).json();
         if (!isWord) {
             invalidWord = true;
             return;
         }
 
-        hints[idx].guess = inputValues[idx];
+        const correct = await submitGuess(guess);
+        guesses[idx] = guess;
+
+        if (correct) {
+            return;
+        }
 
         await sleepMs(1000);
 
@@ -53,8 +66,9 @@
 
         return Promise.resolve();
     }
+
     const handleKeyPress = async ({ detail: { key, del, enter }}: { detail: { key: string, del: boolean, enter: boolean }}) => {
-        if (hints[currentHint].guess || !showHint[currentHint]) {
+        if (guesses[currentHint] || !showHint[currentHint]) {
             return;
         }
         if (enter) {
@@ -69,19 +83,18 @@
     }
 
     const handleHintClick = (idx: number) => () => {
-        if (idx != 0 || hints[idx].guess) {
+        if (idx != 0 || guesses[idx]) {
             return;
         }
         showHint[idx] = true;
     }
-    let showHint = [false, false, false, false, false];
 </script>
 
 <div id="root">
     <div>
     </div>
     <div class="card-container">
-        {#each hints as { hint, before, guess }, idx}
+        {#each hints as { hint, before }, idx}
             <div 
                 class="card"
                 class:away={currentHint < idx}
@@ -90,25 +103,25 @@
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput strike={hints[idx].guess != ""} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={!won && !!guesses[idx]} bind:value={inputValues[idx]}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput strike={hints[idx].guess != ""} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={!won && !!guesses[idx]} bind:value={inputValues[idx]}/>
                         </div>
                     {/if}
                 </div>
                 <button on:click={handleHintClick(idx)} class="back-side">
-                    {#if guess && before}
-                        <div class="top-guess"> <span> {guess} </span> {hint}  </div>
-                    {:else if guess}
-                        <div class="top-guess"> {hint} <span> {guess} </span> </div>
+                    {#if guesses[idx] && before}
+                        <div class="top-guess"> <span> {guesses[idx]} </span> {hint}  </div>
+                    {:else if guesses[idx]}
+                        <div class="top-guess"> {hint} <span> {guesses[idx]} </span> </div>
                     {:else}
                         <div />
                     {/if}
-                    {#if !guess}
+                    {#if !guesses[idx]}
                         <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Click to Start'} </h1>
                     {/if}
                 </button>
