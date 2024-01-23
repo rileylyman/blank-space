@@ -6,17 +6,14 @@
     import { BsResponseParser } from '$lib/blankspace-game-api';
     import { error } from '@sveltejs/kit';
     import { tick } from 'svelte';
+
     export let data;
-
-    let hints = [data.bsResponse.result!.nextHint!];
-    let inputValues = ["", "", "", "", "", ""];
-    let guesses = ["", "", "", "", ""];
-    let showHint = [false, false, false, false, false];
-    let invalidWord = false;
-    let currentHint = 0;
-
-    $: target = data.bsResponse.result?.target;
+    $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
+
+    let flippedHint: number | null = null;
+    let lastRevealedHint: number = data.bsResponse.result!.hints.length - 1;
+    let invalidWord = false;
 
     const submitGuess = async (guess: string): Promise<boolean> => {
         const res = await fetch(blankspaceApiGuess(data.gameId, guess), { method: "POST" });
@@ -29,16 +26,12 @@
         data.bsResponse = parseRes.data;
         await tick();
 
-        if (parseRes.data.result.nextHint) {
-            hints.push(parseRes.data.result.nextHint);
-        }
-
-        return parseRes.data.result.won;
+        return won ?? false;
     }
 
-    const handleGuess = async (idx: number) => {
-        const guess = inputValues[idx];
-
+    const handleGuess = async () => {
+        if (!flippedHint) return;
+        const guess = hints[flippedHint].guess;
         const { isWord } = await (await fetch(dictionaryWordApi(guess))).json();
         if (!isWord) {
             invalidWord = true;
@@ -46,47 +39,45 @@
         }
 
         const correct = await submitGuess(guess);
-        guesses[idx] = guess;
-
         if (correct) {
             return;
         }
 
         await sleepMs(1000);
 
-        showHint[idx] = false;
+        flippedHint = null;
 
         await sleepMs(1000);
 
-        currentHint += 1;
+        lastRevealedHint = hints.length - 1;
 
         await sleepMs(750);
 
-        showHint[currentHint] = true;
+        flippedHint = lastRevealedHint;
 
         return Promise.resolve();
     }
 
     const handleKeyPress = async ({ detail: { key, del, enter }}: { detail: { key: string, del: boolean, enter: boolean }}) => {
-        if (guesses[currentHint] || !showHint[currentHint]) {
+        if (flippedHint === null || hints[flippedHint].submitted) {
             return;
         }
         if (enter) {
-            handleGuess(currentHint);
+            handleGuess();
             return;
         }
         if (del) {
-            inputValues[currentHint] = inputValues[currentHint].slice(0, -1)
+            hints[flippedHint].guess = hints[flippedHint].guess.slice(0, -1)
             return;
         }
-        inputValues[currentHint] += key;
+        hints[flippedHint].guess += key;
     }
 
     const handleHintClick = (idx: number) => () => {
-        if (idx != 0 || guesses[idx]) {
+        if (idx !== lastRevealedHint || hints[lastRevealedHint].submitted) {
             return;
         }
-        showHint[idx] = true;
+        flippedHint = lastRevealedHint;
     }
 </script>
 
@@ -94,34 +85,34 @@
     <div>
     </div>
     <div class="card-container">
-        {#each hints as { hint, before }, idx}
+        {#each hints as { hint, before, guess, submitted }, idx}
             <div 
                 class="card"
-                class:away={currentHint < idx}
-                class:hint-shown={showHint[idx]}
+                class:away={lastRevealedHint < idx}
+                class:hint-shown={flippedHint === idx}
             >
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput strike={!won && !!guesses[idx]} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={!won && submitted} value={guess}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput strike={!won && !!guesses[idx]} bind:value={inputValues[idx]}/>
+                            <GuessInput strike={!won && submitted} value={guess}/>
                         </div>
                     {/if}
                 </div>
                 <button on:click={handleHintClick(idx)} class="back-side">
-                    {#if guesses[idx] && before}
-                        <div class="top-guess"> <span> {guesses[idx]} </span> {hint}  </div>
-                    {:else if guesses[idx]}
-                        <div class="top-guess"> {hint} <span> {guesses[idx]} </span> </div>
+                    {#if submitted && before}
+                        <div class="top-guess"> <span> {guess} </span> {hint}  </div>
+                    {:else if submitted}
+                        <div class="top-guess"> {hint} <span> {guess} </span> </div>
                     {:else}
                         <div />
                     {/if}
-                    {#if !guesses[idx]}
+                    {#if !submitted}
                         <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Click to Start'} </h1>
                     {/if}
                 </button>
@@ -130,7 +121,7 @@
     </div>
     <div />
     <div style="align-self: end; margin-bottom: 1rem">
-        <VirtualKeyboard bind:invalidWord enterDisabled={!inputValues[currentHint]} on:keypress={handleKeyPress} />
+        <VirtualKeyboard bind:invalidWord enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
     </div>
 </div>
 

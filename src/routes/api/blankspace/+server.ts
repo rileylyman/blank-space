@@ -27,14 +27,10 @@ export const POST = async (event: RequestEvent) => {
     [progress, response.error] = await getProgress(event.locals.pb, { gameId, userId });
     if (!progress) return json(response, { status: 400 });
 
-    let hints = bsGameHints(game).map((fullHint): { hint: string, before: boolean} => {
-        const hint = fullHint.replace(game?.target ?? "", '').trim();
-        const before = fullHint.indexOf(game?.target ?? "") < fullHint.indexOf(hint);
-        return { hint, before };
-    });
+    let fullHints = bsGameHints(game);
 
     let guesses = progress.guesses.split(',').filter((s) => s);
-    let guessAllowed = !progress.won && guesses.length < hints.length;
+    let guessAllowed = !progress.won && guesses.length < fullHints.length;
     if (guess && guessAllowed) {
         guess = guess.toLocaleLowerCase();
         guesses.push(guess);
@@ -43,16 +39,24 @@ export const POST = async (event: RequestEvent) => {
         return json(response, { status: 400 });
     }
 
-    let prevHints = guesses.map((g, i) => { return { hint: hints[i].hint, before: hints[i].before, guess: g } });
-    let nextHint = hints.at(guesses.length) ?? null;
     let won = progress.won || guess === game.target;
+
+    const cleanHint = (guess: string, i: number) => {
+        const hint = fullHints[i].replace(game?.target ?? "", '').trim();
+        const before = fullHints[i].indexOf(game?.target ?? "") < fullHints[i].indexOf(hint);
+        return { hint, before, guess, submitted: !!guess };
+    }
+
+    let hints = guesses.map(cleanHint);
+    if (!won && guesses.length < fullHints.length) {
+        hints.push(cleanHint("", guesses.length));
+    }
 
     response.result = {
         won,
         target: won ? game.target : undefined,
-        prevHints,
-        nextHint,
-        allHints: won ? bsGameHints(game) : [],
+        hints,
+        fullHints: won ? bsGameHints(game) : [],
     }
 
     try {

@@ -11,16 +11,13 @@ export const BsResponseParser = z.object({
     result: z.object({
         won: z.boolean(),
         target: z.string().optional(),
-        prevHints: z.array(z.object({
+        hints: z.array(z.object({
             hint: z.string(),
             before: z.boolean(),
             guess: z.string(),
+            submitted: z.boolean(),
         })),
-        nextHint: z.object({
-            hint: z.string(),
-            before: z.boolean(),
-        }).nullable(),
-        allHints: z.array(z.string()),
+        fullHints: z.array(z.string()),
     }).nullable()
 });
 export type BsResponse = z.infer<typeof BsResponseParser>;
