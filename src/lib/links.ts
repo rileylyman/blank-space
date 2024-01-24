@@ -9,8 +9,7 @@ export const AUTH_LOGOUT_ACTION = "/auth?/logout";
 export const AUTH_LOGIN_ACTION = "/auth?/login";
 export const AUTH_REGISTER_ACTION = "/auth?/register";
 
-export const bsGameLinkOld = (gameId: string) => `/games/blankspace/${gameId}`;
-export const bsGameLink = (gameId: string) => `/games/blankspace/${gameId}/next`;
+export const bsGameLink = (gameId: string) => `/games/blankspace/${gameId}`;
 
 export const dictionaryWordApi = (word: string) => `/api/dictionary?word=${word}`;
 export const blankspaceApi = (gameId: string) => `/api/blankspace?gameId=${gameId}`;

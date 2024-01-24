@@ -1,606 +1,269 @@
 <script lang="ts">
+    import { dictionaryWordApi, blankspaceApi, blankspaceApiGuess } from '$lib/links';
+    import { sleepMs } from '$lib/utils';
+    import GuessInput from './GuessInput.svelte';
+    import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
+    import ResultScreen from './ResultScreen.svelte';
+    import { BsResponseParser } from '$lib/blankspace-game-api';
+    import { error } from '@sveltejs/kit';
     import { tick } from 'svelte';
-    import StartScreen from './StartScreen.svelte';
-    import { BS_HOME_SKIP } from '$lib/links';
-
-    interface Hint {
-        value: string;
-        targetBefore: boolean;
-        targetHintGap: number;
-        guess: string;
-        expanded: boolean;
-        completed: boolean;
-        inputting: boolean;
-    }
-
-    enum GameMode {
-        Easy,
-        Medium,
-        Hard,
-    }
-    let gameMode = GameMode.Easy;
 
     export let data;
-    let useAutoClick = true;
-    let easyMode = false;
-    let rulesRead = false;
-    let won = false;
-    let targetWord = data.game?.target.toLowerCase().trim() ?? "";
-    let rawHints = data.game ? [
-        data.game.hint1.toLowerCase(), 
-        data.game.hint2.toLowerCase(),
-        data.game.hint3.toLowerCase(),
-        data.game.hint4.toLowerCase(),
-    ] : [];
-    const autoClickDelay = 750;
-    $: hints = rawHints.map((raw) => { 
-        const value = raw.replace(targetWord, '').trim();
-        const hintLoc = raw.indexOf(value); 
-        const targetLoc = raw.indexOf(targetWord); // TODO: check if target is actually in
-        const targetBefore = targetLoc < hintLoc;
-        const targetHintGap = targetBefore 
-            ? hintLoc - (targetLoc + targetWord.length)
-            : targetLoc - (hintLoc + value.length);
-        return {
-            value,
-            targetBefore,
-            targetHintGap,
-            guess: "", 
-            expanded: false, 
-            completed: false, 
-            inputting: false
+    $: hints = data.bsResponse.result!.hints;
+    $: won = data.bsResponse.result?.won;
+    $: lost = data.bsResponse.result?.lost;
+
+    let flippedHint: number | null = null;
+    let lastRevealedHint: number = data.bsResponse.result!.hints.length - 1;
+    let invalidWord = false;
+
+    const submitGuess = async (guess: string): Promise<boolean> => {
+        const res = await fetch(blankspaceApiGuess(data.gameId, guess), { method: "POST" });
+        const resJson = await res.json();
+        const parseRes = BsResponseParser.safeParse(resJson);
+        if (!parseRes.success || parseRes.data.error || !parseRes.data.result) {
+            error(500);
         }
-    });
-    $: formattedHints = rawHints.map((raw, i) => 
-        raw.toUpperCase()
-            .replace(targetWord.toUpperCase(), `<b>${targetWord.toUpperCase()}</b>`)
-    );
-    $: targetPlaceholder = "*".repeat(targetWord.length);
-    $: guesses = hints.map((hint) => hint.guess);
-    $: remainingHints = hints.filter((hint) => !hint.guess);
-    $: currentHint = hints.findIndex((hint) => !hint.completed);
-    $: anyExpanded = hints.some((hint) => hint.expanded && !hint.completed);
-    $: won = guesses.some((guess) => isCorrect(guess));
-    $: gameOver = hints.every(({completed}) => completed) || won;
-    $: tlen = targetWord.length;
-    $: if (rulesRead) autoClick();
 
-    const autoClick = () => { if (!gameOver && useAutoClick) setTimeout(() => hintClicked(currentHint)(), autoClickDelay) };
+        data.bsResponse = parseRes.data;
+        await tick();
 
-    const hintClicked = (hintIdx: number) => () => {
-        if (currentHint < 0 || currentHint < hintIdx || hints[hintIdx].completed) {
-            return;
-        }
-        hints[hintIdx].expanded = true;
-    };
-
-    const hintDone = (hintIdx: number, guess = "<no guess>") => {
-        hints[hintIdx].completed = true;
-        hints[hintIdx].guess = guess; 
-        tick().then(autoClick);
+        return won ?? false;
     }
 
-    const isCorrect = (guess: string) => guess.toLowerCase() == targetWord.toLowerCase();
+    const handleGuess = async () => {
+        if (flippedHint === null) return;
+        const guess = hints[flippedHint].guess;
+        const { isWord } = await (await fetch(dictionaryWordApi(guess))).json();
+        if (!isWord) {
+            invalidWord = true;
+            return;
+        }
 
-    const hintString = (hintIdx: number) => {
-        if (hintIdx == 1) return "after the first hint. A perfect game!";
-        if (hintIdx == 2) return "after the second hint. Stellar!"
-        if (hintIdx == 3) return "after the third hint. Nice."
-        if (hintIdx == 4 || hintIdx == -1) return "after the fourth hint. Hey, at least you didn't lose."
-    };
+        const correct = await submitGuess(guess);
+        if (correct) {
+            return;
+        }
 
-    const scoreString = (hintIdx: number) => {
-        if (hintIdx == 1) return ", a perfect 4-star score!"
-        if (hintIdx == 2) return " for a cool 3 stars."
-        if (hintIdx == 3) return " for a respectable 2 stars."
-        if (hintIdx == 4 || hintIdx == -1) return " and earned 1 star."
+        await sleepMs(1000);
+
+        flippedHint = null;
+
+        await sleepMs(1000);
+
+        lastRevealedHint = hints.length - 1;
+
+        await sleepMs(750);
+
+        flippedHint = lastRevealedHint;
+
+        return Promise.resolve();
+    }
+
+    const handleKeyPress = async ({ detail: { key, del, enter }}: { detail: { key: string, del: boolean, enter: boolean }}) => {
+        if (flippedHint === null || hints[flippedHint].submitted) {
+            return;
+        }
+        if (enter) {
+            handleGuess();
+            return;
+        }
+        if (del) {
+            hints[flippedHint].guess = hints[flippedHint].guess.slice(0, -1)
+            return;
+        }
+        hints[flippedHint].guess += key;
+    }
+
+    const handleHintClick = (idx: number) => () => {
+        if (idx !== lastRevealedHint || hints[lastRevealedHint].submitted) {
+            return;
+        }
+        flippedHint = lastRevealedHint;
     }
 </script>
 
-<!-- svelte-ignore a11y-autofocus -->
-
-{#if data.game}
-    <div id="root-container">
-            <div class="hints" 
-                class:any-expand={anyExpanded}
-                class:expand-1={hints[0].expanded && !hints[0].completed}
-                class:retract-1={hints[0].completed && !hints[1].expanded}
-                class:expand-2={hints[1].expanded && !hints[1].completed}
-                class:retract-2={hints[1].completed && !hints[2].expanded}
-                class:expand-3={hints[2].expanded && !hints[2].completed}
-                class:retract-3={hints[2].completed && !hints[3].expanded}
-                class:expand-4={hints[3].expanded && !hints[3].completed}
-                class:retract-4={hints[3].completed}
-            >
-                {#each hints as hint, hintIdx}
-                    <button 
-                        class="hint" 
-                        class:revealed={hint.expanded}
-                        class:fade-away={anyExpanded && (!hint.expanded || hint.completed)}
-                        on:click={hintClicked(hintIdx)}
-                    >
-                        <div class="back">
-                            <div 
-                                class="previous" 
-                                class:show={hints[hintIdx].expanded && !hints[hintIdx].completed}
-                                class:force-hide={hints[hintIdx].completed}
-                            >
-                                {#each hints as prevHint, prevHintIdx}
-                                    {#if prevHintIdx < hintIdx}
-                                        <p>
-                                            <span class="previous-value">{prevHint.value}</span>: 
-                                            <span class="guess strike">{prevHint.guess}</span>
-                                        </p>
-                                    {/if}
-                                {/each}
-                            </div>
-                            <div class="hint-number">
-                                #{hintIdx + 1}
-                            </div>
-                            <div class="hint-value">
-                                {#if hint.targetBefore && hint.guess}
-                                    <span class="guess">{hint.guess}</span>
-                                {:else if hint.targetBefore && hint.expanded && !hint.completed}
-                                    <input 
-                                        autofocus
-                                        style={`width: ${tlen}ch`}
-                                        on:change={(e) => hintDone(hintIdx, e.currentTarget.value)}
-                                        maxlength={targetWord.length}
-                                        class="hint-inline-input"
-                                        placeholder={targetPlaceholder}
-                                        type="text" 
-                                    />
-                                {/if}
-                                    <span class="value">
-                                    {
-                                        (hint.targetBefore ? ' '.repeat(hint.targetHintGap) : '')
-                                        + hint.value + 
-                                        (!hint.targetBefore ? ' '.repeat(hint.targetHintGap) : '')
-                                    }
-                                    </span>
-                                {#if !hint.targetBefore && hint.guess}
-                                    <span class="guess">{hint.guess}</span>
-                                {:else if !hint.targetBefore && hint.expanded && !hint.completed}
-                                    <input 
-                                        autofocus
-                                        style={`width: ${tlen}ch`}
-                                        on:change={(e) => hintDone(hintIdx, e.currentTarget.value)}
-                                        maxlength={targetWord.length}
-                                        class="hint-inline-input"
-                                        placeholder={targetPlaceholder}
-                                        type="text" 
-                                    />
-                                {/if}
-                            </div>
-                        </div>
-                        <div class="front">
-                            <h3>Hint #{hintIdx + 1}</h3>
-                        </div>
-                    </button>
-                {/each}
-            </div>
-        <div id="modal-container" class:hidden={rulesRead && !gameOver} class:strike={false}>
-            {#if !rulesRead}
-                <StartScreen on:play={() => rulesRead = true}/>
-            {:else if gameOver && !won}
-                <div id="modal">
-                    <h1>You Lost</h1>
-                    <br/>
-                    <p>The correct word was <em><b>{targetWord.toUpperCase()}</b></em>. </p>
-                    <br />
-                    <h2>Hints </h2>
-                    <ul>
-                    {#each formattedHints as hint}
-                        <li> 
-                            {@html hint}
-                        </li>
-                    {/each}
-                    </ul>
-                    <br/>
-                    <h2>Your Guesses </h2>
-                    <ul>
-                    {#each guesses as guess}
-                        {#if guess}
-                            <li> 
-                                {guess.toUpperCase()}
-                            </li>
-                        {/if}
-                    {/each}
-                    </ul>
-                    <br/>
-                    <a href={BS_HOME_SKIP}>Go Home</a>
-                </div>
-            {:else if gameOver}
-                <div id="modal">
-                    <h1>You Won!</h1>
-                    <br/>
-                    <p>You guessed <em><b>{targetWord.toUpperCase()}</b></em> {hintString(currentHint)}</p>
-                    <br />
-                    <h2> Points </h2>
-                    <br/>
-                    <p>
-                        You left {remainingHints.length} hints remaining{scoreString(currentHint)}
-                    </p>
-                    <br/>
-                    <h2>Hints </h2>
-                    <ul>
-                    {#each formattedHints as hint}
-                        <li> 
-                            {@html hint}
-                        </li>
-                    {/each}
-                    </ul>
-                    <br/>
-                    <h2>Your Guesses </h2>
-                    <ul>
-                    {#each guesses as guess}
-                        {#if guess}
-                            <li> 
-                                {guess.toUpperCase()}
-                            </li>
-                        {/if}
-                    {/each}
-                    </ul>
-                    <br/>
-                    <a href={BS_HOME_SKIP}>Go Home</a>
-                </div>
-            {/if}
-        </div>
+{#if won || lost}
+    <div style="background: white; z-index: 2; position: absolute; width: 100vw; height: 100vh; height: 100svh">
+        <ResultScreen response={data.bsResponse} />
     </div>
-{:else}
-    <h1> Game not found </h1>
 {/if}
 
-<style>
-    :root {
-        font-family: 'Fira Sans', sans-serif;
-    }
+<div id="root">
+    <div>
+    </div>
+    <div class="card-container">
+        {#each hints as { hint, before, guess, submitted }, idx}
+            <div 
+                class="card"
+                class:away={lastRevealedHint < idx}
+                class:hint-shown={flippedHint === idx}
+            >
+                <div class="hint-side">
+                    {#if before}
+                        <div>
+                            <GuessInput strike={!won && submitted} value={guess}/>
+                            <span> {hint} </span>
+                        </div>
+                    {:else}
+                        <div>
+                            <span> {hint} </span> 
+                            <GuessInput strike={!won && submitted} value={guess}/>
+                        </div>
+                    {/if}
+                </div>
+                <button on:click={handleHintClick(idx)} class="back-side">
+                    {#if submitted && before}
+                        <div class="top-guess"> <span> {guess} </span> {hint}  </div>
+                    {:else if submitted}
+                        <div class="top-guess"> {hint} <span> {guess} </span> </div>
+                    {:else}
+                        <div />
+                    {/if}
+                    {#if !submitted}
+                        <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Click to Start'} </h1>
+                    {/if}
+                </button>
+            </div>
+        {/each}
+    </div>
+    <div />
+    <div style="align-self: end; margin-bottom: 1rem">
+        <VirtualKeyboard bind:invalidWord enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
+    </div>
+</div>
 
-    #root-container {
-        position: relative;
-        display: grid;
-        justify-items: center;
-        align-items: center;
+<style>
+    #root {
         height: 100vh;
         height: 100svh;
-        max-height: 100vh;
-        max-height: 100svh;
-        filter: blur(100);
-    }
-    
-    #modal-container {
-        position: absolute;
-        width: 100%;
-        height: 100%;
         display: grid;
-        place-items: center;
-        background: #ffffffcf;
-        transition: opacity 0ms;
-    }
-
-    #modal {
-        position: absolute;
-        background: white;
-        border: 1px solid black;
-        border-radius: 0.5rem;
-        width: 70%;
-        max-height: 90%;
-        padding: 3rem 4rem;
-        overflow-y: auto;
-    }
-
-    @media (max-aspect-ratio: 1/1.5) {
-        #modal-container {
-            background: white;
-        }
-
-        #modal {
-            width: auto;
-            border: none;
-            padding: 0 1rem;
-        }
-    }
-
-    #modal-container.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    #modal > h1 {
-        font-size: 3rem;
-    }
-
-    #modal a {
-        display: block;
-        width: 25%;
-        margin: 0 1rem 0 1rem;
-        text-align: center;
-        background: white;
-        border: 1px solid black;
-        border-radius: 0.5rem;
-        font-size: 1.5rem;
-        color: black;
-        text-decoration: none;
-    }
-
-    #modal a:hover {
-        background: #f0f0f0;
-        cursor: pointer;
-    }
-
-    .hints {
-        display: grid;
-        grid-template: 1fr 1fr / 1fr 1fr;
-        grid-auto-flow: dense;
-        justify-items: center;
-        align-items: center;
-        column-gap: 2.5vw;
-        row-gap: 2.5vw;
-        width: 90vw;
-        max-width: 1500px;
-        height: 65%;
-    }
-
-    .hints.expand-1 {
-        animation: resize-1 500ms ease 1000ms forwards;
-    }
-
-    .hints.expand-2 {
-        animation: resize-2 500ms ease 1000ms forwards;
-    }
-
-    .hints.expand-3 {
-        animation: resize-3 500ms ease 1000ms forwards;
-    }
-
-    .hints.expand-4 {
-        animation: resize-4 500ms ease 1000ms forwards;
-    }
-
-    .hints.retract-1 {
-        grid-template: 1fr 0fr / 1fr 0fr;
-        animation: resize-1-back 500ms ease 0ms forwards;
-    }
-
-    .hints.retract-2 {
-        grid-template: 1fr 0fr / 0fr 1fr;
-        animation: resize-2-back 500ms ease 0ms forwards;
-    }
-
-    .hints.retract-3 {
-        grid-template: 0fr 1fr / 1fr 0fr;
-        animation: resize-3-back 500ms ease 0ms forwards;
-    }
-
-    .hints.retract-4 {
-        grid-template: 0fr 1fr / 0fr 1fr;
-        animation: resize-4-back 500ms ease 0ms forwards;
-    }
-
-    @keyframes resize-1 {
-        0% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-        100% {
-            grid-template: 1fr 0fr / 1fr 0fr;
-        }
-    }
-
-    @keyframes resize-2 {
-        0% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-        100% {
-            grid-template: 1fr 0fr / 0fr 1fr;
-        }
-    }
-
-    @keyframes resize-3 {
-        0% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-        100% {
-            grid-template: 0fr 1fr / 1fr 0fr;
-        }
-    }
-
-    @keyframes resize-4 {
-        0% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-        100% {
-            grid-template: 0fr 1fr / 0fr 1fr;
-        }
-    }
-
-    @keyframes resize-1-back {
-        0% {
-            grid-template: 1fr 0fr / 1fr 0fr;
-        }
-        100% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-    }
-
-    @keyframes resize-2-back {
-        0% {
-            grid-template: 1fr 0fr / 0fr 1fr;
-        }
-        100% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-    }
-
-    @keyframes resize-3-back {
-        0% {
-            grid-template: 0fr 1fr / 1fr 0fr;
-        }
-        100% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-    }
-
-    @keyframes resize-4-back {
-        0% {
-            grid-template: 0fr 1fr / 0fr 1fr;
-        }
-        100% {
-            grid-template: 1fr 1fr / 1fr 1fr;
-
-        }
-    }
-
-    @media (max-aspect-ratio: 1/1.2) {
-        .hints {
-            height: 80%;
-            grid-template: 1fr 1fr 1fr 1fr / 1fr;
-            column-gap: 1rem;
-            row-gap: 1rem;
-        }
-    }
-
-    .hint {
-        all: unset;
-        display: block;
-        font-size: 2rem;
-        text-transform: uppercase;
-        position: relative;
-        text-align: center;
-        justify-self: stretch;
-        align-self: stretch;
-        transition: opacity 1000ms;
-    }
-
-    .hint:hover {
-        cursor: pointer;
-    }
-
-    .hint.fade-away {
-        opacity: 0;
-    }
-
-    .back, .front {
-        position: absolute;
-        top: 0;
-        height: 100%;
-        width: 100%;
+        grid-template-rows: 5rem 10rem 10rem 1fr;
         overflow: hidden;
-        border: 1px solid black;
-        border-radius: 1rem;
-        transition: transform 1000ms;
-        transform-style: preserve-3d;
+        place-items: stretch;
+    }
+
+    .card-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        position: relative;
+    }
+
+    .card {
+        position: absolute;
+        display: grid;
+        align-items: start;
+        justify-items: center;
+        width: 90vw;
+        margin: 0 5vw;
+        height: 100%;
+        background: transparent;
+        transition: transform 500ms ease-in-out;
+    }
+
+    .hint-side, .back-side {
+        position: absolute;
+        width: 100%;
+        height: 100%;
         backface-visibility: hidden;
-        display: flex;
-        flex-flow: column nowrap;
-        align-items: center;
-        justify-content: space-around;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        display: grid;
+        transition: transform 500ms;
+        place-items: center;
+        transition: transform 1s ease-in-out;
+        outline: none;
     }
 
-    .front {
-        background-color: #f0f0f0;
+    .hint-side {
+        transform: rotateX(180deg);
+        background: white;
     }
 
-    .back > .previous {
-        position: absolute;
-        top: 0;
-        left: 0;
-        padding: 1rem 2rem;
-        text-align: left;
-        opacity: 0;
-        transition: opacity 2s;
-        transition-delay: 1.5s;
+    .back-side {
+        display: grid;
+        grid-template-rows: 25% 1fr 25%;
+        transform: rotateX(0deg);
+        background: #f0f0f0;
+        align-items: start;
     }
 
-    .previous.show {
-        opacity: 1;
+    .back-side h1 {
+        margin-top: 1rem;
     }
 
-    .previous.force-hide {
-        opacity: 0;
-        transition: none;
-    }
-
-    .previous .guess {
-        font-size: 1.5rem;
-        font-style: italic;
-        text-transform: lowercase;
-    }
-
-    .hint-number {
-        position: absolute;
-        right: 0;
-        top: 0;
-        margin: 1rem;
-        font-size: 2rem;
-    }
-
-    .strike {
-        text-decoration: line-through;
-    }
-
-    .back .hint-value {
-        font-size: 2rem;
+    .hint-side div {
         display: flex;
         justify-content: center;
         font-family: 'Source Code Pro', 'Fira Sans', sans-serif;
     }
 
-    .back .hint-value .value {
-        font-size: 2rem;
+    .hint-side span {
+        font-size: 1.5rem;
         font-weight: bold;
-        align-self: center;
-        /* https://www.mattstobbs.com/flexbox-removing-trailing-whitespace */
-        white-space: pre-wrap;
-    }
-
-    .back .hint-value .guess {
-        font-size: 2rem;
-        align-self: center;
-        text-decoration: line-through;
-    }
-
-    .back .hint-inline-input {
-        font-size: 2rem;
-        padding: 0;
-        align-self: center;
-        outline: none;
-        border: none;
-        display: inline;
         text-transform: uppercase;
     }
 
-    .back .buttons input, .back .buttons input:focus {
-        border: 1px solid black;
-        border-radius: 0.5rem;
-        height: 4rem;
-        text-align: center;
-        text-transform: lowercase;
+    .back-side div {
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-top: 0.5rem;
     }
 
-    .back .buttons input:focus {
-        outline: none;
+    .back-side div span {
+        text-decoration: line-through;
+        font-weight: normal;
     }
 
-
-    .front:hover {
-        box-shadow: -2px 2px 15px #d9d9d2;
+    .hint-shown > .hint-side {
+        transform: rotateX(0deg);
     }
 
-    .back {
+    .hint-shown > .back-side {
         transform: rotateX(180deg);
     }
 
-    .hint.revealed > .back {
-        transform: rotateX(0);
+    .card.away {
+        transform: translateX(100vw);
     }
-    .hint.revealed > .front {
-        transform: rotateX(180deg);
+
+    .card:nth-child(1) {
+        transform: translateY(-25%);
+    }
+
+    .card:nth-child(1).away {
+        transform: translateY(-25%) translateX(100vw);
+    }
+
+    .card:nth-child(2) {
+        transform: translateY(0%);
+    }
+
+    .card:nth-child(2).away {
+        transform: translateY(0%) translateX(100vw);
+    }
+
+    .card:nth-child(3) {
+        transform: translateY(25%);
+    }
+
+    .card:nth-child(3).away {
+        transform: translateY(25%) translateX(100vw);
+    }
+
+    .card:nth-child(4) {
+        transform: translateY(50%);
+    }
+
+    .card:nth-child(4).away {
+        transform: translateY(50%) translateX(100vw);
+    }
+
+    .card:nth-child(5) {
+        transform: translateY(75%);
+    }
+
+    .card:nth-child(5).away {
+        transform: translateY(75%) translateX(100vw);
     }
 </style>
