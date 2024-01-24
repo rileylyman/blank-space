@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { BS_HOME_SKIP } from "$lib/links";
+    import { BS_GAME_LIST } from "$lib/links";
     import { type BsResponse } from "$lib/blankspace-game-api";
 
     export let response: BsResponse;
@@ -54,7 +54,7 @@
     {/each}
     </ul>
     <br/>
-    <a href={BS_HOME_SKIP}>Go Home</a>
+    <a href={BS_GAME_LIST}>Go Back</a>
 </div>
 
 <style>
