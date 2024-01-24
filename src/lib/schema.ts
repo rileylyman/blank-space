@@ -18,8 +18,10 @@ export interface BsGame {
     pity_hint: string;
     notes: string;
 }
+
 export const bsGameHints = (g: BsGame): string[] =>
     [g.hint1, g.hint2, g.hint3, g.hint4, g.pity_hint];
+
 export const bsGameAllLowercase = (g: BsGame) => {
       g.target = g.target.toLocaleLowerCase();
       g.hint1 = g.hint1.toLocaleLowerCase();
@@ -28,6 +30,15 @@ export const bsGameAllLowercase = (g: BsGame) => {
       g.hint4 = g.hint4.toLocaleLowerCase();
       g.pity_hint = g.pity_hint.toLocaleLowerCase();
 }
+
+export const censorGames = (games: Array<BsGame>) => games.forEach((game) => {
+    game.target = "";
+    game.hint1 = "";
+    game.hint2 = "";
+    game.hint3 = "";
+    game.hint4 = "";
+    game.pity_hint = "";
+});
 
 export interface BsGameProgress {
     id: string;
