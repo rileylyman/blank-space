@@ -10,6 +10,7 @@ export const BsResponseParser = z.object({
     error: z.string().nullable(),
     result: z.object({
         won: z.boolean(),
+        lost: z.boolean(),
         target: z.string().optional(),
         hints: z.array(z.object({
             hint: z.string(),

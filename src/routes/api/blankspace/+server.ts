@@ -32,7 +32,7 @@ export const POST = async (event: RequestEvent) => {
     let guesses = progress.guesses.split(',').filter((s) => s);
     let guessAllowed = !progress.won && guesses.length < fullHints.length;
     if (guess && guessAllowed) {
-        guess = guess.toLocaleLowerCase();
+        guess = guess.toLocaleLowerCase().trim();
         guesses.push(guess);
     } else if (guess && !guessAllowed) {
         response.error = "you cannot make any more guesses";
@@ -47,25 +47,31 @@ export const POST = async (event: RequestEvent) => {
         return { hint, before, guess, submitted: !!guess };
     }
 
+    let lost = false;
     let hints = guesses.map(cleanHint);
     if (!won && guesses.length < fullHints.length) {
         hints.push(cleanHint("", guesses.length));
+    } else if (!won) {
+        lost = true;
     }
 
     response.result = {
         won,
-        target: won ? game.target : undefined,
+        lost, 
+        target: (won || lost) ? game.target : undefined,
         hints,
-        fullHints: won ? bsGameHints(game) : [],
+        fullHints: (won || lost) ? bsGameHints(game) : [],
     }
 
-    try {
-        await event.locals.pb
-            .collection('bs_game_progress')
-            .update(progress.id, { won, guesses: guesses.join(',')});
-    } catch (err) {
-        console.log(err);
-        return json({ error: 'internal server error: could not update progress' }, { status: 500 });
+    if (guess) {
+        try {
+            await event.locals.pb
+                .collection('bs_game_progress')
+                .update(progress.id, { won, lost, guesses: guesses.join(',')});
+        } catch (err) {
+            console.log(err);
+            return json({ error: 'internal server error: could not update progress' }, { status: 500 });
+        }
     }
 
     return json(response);
@@ -91,7 +97,7 @@ const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: 
             .collection('bs_game_progress')
             .getFirstListItem(`user.id = "${args.userId}" && bs_game.id = "${args.gameId}"`);
     } catch (_) {
-        progress = { id: "", bs_game: args.gameId, user: args.userId, guesses: "", won: false };
+        progress = { id: "", bs_game: args.gameId, user: args.userId, guesses: "", won: false, lost: false };
         try {
             progress = await pb
                 .collection('bs_game_progress')

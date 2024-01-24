@@ -3,6 +3,7 @@
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
+    import ResultScreen from './ResultScreen.svelte';
     import { BsResponseParser } from '$lib/blankspace-game-api';
     import { error } from '@sveltejs/kit';
     import { tick } from 'svelte';
@@ -10,6 +11,7 @@
     export let data;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
+    $: lost = data.bsResponse.result?.lost;
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 1;
@@ -80,6 +82,12 @@
         flippedHint = lastRevealedHint;
     }
 </script>
+
+{#if won || lost}
+    <div style="background: white; z-index: 2; position: absolute; width: 100vw; height: 100vh; height: 100svh">
+        <ResultScreen response={data.bsResponse} />
+    </div>
+{/if}
 
 <div id="root">
     <div>

@@ -35,6 +35,7 @@ export interface BsGameProgress {
     user: string;
     guesses: string;
     won: boolean;
+    lost: boolean;
 }
 
 export interface BsGameFeedback {

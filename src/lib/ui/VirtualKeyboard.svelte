@@ -23,10 +23,10 @@
     }
 
     const handleWindowKeyPress = (e: KeyboardEvent) => {
-        console.log(e);
         if (!/^[a-zA-Z]$/.test(e.key) && e.key !== "Enter" && e.key !== "Backspace") {
             return;
         }
+        invalidWord = false;
         if (e.key === "Backspace") {
             dispatch('keypress', { enter: false, del: true, key: e.key });
         } else if (e.key === "Enter") {
