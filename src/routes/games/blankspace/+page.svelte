@@ -1,10 +1,10 @@
 <script lang="ts">
     import Fa from 'svelte-fa';
     import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
-    import OptionSlider from '$lib/ui/OptionSlider.svelte';
     import BsGameCard from '$lib/ui/BsGameCard.svelte';
-    import { page } from '$app/stores';
     import { BS_GAME_LIST } from '$lib/links';
+
+    export let data;
 
     enum State {
         Start,
@@ -13,7 +13,7 @@
         SettingsRequested,
         SettingsOpen
     }
-    let state = $page.url.searchParams.get('skip') ? State.Normal : State.Start;
+    let state = data.skip ? State.Normal : State.Start;
     
     let collapseDurationMs = 1500;
     let fadeInDurationMs = 500; // Keep in sink with transition: opacity
@@ -39,10 +39,10 @@
     $: headerRevealed = [State.Start, State.NormalRequested, State.Normal].includes(state);
     $: headerContent = [State.Start, State.NormalRequested, State.Normal, State.SettingsRequested].includes(state);
     $: headerSubContent = [State.Start].includes(state);
-    $: gameModeRevealed = [State.Normal].includes(state);
-    $: gameModeContent = [State.Normal, State.SettingsRequested].includes(state);
-    $: playButtonRevealed = [State.Normal].includes(state);
-    $: playButtonContent = [State.Normal, State.SettingsRequested].includes(state);
+    $: welcomeRevealed = [State.Normal].includes(state);
+    $: welcomeContent = [State.Normal, State.SettingsRequested].includes(state);
+    $: playButtonsRevealed = [State.Normal].includes(state);
+    $: playButtonsContent = [State.Normal, State.SettingsRequested].includes(state);
     $: settingsRevealed = [State.Normal, State.SettingsRequested, State.SettingsOpen].includes(state);
     $: settingsContent = [State.Normal, State.SettingsRequested, State.SettingsOpen].includes(state);
     $: accountRevealed = settingsRevealed;
@@ -51,16 +51,16 @@
     $: rulesContent = settingsContent;
 </script>
 
+<svelte:window on:click={() => {
+    if (state === State.Start) startCollapse();
+}} />
+
 <div 
     class="root" 
     class:collapse={rootCollapsed} 
     class:open-settings={rootOpenSettings}
 >
-    <button 
-        class="header" 
-        class:revealed={headerRevealed} 
-        on:click={startCollapse}
-    >
+    <button class="header" class:revealed={headerRevealed} >
         {#if headerContent}
             <h1> <span class="left"> Blank </span> Space </h1>
             {#if headerSubContent}
@@ -69,21 +69,26 @@
         {/if}
     </button>
 
-    <div class="game-mode" class:revealed={gameModeRevealed}>
-        {#if gameModeContent}
-            <!-- <h2> Game Mode </h2>
-            <OptionSlider options={["Easy", "Medium", "Hard"]}/>  -->
-            <h2> Wednesday, Jan. 17 </h2>
-            <div class="card-holder">
-                <BsGameCard />
-            </div>
+    <div class="welcome" class:revealed={welcomeRevealed}>
+        {#if welcomeContent}
+            <h2 style="max-width: 80vw; overflow-wrap: break-word"> Welcome, {data.pbUser?.username}</h2>
         {/if}
     </div>
 
-    <div class="play-button" class:revealed={playButtonRevealed}>
-        {#if playButtonContent}
+    <div class="play-buttons" class:revealed={playButtonsRevealed}>
+        {#if playButtonsContent}
             <a href={BS_GAME_LIST}>
-                Play
+                <div style="grid-row: span 2">Test new games</div>
+                <div class="notifications"> {data.newGames} </div>
+            </a>
+            <a class="inactive" href={BS_GAME_LIST}>
+                <div>Play Today's Game</div>
+                <div class="desc">Not available yet</div>
+            </a>
+            <a href={BS_GAME_LIST}>
+                <div>View Games</div>
+                <div class="desc">See reviews from others</div>
+                <!-- <div class="notifications"> 15 </div> -->
             </a>
         {/if}
     </div>
@@ -133,14 +138,13 @@
     .root {
         background-color: white;
         display: grid;
-        grid-template-rows: 0fr 1fr 0fr 0fr 0fr;
+        grid-template-rows: 1fr 0fr 0fr 0fr;
         grid-template-columns: repeat(3, 1fr);
         grid-template-areas:
-            ".        .       .     "
-            "header   header  header"
-            "mode     mode    mode  "
-            "play     play    play  "
-            "settings account rules ";
+            "header      header     header"
+            "welcome     welcome    welcome  "
+            "play        play       play  "
+            "settings    account    rules ";
         place-items: center;
         height: 100vh;
         height: 100svh;
@@ -148,12 +152,12 @@
     }
 
     .root.collapse {
-        grid-template-rows: 0fr 1fr 1.5fr 1fr 0.5fr;
+        grid-template-rows: 1.2fr 0.5fr 2fr 0.5fr;
         transition: grid-template-rows 1500ms;
     }
 
     .root.open-settings {
-        grid-template-rows: 0fr 0fr 0fr 0fr 1fr;
+        grid-template-rows: 0fr 0fr 0fr 1fr;
         transition: grid-template-rows 500ms;
     }
 
@@ -189,7 +193,7 @@
         color: white;
     }
 
-    .header, .game-mode, .play-button, .settings, .account, .rules {
+    .header, .welcome, .play-buttons, .settings, .account, .rules {
         opacity: 0;
         transition: opacity 500ms ease-in-out;
     }
@@ -198,41 +202,68 @@
         opacity: 1;
     }
 
-    .game-mode {
-        grid-area: mode;
+    .welcome {
+        grid-area: welcome;
         padding: 0 1rem;
         text-align: center;
     }
 
-    .game-mode h2 {
+    .welcome h2 {
         font-weight: 400;
     }
 
-    .card-holder {
-        grid-area: mode;
-        width: 75vw;
-        height: 10rem;
-    }
-
-    .play-button {
+    .play-buttons {
         grid-area: play;
         display: grid;
     }
 
-    .play-button a {
+    .play-buttons a {
+        display: grid;
         place-items: center;
         color: black;
         background: white;
-        padding: 1rem 2rem;
-        font-size: 2rem;
+        padding: 0.5rem 1rem;
+        font-size: 1.5rem;
         text-transform: uppercase;
         border-radius: 0.5rem;
         border: 1px solid black;
         margin-bottom: 2rem;
         text-decoration: none;
+        width: 80vw;
+        grid-template-rows: 2fr 1fr;
+        height: 4.5rem;
+        position: relative;
     }
 
-    .play-button a:visited {
+    .play-buttons a.inactive {
+        pointer-events: none;
+        cursor: not-allowed;
+        background: #ddd;
+        color: #666 !important;
+        border-color: #666;
+    }
+
+    .play-buttons a .desc {
+        font-size: 0.75rem;
+    }
+
+    .play-buttons a .notifications {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translateX(50%) translateY(-50%);
+        background: red;
+        color: white;
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 1rem;
+        border-radius: 50%;
+        padding: 0;
+        display: grid;
+        place-items: center;
+    }
+
+    .play-buttons a:visited {
         color: black;
     }
 

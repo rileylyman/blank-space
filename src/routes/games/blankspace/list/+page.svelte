@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { bsGameLink } from '$lib/links.js';
+    import { BS_HOME_SKIP, bsGameLink } from '$lib/links.js';
 
     export let data;
 
@@ -14,6 +14,9 @@
 
 <div id="root">
     <h1> Blank Space </h1>
+    <br/>
+    <a href={BS_HOME_SKIP}> Go back home </a>
+    <br/>
     <br/>
     {#if inProgressGames.length}
         <h2> In-Progress Games </h2>

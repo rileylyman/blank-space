@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { dictionaryWordApi, blankspaceApi, blankspaceApiGuess } from '$lib/links';
+    import { blankspaceApiGuess } from '$lib/links';
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
@@ -17,31 +17,33 @@
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 1;
     let invalidWord = false;
 
-    const submitGuess = async (guess: string): Promise<boolean> => {
+    let invalidWordResetTimeout: NodeJS.Timeout | null = null;
+
+    const submitGuess = async (guess: string) => {
         const res = await fetch(blankspaceApiGuess(data.gameId, guess), { method: "POST" });
         const resJson = await res.json();
         const parseRes = BsResponseParser.safeParse(resJson);
-        if (!parseRes.success || parseRes.data.error || !parseRes.data.result) {
+        if (!parseRes.success) {
             error(500);
         }
+        if (parseRes.data.error && !parseRes.data.invalidWord) {
+            error (500);
+        } else if (parseRes.data.error) {
+            invalidWord = true;
+            if (invalidWordResetTimeout) clearTimeout(invalidWordResetTimeout);
+            invalidWordResetTimeout = setTimeout(() => invalidWord = false, 1500);
+        } else if (parseRes.data.result) {
+            data.bsResponse = parseRes.data;
+        }
 
-        data.bsResponse = parseRes.data;
         await tick();
-
-        return won ?? false;
     }
 
     const handleGuess = async () => {
         if (flippedHint === null) return;
         const guess = hints[flippedHint].guess;
-        const { isWord } = await (await fetch(dictionaryWordApi(guess))).json();
-        if (!isWord) {
-            invalidWord = true;
-            return;
-        }
-
-        const correct = await submitGuess(guess);
-        if (correct) {
+        await submitGuess(guess);
+        if (won || lost || invalidWord) {
             return;
         }
 
@@ -141,6 +143,7 @@
         grid-template-rows: 5rem 10rem 10rem 1fr;
         overflow: hidden;
         place-items: stretch;
+        background: white;
     }
 
     .card-container {

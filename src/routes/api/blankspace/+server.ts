@@ -4,20 +4,31 @@ import {
     bsGameHints,
     bsGameAllLowercase
 } from "$lib/schema";
+import fs from 'fs';
 import type TypedPocketBase from "$lib/schema";
 import { type RequestEvent, json } from "@sveltejs/kit"
 import { BsRequestParser, type BsRequest, type BsResponse } from "$lib/blankspace-game-api";
 import { fromZodError } from 'zod-validation-error';
 
+let dictionaryList = fs.readFileSync("./src/routes/api/blankspace/words.txt", { encoding: 'utf16le' }).split('\n').map((s) => s.trim());
+let dictionary: Set<string> = new Set(dictionaryList);
+
 export const POST = async (event: RequestEvent) => {
     let response: BsResponse = {
         result: null,
         error: null,
+        invalidWord: false,
     };
 
     let gameId: string, userId: string, guess: string | undefined;
     [{ userId, gameId, guess }, response.error] = parseRequest(event);
     if (response.error) return json(response, { status: 400 });
+
+    if (guess && !dictionary.has(guess)) {
+        response.error = "not a word";
+        response.invalidWord = true;
+        return json(response, { status: 200 });
+    }
 
     let game: BsGame | null;
     [ game, response.error ] = await getGame(event.locals.pb, gameId);
@@ -32,7 +43,6 @@ export const POST = async (event: RequestEvent) => {
     let guesses = progress.guesses.split(',').filter((s) => s);
     let guessAllowed = !progress.won && guesses.length < fullHints.length;
     if (guess && guessAllowed) {
-        guess = guess.toLocaleLowerCase().trim();
         guesses.push(guess);
     } else if (guess && !guessAllowed) {
         response.error = "you cannot make any more guesses";
@@ -120,7 +130,8 @@ const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, gu
     if (!res.success) {
         return [ret, fromZodError(res.error).toString()];
     }
-    const { gameId, guess } = res.data;
+    let { gameId, guess } = res.data;
+    guess = guess?.toLocaleLowerCase().trim();
 
     return [{ userId, gameId, guess}, null];
 }

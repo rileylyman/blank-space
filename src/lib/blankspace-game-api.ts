@@ -8,6 +8,7 @@ export type BsRequest = z.infer<typeof BsRequestParser>;
 
 export const BsResponseParser = z.object({
     error: z.string().nullable(),
+    invalidWord: z.boolean(),
     result: z.object({
         won: z.boolean(),
         lost: z.boolean(),
