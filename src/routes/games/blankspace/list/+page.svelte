@@ -15,22 +15,6 @@
 <div id="root">
     <h1> Blank Space </h1>
     <br/>
-    {#if wonGames.length}
-        <h2> Won Games </h2>
-        <ul>
-            {#each wonGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
-            {/each}
-        </ul>
-    {/if}
-    {#if lostGames.length}
-        <h2> Lost Games </h2>
-        <ul>
-            {#each lostGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
-            {/each}
-        </ul>
-    {/if}
     {#if inProgressGames.length}
         <h2> In-Progress Games </h2>
         <ul>
@@ -43,6 +27,22 @@
         <h2> Unplayed Games </h2>
         <ul>
             {#each unplayedGames as game}
+                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
+            {/each}
+        </ul>
+    {/if}
+    {#if wonGames.length}
+        <h2> Won Games </h2>
+        <ul>
+            {#each wonGames as game}
+                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
+            {/each}
+        </ul>
+    {/if}
+    {#if lostGames.length}
+        <h2> Lost Games </h2>
+        <ul>
+            {#each lostGames as game}
                 <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
             {/each}
         </ul>
