@@ -76,7 +76,7 @@
         <h2> Leave your feedback: </h2>
         <textarea placeholder="(optional) enter any feedback you might have" />
     </div>
-    <button class="submit"> Submit </button>
+    <a class="submit" href={BS_GAME_LIST}> Submit </a>
     <div class="guess-table"> 
         <div class="col-title">
             Guess
@@ -189,7 +189,7 @@
         font-size: 1.2rem;
     }
 
-    button.submit {
+    .submit {
         background: black;
         color: white;
         border: none;
@@ -199,5 +199,11 @@
         justify-self: center;
         margin: 0.5rem 0 1rem;
         height: 3rem;
+    }
+
+    a.submit {
+        display: grid;
+        place-items: center;
+        text-decoration: none;
     }
 </style>

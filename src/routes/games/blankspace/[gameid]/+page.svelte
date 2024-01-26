@@ -123,7 +123,7 @@
                         <div />
                     {/if}
                     {#if !submitted}
-                        <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Click to Start'} </h1>
+                        <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Tap to Start'} </h1>
                     {/if}
                 </button>
             </div>
