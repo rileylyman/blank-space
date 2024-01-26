@@ -1,7 +1,6 @@
 <script lang="ts">
     import Fa from 'svelte-fa';
     import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
-    import BsGameCard from '$lib/ui/BsGameCard.svelte';
     import { BS_GAME_LIST } from '$lib/links';
 
     export let data;
