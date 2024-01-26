@@ -12,7 +12,6 @@
     $: target = response.result!.target!;
     $: hints = response.result!.hints;
     $: fullHints = response.result!.fullHints;
-    $: hintsRemaining = 5 - result.hints.length;
 
     const scoreString = () => {
         if (result.hints.length === 1) return ", a perfect 5-star score!"
@@ -63,7 +62,6 @@
                         } else {
                             selectedTags = [tag, ...selectedTags];
                         }
-                        console.log(selectedTags);
                     }}
                     class:selected={selectedTags.includes(tag)}
                 >
