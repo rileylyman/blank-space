@@ -87,7 +87,7 @@
 
 {#if won || lost}
     <div style="background: white; z-index: 2; position: absolute; width: 100vw; height: 100vh; height: 100svh">
-        <ResultScreen response={data.bsResponse} />
+        <ResultScreen hasFeedback={data.hasFeedback} response={data.bsResponse} />
     </div>
 {/if}
 

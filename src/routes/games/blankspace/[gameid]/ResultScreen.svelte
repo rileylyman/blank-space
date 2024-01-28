@@ -1,10 +1,13 @@
 <script lang="ts">
+    import { enhance } from "$app/forms";
     import { BS_GAME_LIST } from "$lib/links";
     import { type BsResponse } from "$lib/blankspace-game-api";
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';;;;
+    import { goto } from "$app/navigation";
 
     export let response: BsResponse;
+    export let hasFeedback: boolean;
     if (!response.result || !response.result.hints.length || !response.result.hints.every((h) => h.submitted)) {
         throw new Error("invalid game");
     }
@@ -28,10 +31,10 @@
     let selectedTags: string[] = [
     ];
 
-    let tags = [
-        "difficult",
-        "easy",
-        "bad hint order",
+    let possibleTags = [
+        "too hard",
+        "too easy",
+        "change hint order",
         "loved it",
         "hated it",
         "exciting",
@@ -39,58 +42,70 @@
         "frustrating",
         "confusing",
         "funny",
-        "questionable hints",
+        "bad hints",
     ];
 
-    let thumbsUp: boolean | null = null;
+    let thumbs: boolean | null = null;
+    let feedback: string = "";
+    $: tags = selectedTags.join(',');
 </script>
 
 <div id="root">
-    <h1>You { result.won ? 'Won!' : 'Lost!' }</h1>
-    <div class="rating"> 
-        <div class="thumbs">
-        <span>Rate This Round:</span> 
-        <button on:click={() => thumbsUp = false} class:selected={thumbsUp === false}><Fa size="1.5x" icon={faThumbsDown} /> </button>
-        <button on:click={() => thumbsUp = true} class:selected={thumbsUp === true}><Fa size="1.5x" icon={faThumbsUp} /> </button>
+    {#if hasFeedback}
+        <h1 style="text-align: center"> Feedback submitted. </h1>
+        <button class="submit" on:click={() => goto(BS_GAME_LIST)}> Go home </button>
+    {:else}
+        <h1>You { result.won ? 'Won!' : 'Lost!' }</h1>
+        <div class="rating"> 
+            <div class="thumbs">
+            <span>Rate This Round:</span> 
+            <button on:click={() => thumbs = false} class:selected={thumbs === false}><Fa size="1.5x" icon={faThumbsDown} /> </button>
+            <button on:click={() => thumbs = true} class:selected={thumbs === true}><Fa size="1.5x" icon={faThumbsUp} /> </button>
+            </div>
+            <div class="tags">
+                {#each possibleTags as tag}
+                    <button 
+                        on:click|preventDefault={() => {
+                            if (selectedTags.includes(tag)) {
+                                selectedTags = selectedTags.filter((t) => t !== tag);
+                            } else {
+                                selectedTags = [tag, ...selectedTags];
+                            }
+                        }}
+                        class:selected={selectedTags.includes(tag)}
+                    >
+                        {tag.toLocaleLowerCase()}
+                    </button>
+                {/each}
+            </div>
         </div>
-        <div class="tags">
-            {#each tags as tag}
-                <button 
-                    on:click|preventDefault={() => {
-                        if (selectedTags.includes(tag)) {
-                            selectedTags = selectedTags.filter((t) => t !== tag);
-                        } else {
-                            selectedTags = [tag, ...selectedTags];
-                        }
-                    }}
-                    class:selected={selectedTags.includes(tag)}
-                >
-                    {tag.toLocaleLowerCase()}
-                </button>
+        <div class="feedback">
+            <h2> Leave your feedback: </h2>
+            <textarea bind:value={feedback} placeholder="(optional) enter any feedback you might have" />
+        </div>
+        <form action="?/feedback" method="POST" use:enhance={({ cancel }) => { thumbs === null && cancel() }}>
+            <input type="hidden" bind:value={feedback} name="feedback" />
+            <input type="hidden" bind:value={thumbs} required name="thumbs" />
+            <input type="hidden" bind:value={tags} name="tags" />
+            <button class:inactive={thumbs === null} type="submit" class="submit"> Submit </button>
+        </form>
+        <div class="guess-table"> 
+            <div class="col-title">
+                Guess
+            </div>
+            <div class="col-title">
+                Hint
+            </div>
+            {#each guessTable as [guess, hint]}
+                <div class="guess">
+                    {#if guess} {@html guess} {/if}
+                </div>
+                <div>
+                    {@html hint} 
+                </div>
             {/each}
         </div>
-    </div>
-    <div class="feedback">
-        <h2> Leave your feedback: </h2>
-        <textarea placeholder="(optional) enter any feedback you might have" />
-    </div>
-    <a class="submit" href={BS_GAME_LIST}> Submit </a>
-    <div class="guess-table"> 
-        <div class="col-title">
-            Guess
-        </div>
-        <div class="col-title">
-            Hint
-        </div>
-        {#each guessTable as [guess, hint]}
-            <div class="guess">
-                {#if guess} {@html guess} {/if}
-            </div>
-            <div>
-                {@html hint} 
-            </div>
-        {/each}
-    </div>
+    {/if}
 </div>
 
 <style>
@@ -187,6 +202,11 @@
         font-size: 1.2rem;
     }
 
+    form {
+        display: grid;
+        place-items: center;
+    }
+
     .submit {
         background: black;
         color: white;
@@ -199,9 +219,9 @@
         height: 3rem;
     }
 
-    a.submit {
-        display: grid;
-        place-items: center;
-        text-decoration: none;
+    .submit.inactive {
+        pointer-events: none;
+        background: #555;
+        color: #bbb;
     }
 </style>
