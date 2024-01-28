@@ -50,18 +50,25 @@ export const actions = {
     register: async (event: RequestEvent) => {
         const form = await event.request.formData();
         const email = form.get('email')?.toString();
+        const emailConfirm = form.get('emailConfirm')?.toString();
         const username = form.get('username')?.toString();
         const password = form.get('password')?.toString();
         const passwordConfirm = form.get('passwordConfirm')?.toString();
         let ret = {
             state: State.SignUp,
             email,
+            emailConfirm: "",
             username,
             errors: new Array<string>(),
         };
 
-        if (!email || !username || !password || !passwordConfirm) {
+        if (!email || !emailConfirm || !username || !password || !passwordConfirm) {
             ret.errors.push("error: all fields must be filled out");
+            return fail(400, ret);
+        }
+
+        if (email !== emailConfirm) {
+            ret.errors.push("error: emails must match");
             return fail(400, ret);
         }
 
@@ -90,7 +97,7 @@ export const actions = {
             return fail(400, ret);
         }
 
-        redirect(302, AUTH_VERIFY);
+        redirect(302, `${AUTH_VERIFY}?email=${email}`);
     },
     logout: async (event: RequestEvent) => {
         event.locals.pb.authStore.clear();

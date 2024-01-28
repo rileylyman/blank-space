@@ -33,8 +33,14 @@
             {#if !data?.error}
                 <h2> Check your inbox </h2>
                 <p> 
-                    An email was sent to your address. Click the link to verify your account.
-                    Refresh this page when you are done. 
+                    An email was sent to 
+                    {#if data.email}
+                        <b> {data.email}. </b>
+                    {:else}
+                        your address
+                    {/if}
+                    Click the link to verify your account. Refresh this page when
+                    you are done. 
                 </p>
             {:else}
                 <h2> Oops! </h2>

@@ -72,6 +72,9 @@
                     <label for="email"> email </label>
                     <input id="email" name="email" type="text" autocomplete="email" value={form?.email ?? ''} />
 
+                    <label for="confirm-email"> confirm email </label>
+                    <input id="confirm-email" name="emailConfirm" type="text" autocomplete="email" value={form?.emailConfirm ?? ''} />
+
                     <label for="password"> password </label>
                     <input id="password" name="password" type="password" autocomplete="new-password"/>
 
@@ -84,8 +87,8 @@
                         {/each}
                     </ul>
 
-                    <button type="submit">Submit</button>
-                    <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>
+                    <button style="margin-top: 0.5rem" type="submit">Submit</button>
+                    <button style="margin-top: 0.5rem" on:click={() => state = State.Prompt}>Go back</button>
                 </form>
             {/if}
             
