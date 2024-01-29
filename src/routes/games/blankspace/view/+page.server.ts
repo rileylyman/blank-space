@@ -30,6 +30,7 @@ export const load = async (event: ServerLoadEvent) => {
         if (!game) return res; // This should never happen
 
         const fbs = feedbacks.filter((fb) => fb.bs_game === prog.bs_game);
+        fbs.sort((a, b) => Date.parse(a.created!) - Date.parse(b.created!));
         res.push({ game, prog, feedbacks: fbs });
         return res;
     }, new Array<Res>());

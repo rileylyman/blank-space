@@ -3,12 +3,16 @@
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
     export let data;
+
+    let expandedIdx: number | null = null;
 </script>
 
 <div id="root">
     <div class="list">
-        {#each data.results as res}
-            <div class="list-row">
+        {#each data.results as res, idx}
+            <button class="list-row" on:mousedown={(e) => {
+                expandedIdx = expandedIdx === idx ? null : idx;
+            }}>
                 <span>
                     {res.game.name.padStart(3, '0')}
                 </span>
@@ -27,7 +31,12 @@
                 <span class="thumb">
                     <Fa icon={faThumbsUp} />
                 </span>
-            </div>
+            </button>
+            {#if expandedIdx === idx}
+                <div class="expanded">
+                    hey
+                </div>
+            {/if}
         {/each}
     </div>
 </div>
@@ -48,11 +57,19 @@
 
     .list-row {
         background: white;
+        border: none;
         padding: 1rem 0.5rem;
         display: grid;
         align-items: center;
         justify-items: start;
         grid-template-columns: 3rem 1fr 2rem 1fr 2rem;
+    }
+
+    .expanded {
+        height: 60vh;
+        background: white;
+        border-radius: 0.5rem;
+        margin: 0.25rem 0.5rem;
     }
 
     .thumb {

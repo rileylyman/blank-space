@@ -9,6 +9,9 @@ export interface PbUser {
 
 export interface BsGame {
     id: string;
+    created?: string;
+    updated?: string;
+
     name: string;
     target: string;
     hint1: string;
@@ -42,6 +45,9 @@ export const censorGames = (games: Array<BsGame>) => games.forEach((game) => {
 
 export interface BsGameProgress {
     id: string;
+    created?: string;
+    updated?: string;
+
     bs_game: string;
     user: string;
     guesses: string;
@@ -51,6 +57,9 @@ export interface BsGameProgress {
 
 export interface BsGameFeedback {
     id: string;
+    created?: string;
+    updated?: string;
+
     bs_game: string;
     user: string;
     feedback: string;

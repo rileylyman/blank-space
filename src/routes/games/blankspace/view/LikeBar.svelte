@@ -17,6 +17,8 @@
         background: #aaa;
         display: grid;
         place-items: stretch;
+        overflow: hidden;
+        border-radius: 0.25rem;
     }
 
     #left {
