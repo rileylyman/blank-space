@@ -8,7 +8,7 @@ export const load = async (event: ServerLoadEvent) => {
     const p = await event.parent();
     let progs: Array<BsGameProgress> = [];
     if (p.pbUser) {
-        progs = await event.locals.pb.collection('bs_game_progress').getFullList({ filter: `user.id = '${p.pbUser.id}'`});
+        progs = await event.locals.pb.collection('bs_game_progress').getFullList({ filter: `user.id = '${p.pbUser.id}'`, fetch});
     }
 
     return { games, progs };
