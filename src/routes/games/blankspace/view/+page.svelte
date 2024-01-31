@@ -4,22 +4,31 @@
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
     import GuessTable from '$lib/ui/GuessTable.svelte';
     import BarPlot from '$lib/ui/BarPlot.svelte';
+    import TextMessages from '$lib/ui/TextMessages.svelte';
     import { bsGameHints } from '$lib/schema';
     export let data;
 
     let expandedIdx: number | null = null;
     let bars: Map<string, number> = new Map();
+    let messages: Array<[string, boolean]> = new Array();
     $: {
         if (expandedIdx !== null) {
             bars = new Map();
             data.results[expandedIdx].feedbacks.forEach((fb) => {
                 fb.tags.split(",").forEach((tag) => {
                     if (tag) {
-                        bars.set(tag, bars.get(tag) ?? 0 + 1);
+                        bars.set(tag, (bars.get(tag) ?? 0) + 1);
                     }
                 })
             });
-            console.log(bars);
+            bars = new Map([...bars.entries()].sort((a, b) => a[1] - b[1]).reverse());
+
+            messages = new Array();
+            data.results[expandedIdx].feedbacks.forEach((fb) => {
+                if (fb.feedback) {
+                    messages.push([fb.feedback, fb.user === data.pbUser?.id]);
+                }
+            });
         }
     }
 </script>
@@ -64,10 +73,14 @@
                 <div class="expanded">
                     <h2> Your Guesses </h2>
                     <GuessTable target={res.game.target} guesses={res.prog.guesses.split(",")} fullHints={bsGameHints(res.game)} />
-                    <h2> Tags </h2>
-                    <div class="bar-plot-container">
-                        <BarPlot {bars} />
-                    </div>
+                    {#if bars.size}
+                        <h2> Tags </h2>
+                        <div class="bar-plot-container">
+                            <BarPlot {bars} />
+                        </div>
+                    {/if}
+                    <h2> Feedback </h2>
+                    <TextMessages {messages} />
                 </div>
             {/if}
         {/each}
@@ -137,14 +150,4 @@
     .thumb .nlabel {
         font-size: 0.8rem;
     }
-
-    /* .thumb span:nth-child(1) {
-        justify-self: end;
-        padding-right: 0.25rem;
-        margin-left: 0.25rem;
-    }
-
-    .thumb span:nth-child(2) {
-        justify-self: start;
-    } */
 </style>

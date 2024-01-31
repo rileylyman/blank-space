@@ -1,5 +1,8 @@
 <script lang="ts">
     export let bars: Map<string, number>;
+
+    let truncateTo = 4;
+    let truncate = true;
     
     let normalizedBars: Map<string, number> = new Map();
     $: {
@@ -11,10 +14,17 @@
 </script>
 
 <div id="root">
-    {#each normalizedBars as [barKey, barValue]}
-        <span class="key">{barKey}</span>
-        <span class="bar" style={`width: ${barValue * 100}%`}> <span class="label"> {bars.get(barKey)} </span> </span>
+    {#each normalizedBars as [barKey, barValue], idx}
+        {#if idx < truncateTo || !truncate}
+            <span class="key">{barKey}</span>
+            <span class="bar" style={`width: ${barValue * 100}%`}> <span class="label"> {bars.get(barKey)} </span> </span>
+        {/if}
     {/each}
+    {#if bars.size > truncateTo && truncate}
+        <button on:click={() => truncate = false}> see more </button>
+    {:else if bars.size > truncateTo}
+        <button on:click={() => truncate = true}> see less </button>
+    {/if}
 </div>
 
 <style>
@@ -25,6 +35,19 @@
         align-items: center;
         row-gap: 2px;
         column-gap: 1rem;
+    }
+
+    button {
+        grid-column: span 2;
+        place-self: center;
+        justify-self: left;
+        width: 100%;
+        background: none;
+        color: grey;
+        text-decoration: underline;
+        border: none;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
     }
 
     .key {
