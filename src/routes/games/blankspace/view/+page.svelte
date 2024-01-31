@@ -3,10 +3,25 @@
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
     import GuessTable from '$lib/ui/GuessTable.svelte';
+    import BarPlot from '$lib/ui/BarPlot.svelte';
     import { bsGameHints } from '$lib/schema';
     export let data;
 
     let expandedIdx: number | null = null;
+    let bars: Map<string, number> = new Map();
+    $: {
+        if (expandedIdx !== null) {
+            bars = new Map();
+            data.results[expandedIdx].feedbacks.forEach((fb) => {
+                fb.tags.split(",").forEach((tag) => {
+                    if (tag) {
+                        bars.set(tag, bars.get(tag) ?? 0 + 1);
+                    }
+                })
+            });
+            console.log(bars);
+        }
+    }
 </script>
 
 <div id="root">
@@ -38,6 +53,10 @@
                 <div class="expanded">
                     <h2> Your Guesses </h2>
                     <GuessTable target={res.game.target} guesses={res.prog.guesses.split(",")} fullHints={bsGameHints(res.game)} />
+                    <h2> Tags </h2>
+                    <div class="bar-plot-container">
+                        <BarPlot {bars} />
+                    </div>
                 </div>
             {/if}
         {/each}
@@ -69,18 +88,20 @@
     }
 
     .expanded {
-        height: 60vh;
+        margin-top: -0.25rem;
         background: white;
-        border-radius: 0.5rem;
-        margin: 0.25rem 0.5rem;
         display: grid;
-        grid-template-rows: 0.5fr 1fr 1fr 1fr;
         padding: 1rem;
         place-items: stretch;
     }
 
     .expanded h2 {
         font-size: 1rem;
+    }
+
+    .bar-plot-container {
+        padding: 1rem;
+        border: 1px solid black;
     }
 
     .thumb {
