@@ -26,6 +26,14 @@
 
 <div id="root">
     <div class="list">
+        <div class="list-row header">
+            <span> No. </span>
+            <span> Target </span>
+            <span> Rating </span>
+            <span />
+            <span />
+            <span />
+        </div>
         {#each data.results as res, idx}
             <button class="list-row" on:mousedown={(e) => {
                 expandedIdx = expandedIdx === idx ? null : idx;
@@ -37,7 +45,8 @@
                     <b><em>{res.game.target}</em></b>
                 </span>
                 <span class="thumb">
-                    <Fa icon={faThumbsDown} />
+                    <span> <Fa icon={faThumbsDown} /> </span>
+                    <span class="nlabel"> {res.thumbsDown} </span>
                 </span>
                 <span style="height: 0.25rem; width: 100%;">
                     <LikeBar 
@@ -45,8 +54,10 @@
                         right={res.feedbacks.filter((fb) => !fb.thumbs).length} 
                     />
                 </span>
+                <span />
                 <span class="thumb">
-                    <Fa icon={faThumbsUp} />
+                    <span> <Fa icon={faThumbsUp} /> </span>
+                    <span class="nlabel"> {res.thumbsUp} </span>
                 </span>
             </button>
             {#if expandedIdx === idx}
@@ -84,7 +95,18 @@
         display: grid;
         align-items: center;
         justify-items: start;
-        grid-template-columns: 3rem 1fr 2rem 1fr 2rem;
+        grid-template-columns: 3rem 1fr 2rem 1fr 0.5rem 2rem;
+    }
+
+    .list-row.header {
+        position: sticky;
+        align-self: start;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: #eee;
+        z-index: 1;
     }
 
     .expanded {
@@ -106,8 +128,23 @@
 
     .thumb {
         display: grid;
+        place-self: center;
         place-items: center;
         width: 100%;
         height: 100%;
+        grid-template-columns: 1fr 1fr;
     }
+    .thumb .nlabel {
+        font-size: 0.8rem;
+    }
+
+    /* .thumb span:nth-child(1) {
+        justify-self: end;
+        padding-right: 0.25rem;
+        margin-left: 0.25rem;
+    }
+
+    .thumb span:nth-child(2) {
+        justify-self: start;
+    } */
 </style>
