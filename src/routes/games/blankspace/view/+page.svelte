@@ -2,6 +2,8 @@
     import LikeBar from './LikeBar.svelte';
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+    import GuessTable from '$lib/ui/GuessTable.svelte';
+    import { bsGameHints } from '$lib/schema';
     export let data;
 
     let expandedIdx: number | null = null;
@@ -34,7 +36,8 @@
             </button>
             {#if expandedIdx === idx}
                 <div class="expanded">
-                    hey
+                    <h2> Your Guesses </h2>
+                    <GuessTable target={res.game.target} guesses={res.prog.guesses.split(",")} fullHints={bsGameHints(res.game)} />
                 </div>
             {/if}
         {/each}
@@ -70,6 +73,14 @@
         background: white;
         border-radius: 0.5rem;
         margin: 0.25rem 0.5rem;
+        display: grid;
+        grid-template-rows: 0.5fr 1fr 1fr 1fr;
+        padding: 1rem;
+        place-items: stretch;
+    }
+
+    .expanded h2 {
+        font-size: 1rem;
     }
 
     .thumb {

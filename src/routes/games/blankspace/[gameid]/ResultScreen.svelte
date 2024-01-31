@@ -5,6 +5,8 @@
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';;;;
     import { goto } from "$app/navigation";
+    import GuessTable from "$lib/ui/GuessTable.svelte";
+    import { bsGameHints } from "$lib/schema";
 
     export let response: BsResponse;
     export let hasFeedback: boolean;
@@ -12,9 +14,6 @@
         throw new Error("invalid game");
     }
     $: result = response.result!;
-    $: target = response.result!.target!;
-    $: hints = response.result!.hints;
-    $: fullHints = response.result!.fullHints;
 
     const scoreString = () => {
         if (result.hints.length === 1) return ", a perfect 5-star score!"
@@ -24,10 +23,6 @@
         if (result.hints.length === 5) return " and earned a humble 1 star."
         return "";
     }
-    $: formattedHints = result.fullHints.map((hint) => hint.replace(target, `<u>${target}</u>`));
-    $: formattedGuesses = hints.map(({ guess }, i) => fullHints[i].replace(target, `<u>${guess}</u>`));
-    $: guessTable = formattedHints.map((hint, i) => [formattedGuesses.at(i), hint]);
-
     let selectedTags: string[] = [
     ];
 
@@ -89,22 +84,7 @@
             <input type="hidden" bind:value={tags} name="tags" />
             <button class:inactive={thumbs === null} type="submit" class="submit"> Submit </button>
         </form>
-        <div class="guess-table"> 
-            <div class="col-title">
-                Guess
-            </div>
-            <div class="col-title">
-                Hint
-            </div>
-            {#each guessTable as [guess, hint]}
-                <div class="guess">
-                    {#if guess} {@html guess} {/if}
-                </div>
-                <div>
-                    {@html hint} 
-                </div>
-            {/each}
-        </div>
+        <GuessTable target={result.target ?? ""} guesses={result.hints.map(({ guess }) => guess)} fullHints={result.fullHints} />
     {/if}
 </div>
 
@@ -180,26 +160,6 @@
         padding: 0.25rem 1rem;
         overflow: hidden;
         border: 1px solid black;
-    }
-
-    .guess-table {
-        background-color: black;
-        display: grid;
-        column-gap: 1px;
-        row-gap: 1px;
-        border: 1px solid black;
-        grid-template-columns: 1fr 1fr;
-        font-size: 0.85rem;
-    }
-
-    .guess-table div {
-        background-color: white;
-        padding: 0.1rem 0.3rem;
-    }
-
-    .guess-table .col-title {
-        font-weight: bold;
-        font-size: 1.2rem;
     }
 
     form {
