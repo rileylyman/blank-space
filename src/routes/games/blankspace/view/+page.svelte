@@ -71,7 +71,7 @@
             </button>
             {#if expandedIdx === idx}
                 <div class="expanded">
-                    <GuessTable target={res.game.target} guesses={res.prog.guesses.split(",")} fullHints={bsGameHints(res.game)} />
+                    <GuessTable target={res.game.target} guesses={res.prog?.guesses.split(",") ?? []} fullHints={bsGameHints(res.game)} />
                     <br />
                     <h2> Tags </h2>
                     {#if bars.size}
@@ -99,7 +99,8 @@
 <style>
     #root {
         width: 100vw;
-        background: white;
+        min-height: 100vh;
+        background: #bbb;
     }
 
     .list {

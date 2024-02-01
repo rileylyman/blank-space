@@ -1,43 +1,39 @@
 import { bsGameAllLowercase, type BsGame, type BsGameFeedback, type BsGameProgress } from "$lib/schema";
 import { type ServerLoadEvent } from "@sveltejs/kit";
-import { error } from '@sveltejs/kit';
 
 export const load = async (event: ServerLoadEvent) => {
-    const userId = event.locals.pb.authStore.model?.id || error(404);
-    const gamesPromise = event.locals.pb
-        .collection('bs_games')
-        .getFullList({ fetch });
-
-    const progsPromise = event.locals.pb
-        .collection('bs_game_progress')
-        .getFullList({ filter: `user.id = '${userId}'`, fetch });
-    const feedbacksPromise = event.locals.pb
+    const feedbacks = await event.locals.pb
         .collection ('bs_game_feedback')
-        .getFullList({ fetch, expand: 'user' });
-
-    const games = await gamesPromise;
-    const progs = await progsPromise;
-    const feedbacks = await feedbacksPromise;
-    games.forEach(bsGameAllLowercase);
+        .getFullList({ fetch, expand: 'user,bs_game,prog' });
+    feedbacks.forEach((fb) => bsGameAllLowercase(fb.expand!.bs_game!));
 
     interface Res {
-        game: BsGame,
-        prog: BsGameProgress,
+        game: BsGame;
         feedbacks: BsGameFeedback[],
+        prog?: BsGameProgress;
         thumbsDown: number;
         thumbsUp: number;
     }
-    const results = progs.reduce((res, prog): Array<Res> => {
-        const game = games.find((g) => g.id === prog.bs_game);
-        if (!game) return res; // This should never happen
 
-        const fbs = feedbacks.filter((fb) => fb.bs_game === prog.bs_game);
-        const thumbsUp = fbs.filter((fb) => fb.thumbs).length;
-        const thumbsDown = fbs.filter((fb) => !fb.thumbs).length;
-        fbs.sort((a, b) => Date.parse(a.created!) - Date.parse(b.created!));
-        res.push({ game, prog, feedbacks: fbs, thumbsDown, thumbsUp });
-        return res;
-    }, new Array<Res>());
+    const userId = event.locals.pb.authStore.model?.id ?? "";
+    let results: Res[] = [];
+
+    feedbacks.forEach((fb) => {
+        let res = results.find((res) => res.game.id === fb.expand!.bs_game!.id);
+        if (!res) {
+            res = { game: fb.expand!.bs_game!, feedbacks: [], thumbsDown: 0, thumbsUp: 0};
+            results.push(res);
+        }
+        res.feedbacks.push(fb);
+        if (fb.thumbs) {
+            res.thumbsUp += 1;
+        } else {
+            res.thumbsDown += 1;
+        }
+        if (fb.user === userId && !res.prog)  {
+            res.prog = fb.expand!.prog!;
+        }
+    });
 
     results.sort((a, b) => {
         const aLikes = a.feedbacks.filter((fb) => fb.thumbs).length;

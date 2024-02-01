@@ -33,16 +33,23 @@ export const load = async (event: ServerLoadEvent) => {
 
 export const actions = {
     feedback: async (event: RequestEvent) => {
-        let form = await event.request.formData()
+        const userId = event.locals.pb.authStore.model?.id ?? "";
+        const gameId = event.params.gameid ?? "";
 
+        let form = await event.request.formData()
         let thumbs = form.get('thumbs')?.toString() === "true";
         let tags = form.get('tags')?.toString() ?? ""
         let feedback = form.get('feedback')?.toString() ?? "";
 
+        let prog = await event.locals.pb
+            .collection('bs_game_progress')
+            .getFirstListItem(`user.id = "${userId}" && bs_game.id = "${gameId}"`);
+
         let bsFeedback: BsGameFeedback = {
             id: "",
-            bs_game: event.params.gameid ?? "",
-            user: event.locals.pb.authStore.model?.id ?? "",
+            bs_game: gameId,
+            user: userId,
+            prog: prog.id,
             thumbs,
             tags,
             feedback,

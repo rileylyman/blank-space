@@ -62,12 +62,15 @@ export interface BsGameFeedback {
 
     bs_game: string;
     user: string;
+    prog: string;
     feedback: string;
     tags: string;
     thumbs: boolean;
 
     expand?: {
         user?: PbUser;
+        bs_game?: BsGame;
+        prog?: BsGameProgress;
     }
 }
 
