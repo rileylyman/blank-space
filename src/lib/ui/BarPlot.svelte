@@ -3,6 +3,7 @@
 
     let truncateTo = 4;
     let truncate = true;
+    let maxChars = 0;
     
     let normalizedBars: Map<string, number> = new Map();
     $: {
@@ -10,10 +11,20 @@
         let max = 0;
         bars.forEach((v) => max = Math.max(v, max));
         bars.forEach((v, k) => normalizedBars.set(k, v / max));
+
+        let i = 0;
+        maxChars = 0;
+        for (let [key, _] of bars.entries()) {
+            console.log("at index", i);
+            if (truncate && i >= truncateTo) break;
+            maxChars = Math.max(maxChars, key.length);
+            i += 1;
+        }
+        console.log(maxChars);
     }
 </script>
 
-<div id="root">
+<div id="root" style={`grid-template-columns: ${maxChars * 0.8}ch 1fr`}>
     {#each normalizedBars as [barKey, barValue], idx}
         {#if idx < truncateTo || !truncate}
             <span class="key">{barKey}</span>
@@ -30,7 +41,6 @@
 <style>
     #root {
         display: grid;
-        grid-template-columns: 1fr 2fr;
         justify-items: start;
         align-items: center;
         row-gap: 2px;

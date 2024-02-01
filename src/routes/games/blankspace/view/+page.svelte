@@ -127,6 +127,7 @@
         background: white;
         display: grid;
         padding: 1rem;
+        padding-top: 0;
         place-items: stretch;
     }
 
