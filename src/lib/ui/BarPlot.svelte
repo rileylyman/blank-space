@@ -15,12 +15,10 @@
         let i = 0;
         maxChars = 0;
         for (let [key, _] of bars.entries()) {
-            console.log("at index", i);
             if (truncate && i >= truncateTo) break;
             maxChars = Math.max(maxChars, key.length);
             i += 1;
         }
-        console.log(maxChars);
     }
 </script>
 

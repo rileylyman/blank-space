@@ -1,7 +1,7 @@
 <script lang="ts">
     import Fa from 'svelte-fa';
     import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
-    import { BS_GAME_LIST } from '$lib/links';
+    import { BS_GAME_LIST, BS_FEEDBACK_LIST } from '$lib/links';
 
     export let data;
 
@@ -84,7 +84,7 @@
                 <div>Play Today's Game</div>
                 <div class="desc">Not available yet</div>
             </a>
-            <a href={BS_GAME_LIST}>
+            <a href={BS_FEEDBACK_LIST}>
                 <div>View Games</div>
                 <div class="desc">See reviews from others</div>
                 <!-- <div class="notifications"> 15 </div> -->

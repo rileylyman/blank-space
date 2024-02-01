@@ -13,7 +13,7 @@ export const load = async (event: ServerLoadEvent) => {
         .getFullList({ filter: `user.id = '${userId}'`, fetch });
     const feedbacksPromise = event.locals.pb
         .collection ('bs_game_feedback')
-        .getFullList({ fetch });
+        .getFullList({ fetch, expand: 'user' });
 
     const games = await gamesPromise;
     const progs = await progsPromise;

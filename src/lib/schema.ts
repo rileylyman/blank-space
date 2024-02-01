@@ -65,6 +65,10 @@ export interface BsGameFeedback {
     feedback: string;
     tags: string;
     thumbs: boolean;
+
+    expand?: {
+        user?: PbUser;
+    }
 }
 
 export default interface TypedPocketBase extends PocketBase {

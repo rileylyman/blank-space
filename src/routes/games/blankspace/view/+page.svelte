@@ -10,7 +10,7 @@
 
     let expandedIdx: number | null = null;
     let bars: Map<string, number> = new Map();
-    let messages: Array<[string, boolean]> = new Array();
+    let messages: Array<{msg: string, name: string, me: boolean}>;
     $: {
         if (expandedIdx !== null) {
             bars = new Map();
@@ -26,7 +26,7 @@
             messages = new Array();
             data.results[expandedIdx].feedbacks.forEach((fb) => {
                 if (fb.feedback) {
-                    messages.push([fb.feedback, fb.user === data.pbUser?.id]);
+                    messages.push({ msg: fb.feedback, name: fb.expand?.user?.username ?? "", me: fb.user === data.pbUser?.id });
                 }
             });
         }
@@ -71,16 +71,25 @@
             </button>
             {#if expandedIdx === idx}
                 <div class="expanded">
-                    <h2> Your Guesses </h2>
                     <GuessTable target={res.game.target} guesses={res.prog.guesses.split(",")} fullHints={bsGameHints(res.game)} />
+                    <br />
+                    <h2> Tags </h2>
                     {#if bars.size}
-                        <h2> Tags </h2>
                         <div class="bar-plot-container">
                             <BarPlot {bars} />
                         </div>
+                    {:else}
+                        <p><em> No tags to show </em></p>
                     {/if}
+                    <br />
                     <h2> Feedback </h2>
-                    <TextMessages {messages} />
+                    {#if messages.length}
+                        <div class="text-messages-container">
+                            <TextMessages {messages} />
+                        </div>
+                    {:else}
+                        <p><em> No messages to show</em></p>
+                    {/if}
                 </div>
             {/if}
         {/each}
@@ -127,7 +136,7 @@
         background: white;
         display: grid;
         padding: 1rem;
-        padding-top: 0;
+        padding-top: 0.25rem;
         place-items: stretch;
     }
 
@@ -137,6 +146,10 @@
 
     .bar-plot-container {
         padding: 1rem;
+        border: 1px solid black;
+    }
+
+    .text-messages-container {
         border: 1px solid black;
     }
 
