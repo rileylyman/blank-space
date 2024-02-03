@@ -4,6 +4,7 @@
     import TextMessages from '$lib/ui/TextMessages.svelte';
     import { bsGameHints } from '$lib/schema';
     import { type GameAllInfo } from './common';
+    import { BS_FEEDBACK_LIST, bsGameLink } from '$lib/links';
 
     export let info: GameAllInfo;
     export let userId: string;
@@ -47,6 +48,8 @@
     {:else}
         <p><em> No messages to show</em></p>
     {/if}
+    <br />
+    <a href={bsGameLink(info.game.id) + `?edit=true&from=${BS_FEEDBACK_LIST}`}> Edit your feedback </a>
 </div>
 
 <style>
@@ -70,6 +73,18 @@
 
     .text-messages-container {
         border: 1px solid black;
+    }
+
+    a {
+        background: black; 
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        width: min-content;
+        white-space: nowrap;
+        text-decoration: none;
+        place-self: center;
     }
 
 </style>

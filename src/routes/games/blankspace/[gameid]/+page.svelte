@@ -9,6 +9,7 @@
     import { tick } from 'svelte';
 
     export let data;
+    export let form;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
@@ -87,7 +88,7 @@
 
 {#if won || lost}
     <div style="background: white; z-index: 2; position: absolute; width: 100vw; height: 100vh; height: 100svh">
-        <ResultScreen hasFeedback={data.hasFeedback} response={data.bsResponse} />
+        <ResultScreen {form} oldFeedback={data.feedback} response={data.bsResponse} />
     </div>
 {/if}
 

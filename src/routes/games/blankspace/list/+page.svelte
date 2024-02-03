@@ -1,60 +1,47 @@
 <script lang="ts">
-    import { BS_HOME_SKIP, bsGameLink } from '$lib/links.js';
-
+    import Fa from "svelte-fa";
+    import { faPlay } from "@fortawesome/free-solid-svg-icons";
+    import GameList from "./GameList.svelte";
     export let data;
 
-    $: wonGameIds = data.progs.filter(({ won }) => won).map(({ bs_game }) => bs_game);
-    $: lostGameIds = data.progs.filter(({ lost }) => lost).map(({ bs_game }) => bs_game);
-    $: inProgressGameIds = data.progs.filter(({ won, lost }) => !won && !lost).map(({ bs_game }) => bs_game);
-    $: wonGames = data.games.filter(({ id }) => wonGameIds.includes(id));
-    $: lostGames = data.games.filter(({ id }) => lostGameIds.includes(id));
-    $: inProgressGames = data.games.filter(({ id }) => inProgressGameIds.includes(id));
-    $: unplayedGames = data.games.filter(({ id }) => !wonGameIds.includes(id) && !lostGameIds.includes(id) && !inProgressGameIds.includes(id));
+    let wantList: boolean = true;
+
 </script>
 
 <div id="root">
-    <h1> Blank Space </h1>
-    <br/>
-    <a href={BS_HOME_SKIP}> Go back home </a>
-    <br/>
-    <br/>
-    {#if inProgressGames.length}
-        <h2> In-Progress Games </h2>
-        <ul>
-            {#each inProgressGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
-            {/each}
-        </ul>
-    {/if}
-    {#if unplayedGames.length}
-        <h2> Unplayed Games </h2>
-        <ul>
-            {#each unplayedGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
-            {/each}
-        </ul>
-    {/if}
-    {#if wonGames.length}
-        <h2> Won Games </h2>
-        <ul>
-            {#each wonGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
-            {/each}
-        </ul>
-    {/if}
-    {#if lostGames.length}
-        <h2> Lost Games </h2>
-        <ul>
-            {#each lostGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
-            {/each}
-        </ul>
+    {#if wantList}
+        <GameList games={data.games} progs={data.progs} />
+    {:else}
+        <button> <Fa icon={faPlay} size="3x" /> </button>
+        <button> View all unplayed games </button>
+        <button class="home"> Go back home </button>
     {/if}
 </div>
 
 <style>
     #root {
-        background-color: white;
+        background: white;
+        min-height: 100vh;
+        justify-content: space-between;
+        align-items: center;
+        flex-flow: column nowrap;
         padding: 1rem;
+    }
+
+    button {
+        margin: 1rem;
+        font-size: 1.25rem;
+        border: none;
+        background: black;
+        color: white;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        display: grid;
+        place-items: center;
+        border-radius: 1rem;
+    }
+
+    .home {
+        font-size: 1rem;
     }
 </style>

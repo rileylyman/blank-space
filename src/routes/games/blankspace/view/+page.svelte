@@ -3,12 +3,28 @@
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
     import ExpandedTab from './ExpandedTab.svelte';
+    import { onMount, tick } from 'svelte';
 
     export let data;
-    let expandedIndices: number[] = [];
+    import { expandedIndices, scrollY } from './stores';
+    let windowScrollY = 0;
+
+    $: {
+        if (windowScrollY > 0) {
+            $scrollY = windowScrollY;
+        }
+    }
+
+    let root: HTMLDivElement;
+    onMount(async () => {
+        await tick();
+        windowScrollY = $scrollY;
+    });
 </script>
 
-<div id="root">
+<svelte:window bind:scrollY={windowScrollY} />
+
+<div bind:this={root} id="root">
     <div class="list">
         <div class="list-row header">
             <span> No. </span>
@@ -20,10 +36,10 @@
         </div>
         {#each data.infos as info, idx}
             <button class="list-row" on:mousedown={() => {
-                if (expandedIndices.includes(idx)) {
-                    expandedIndices = expandedIndices.filter((i) => i !== idx);
+                if ($expandedIndices.includes(idx)) {
+                    $expandedIndices = $expandedIndices.filter((i) => i !== idx);
                 } else {
-                    expandedIndices = [idx, ...expandedIndices];
+                    $expandedIndices = [idx, ...$expandedIndices];
                 }
             }}>
                 <span>
@@ -48,7 +64,7 @@
                     <span class="nlabel"> {info.thumbsUp} </span>
                 </span>
             </button>
-            {#if expandedIndices.includes(idx)}
+            {#if $expandedIndices.includes(idx)}
                 <ExpandedTab {info} userId={data.pbUser?.id ?? ""}/>
             {/if}
         {/each}

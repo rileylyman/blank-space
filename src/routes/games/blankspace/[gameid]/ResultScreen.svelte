@@ -6,23 +6,18 @@
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';;;;
     import { goto } from "$app/navigation";
     import GuessTable from "$lib/ui/GuessTable.svelte";
-    import { bsGameHints } from "$lib/schema";
+    import type { BsGameFeedback } from "$lib/schema";
+    import { page } from "$app/stores";
 
     export let response: BsResponse;
-    export let hasFeedback: boolean;
+    export let form: { success: boolean } | null;
+    export let oldFeedback: BsGameFeedback | null;
+
     if (!response.result || !response.result.hints.length || !response.result.hints.every((h) => h.submitted)) {
         throw new Error("invalid game");
     }
     $: result = response.result!;
 
-    const scoreString = () => {
-        if (result.hints.length === 1) return ", a perfect 5-star score!"
-        if (result.hints.length === 2) return " for a cool 4 stars."
-        if (result.hints.length === 3) return " for a respectable 3 stars."
-        if (result.hints.length === 4) return " and earned 2 stars."
-        if (result.hints.length === 5) return " and earned a humble 1 star."
-        return "";
-    }
     let selectedTags: string[] = [
     ];
 
@@ -43,12 +38,45 @@
     let thumbs: boolean | null = null;
     let feedback: string = "";
     $: tags = selectedTags.join(',');
+
+    let restored = false;
+    const restoreFeedback = () => {
+        if (!oldFeedback) return;
+        feedback = oldFeedback.feedback;
+        selectedTags = oldFeedback.tags.split(",");
+        thumbs = oldFeedback.thumbs;
+        restored = true;
+    }
+
+    $: {
+        if ($page.url.searchParams.get('edit') === 'true') {
+            restoreFeedback();
+        }
+    }
+
+    $: returnTo = $page.url.searchParams.get('from');
+    $: {
+        if (form?.success) {
+            restored = false;
+        }
+    }
+
+    const handleCancel = () => {
+        if (returnTo) {
+            goto(returnTo);
+        } else {
+            restored = false;
+        }
+    }
 </script>
 
 <div id="root">
-    {#if hasFeedback}
-        <h1 style="text-align: center"> Feedback submitted. </h1>
-        <button class="submit" on:click={() => goto(BS_GAME_LIST)}> Go home </button>
+    {#if oldFeedback && !restored}
+        <h1 style="text-align: center"> Feedback submitted! </h1>
+        <div style="width: 100%; display: grid; place-items: center">
+            <button class="submit" on:click={() => goto(returnTo ?? BS_GAME_LIST)}> Done </button>
+            <button class="submit" on:click={restoreFeedback}> Edit feedback </button>
+        </div>
     {:else}
         <h1>You { result.won ? 'Won!' : 'Lost!' }</h1>
         <div class="rating"> 
@@ -82,7 +110,12 @@
             <input type="hidden" bind:value={feedback} name="feedback" />
             <input type="hidden" bind:value={thumbs} required name="thumbs" />
             <input type="hidden" bind:value={tags} name="tags" />
-            <button class:inactive={thumbs === null} type="submit" class="submit"> Submit </button>
+            <div style="display: flex; width: 100%; justify-content: center;">
+                {#if oldFeedback}
+                    <button class="submit" on:click|preventDefault={handleCancel}> Cancel </button>
+                {/if}
+                <button class:inactive={thumbs === null} type="submit" class="submit"> Submit </button>
+            </div>
         </form>
         <GuessTable target={result.target ?? ""} guesses={result.hints.map(({ guess }) => guess)} fullHints={result.fullHints} />
     {/if}
@@ -175,7 +208,7 @@
         font-size: 1.5rem;
         width: 80%;
         justify-self: center;
-        margin: 0.5rem 0 1rem;
+        margin: 0.5rem 0.5rem 1rem 0.5rem;
         height: 3rem;
     }
 

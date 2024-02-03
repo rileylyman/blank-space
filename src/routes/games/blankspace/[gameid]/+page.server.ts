@@ -27,12 +27,13 @@ export const load = async (event: ServerLoadEvent) => {
     return {
         bsResponse: parseRes.data,
         gameId: event.params.gameid!,
-        hasFeedback: feedbackList.items.length !== 0,
+        feedback: feedbackList.items.at(0) ?? null,
     }
 }
 
 export const actions = {
     feedback: async (event: RequestEvent) => {
+        console.log('hey')
         const userId = event.locals.pb.authStore.model?.id ?? "";
         const gameId = event.params.gameid ?? "";
 
@@ -55,10 +56,15 @@ export const actions = {
             feedback,
         }
 
-        try {
-            event.locals.pb.collection('bs_game_feedback').create(bsFeedback);
-        } catch (_) {}
+        let oldFeedback = await event.locals.pb.collection('bs_game_feedback')
+            .getList(1, 1, {filter: `user.id = "${userId}" && bs_game.id = "${gameId}"`, fetch});
 
-        return redirect(302, BS_GAME_LIST);
+        if (oldFeedback.totalItems > 0) {
+            event.locals.pb.collection('bs_game_feedback').update(oldFeedback.items[0].id, bsFeedback);
+        } else {
+            event.locals.pb.collection('bs_game_feedback').create(bsFeedback);
+        }
+
+        return { success: true };
     }
 }
