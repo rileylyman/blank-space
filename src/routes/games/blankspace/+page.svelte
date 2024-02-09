@@ -10,7 +10,7 @@
     let folded = true;
     let foldedHeight = "25%";
 
-    let bars = new Map(Object.entries({"1st": 1, "2nd": 2, "3rd": 3, "4th": 2, "5th": 1, "lost": 3}));
+    let bars = new Map(Object.entries({"1st": 10, "2nd": 12, "3rd": 7, "4th": 5, "5th": 3, "lost": 3}));
 
     let countdown = "00:00:00";
     const updateCountdown = () => {
@@ -39,7 +39,7 @@
 
     <div />
     <div class="guess-distro-container">
-        <h2> Your Overall Performance</h2>
+        <h2> Overall Guess Performance</h2>
         <div>
             <BarPlot {bars} allowTruncate={false} />
         </div>
@@ -94,6 +94,8 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         place-items: center;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
     }
 
     .stats p {
@@ -144,12 +146,13 @@
 
     .pin-container {
         place-self: center;
-        width: 50%;
+        width: 81%;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         align-self: end; 
         place-items: center;
-        margin-bottom: -4%;
     }
 
     .pin-container div {

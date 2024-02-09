@@ -23,11 +23,17 @@
     }
 </script>
 
-<div id="root" style={`grid-template-columns: ${maxChars * 0.8}ch 1fr`}>
+<div id="root">
     {#each normalizedBars as [barKey, barValue], idx}
         {#if !allowTruncate || !truncate || idx < truncateTo}
-            <span class="key">{barKey}</span>
-            <span class="bar" style={`width: ${barValue * 100}%`}> <span class="label"> {bars.get(barKey)} </span> </span>
+            <span class="bar-container">
+                <span class="key">{barKey}</span>
+                <span class:full={barValue > 0.97} class="bar" style={`width: ${barValue * 100}%`}>
+                    <span class="label"> 
+                        {bars.get(barKey)} 
+                    </span>
+                </span>
+            </span>
         {/if}
     {/each}
     {#if allowTruncate}
@@ -44,7 +50,7 @@
         display: grid;
         justify-items: start;
         align-items: center;
-        row-gap: 2px;
+        row-gap: 0.3rem;
         column-gap: 1rem;
     }
 
@@ -62,27 +68,43 @@
     }
 
     .key {
-        justify-self: end;
         white-space: nowrap;
-        overflow: hidden;
         font-size: 0.8rem;
-        text-align: right;
         font-style: italic;
-        padding-right: 0.1rem;
+        position: absolute;
+        text-align: left;
+        z-index: 10;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0.5rem;
+    }
+
+    .bar-container {
+        width: 100%;
+        height: 1.5rem;
+        display: grid;
+        background: rgb(251, 251, 251);
+        align-items: stretch;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid black;
     }
 
     .bar {
-        background: black;
-        height: 80%;
-        border-radius: 0.25rem;
+        background: rgb(214, 214, 214);
+        border-right: 1px solid grey;
         position: relative;
+    }
+
+    .bar.full {
+        border-right: none;
     }
 
     .label {
         position: absolute;
-        color: white;
-        left: 1rem;
+        right: 0.7rem;
         top: 50%;
+        font-weight: bold;
         transform: translateY(-50%);
         font-size: 0.8rem;
     }
