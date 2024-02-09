@@ -1,5 +1,6 @@
 <script lang="ts">
     export let bars: Map<string, number>;
+    export let allowTruncate: boolean;
 
     let truncateTo = 4;
     let truncate = true;
@@ -15,7 +16,7 @@
         let i = 0;
         maxChars = 0;
         for (let [key, _] of bars.entries()) {
-            if (truncate && i >= truncateTo) break;
+            if (allowTruncate && truncate && i >= truncateTo) break;
             maxChars = Math.max(maxChars, key.length);
             i += 1;
         }
@@ -24,15 +25,17 @@
 
 <div id="root" style={`grid-template-columns: ${maxChars * 0.8}ch 1fr`}>
     {#each normalizedBars as [barKey, barValue], idx}
-        {#if idx < truncateTo || !truncate}
+        {#if !allowTruncate || !truncate || idx < truncateTo}
             <span class="key">{barKey}</span>
             <span class="bar" style={`width: ${barValue * 100}%`}> <span class="label"> {bars.get(barKey)} </span> </span>
         {/if}
     {/each}
-    {#if bars.size > truncateTo && truncate}
-        <button on:click={() => truncate = false}> see more </button>
-    {:else if bars.size > truncateTo}
-        <button on:click={() => truncate = true}> see less </button>
+    {#if allowTruncate}
+        {#if bars.size > truncateTo && truncate}
+            <button on:click={() => truncate = false}> see more </button>
+        {:else if bars.size > truncateTo}
+            <button on:click={() => truncate = true}> see less </button>
+        {/if}
     {/if}
 </div>
 

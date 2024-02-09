@@ -25,13 +25,17 @@
         display: grid;
         place-items: stretch;
         transition: grid-template-rows 1000ms;
+        pointer-events: none;
+        z-index: 10;
     }
 
     .curtain {
         background: linear-gradient(to right, #000 0%, #000 50%, #fff 50%, #fff 100%);
+        border-bottom: 2px solid black;
         position: relative;
         display: grid;
         place-items: center;
+        pointer-events: all;
     }
 
     .curtain > h1 {

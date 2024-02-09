@@ -34,7 +34,7 @@
     <h2> Tags </h2>
     {#if bars.size}
         <div class="bar-plot-container">
-            <BarPlot {bars} />
+            <BarPlot {bars} allowTruncate={true}/>
         </div>
     {:else}
         <p><em> No tags to show </em></p>
