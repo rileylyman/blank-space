@@ -4,22 +4,18 @@
 
     let truncateTo = 4;
     let truncate = true;
-    let maxChars = 0;
     
     let normalizedBars: Map<string, number> = new Map();
+    let barLens: string[] = [];
     $: {
         normalizedBars = new Map();
         let max = 0;
         bars.forEach((v) => max = Math.max(v, max));
         bars.forEach((v, k) => normalizedBars.set(k, v / max));
 
-        let i = 0;
-        maxChars = 0;
-        for (let [key, _] of bars.entries()) {
-            if (allowTruncate && truncate && i >= truncateTo) break;
-            maxChars = Math.max(maxChars, key.length);
-            i += 1;
-        }
+        normalizedBars.forEach((v, k) => {
+            barLens.push(`max(calc(${v * 100}% - ${bars.get(k)!.toString().length + 1}ch), ${k.length + 2}ch)`)
+        });
     }
 </script>
 
@@ -28,10 +24,17 @@
         {#if !allowTruncate || !truncate || idx < truncateTo}
             <span class="bar-container">
                 <span class="key">{barKey}</span>
-                <span class:full={barValue > 0.97} class="bar" style={`width: ${barValue * 100}%`}>
-                    <span class="label"> 
-                        {bars.get(barKey)} 
-                    </span>
+                <span 
+                    class="label"
+                    style={`left: ${barLens[idx]}`}
+                > 
+                    {bars.get(barKey)} 
+                </span>
+                <span
+                    class:full={barValue == 0 || barValue > 0.97}
+                    class="bar"
+                    style={`width: ${barValue * 100}%`}
+                >
                 </span>
             </span>
         {/if}
@@ -77,6 +80,7 @@
         top: 50%;
         transform: translateY(-50%);
         left: 0.5rem;
+        font-weight: 500;
     }
 
     .bar-container {
@@ -102,10 +106,10 @@
 
     .label {
         position: absolute;
-        right: 0.7rem;
         top: 50%;
-        font-weight: bold;
         transform: translateY(-50%);
+        font-weight: 500;
+        z-index: 2;
         font-size: 0.8rem;
     }
 </style>

@@ -10,7 +10,7 @@
     let folded = true;
     let foldedHeight = "25%";
 
-    let bars = new Map(Object.entries({"1st": 10, "2nd": 12, "3rd": 7, "4th": 5, "5th": 3, "lost": 3}));
+    let bars = new Map(Object.entries({"1st": 10, "2nd": 12, "3rd": 7, "4th": 5, "5th": 3, "lost": 4}));
 
     let countdown = "00:00:00";
     const updateCountdown = () => {
@@ -192,7 +192,7 @@
     }
 
     .guess-distro-container > div {
-        width: 85%;
+        width: 81%;
     }
 
     .footer {
