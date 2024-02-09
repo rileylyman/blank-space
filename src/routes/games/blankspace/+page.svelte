@@ -1,295 +1,222 @@
 <script lang="ts">
-    import Fa from 'svelte-fa';
-    import { faUser, faSliders, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
-    import { BS_GAME_LIST, BS_FEEDBACK_LIST } from '$lib/links';
+    import Fa from "svelte-fa";
+    import { faShareAlt, faXmark, faCheck } from "@fortawesome/free-solid-svg-icons";
+    import Curtain from "./Curtain.svelte";
+    import BarPlot from "$lib/ui/BarPlot.svelte";
+    import { goto } from "$app/navigation";
+    import { BS_GAME_LIST } from "$lib/links";
+    import { onDestroy } from "svelte";
 
-    export let data;
+    let folded = false;
+    let foldedHeight = "25%";
 
-    enum State {
-        Start,
-        NormalRequested,
-        Normal,
-        SettingsRequested,
-        SettingsOpen
+    let bars = new Map(Object.entries({"1st": 1, "2nd": 2, "3rd": 3, "4th": 2, "5th": 1, "lost": 3}));
+
+    let countdown = "00:00:00";
+    const updateCountdown = () => {
+        let now = new Date();
+        let tomorrow = new Date();
+        tomorrow.setHours(0);
+        tomorrow.setMinutes(0);
+        tomorrow.setSeconds(0);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        let distance = tomorrow.getTime() - now.getTime();
+        let rhr = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+        let rmin = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+        let rsec = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+        countdown = `${rhr}:${rmin}:${rsec}`;
+
     }
-    let state = data.skip ? State.Normal : State.Start;
-    
-    let collapseDurationMs = 1500;
-    let fadeInDurationMs = 500; // Keep in sink with transition: opacity
-    const startCollapse = () => {
-        state = State.NormalRequested;
-        setTimeout(() => state = State.Normal, collapseDurationMs);
-    }
-
-    let selectedSetting = "";
-    const toggleOpenSettings = (setting: string) => () => {
-        selectedSetting = setting
-        if (state == State.Normal) {
-            state = State.SettingsRequested;
-            setTimeout(() => state = State.SettingsOpen, fadeInDurationMs);
-        } else if (state == State.SettingsOpen) {
-            state = State.NormalRequested;
-            setTimeout(() => state = State.Normal, collapseDurationMs);
-        }
-    }
-
-    $: rootCollapsed = [State.NormalRequested, State.Normal, State.SettingsRequested].includes(state);
-    $: rootOpenSettings = [State.SettingsOpen].includes(state);
-    $: headerRevealed = [State.Start, State.NormalRequested, State.Normal].includes(state);
-    $: headerContent = [State.Start, State.NormalRequested, State.Normal, State.SettingsRequested].includes(state);
-    $: headerSubContent = [State.Start].includes(state);
-    $: welcomeRevealed = [State.Normal].includes(state);
-    $: welcomeContent = [State.Normal, State.SettingsRequested].includes(state);
-    $: playButtonsRevealed = [State.Normal].includes(state);
-    $: playButtonsContent = [State.Normal, State.SettingsRequested].includes(state);
-    $: settingsRevealed = [State.Normal, State.SettingsRequested, State.SettingsOpen].includes(state);
-    $: settingsContent = [State.Normal, State.SettingsRequested, State.SettingsOpen].includes(state);
-    $: accountRevealed = settingsRevealed;
-    $: accountContent = settingsContent;
-    $: rulesRevealed = settingsRevealed;
-    $: rulesContent = settingsContent;
+    updateCountdown();
+    let countdownInterval = setInterval(updateCountdown, 1000);
+    onDestroy(() => clearInterval(countdownInterval));
 </script>
 
-<svelte:window on:click={() => {
-    if (state === State.Start) startCollapse();
-}} />
+<div id="root">
+    <Curtain bind:folded {foldedHeight} />
 
-<div 
-    class="root" 
-    class:collapse={rootCollapsed} 
-    class:open-settings={rootOpenSettings}
->
-    <button class="header" class:revealed={headerRevealed} >
-        {#if headerContent}
-            <h1> <span class="left"> Blank </span> Space </h1>
-            {#if headerSubContent}
-                <h3> <span class="left">Slappy</span> Studios</h3>
-            {/if}
-        {/if}
-    </button>
-
-    <div class="welcome" class:revealed={welcomeRevealed}>
-        {#if welcomeContent}
-            <h2 style="max-width: 80vw; overflow-wrap: break-word"> Welcome, {data.pbUser?.username}</h2>
-        {/if}
+    <div />
+    <div class="stats"> 
+        <p>125</p><p>total games</p>
+        <p>60%</p><p>win rate</p>
+        <p>0</p><p>streak</p>
+        <p>15</p><p>max. streak</p>
     </div>
-
-    <div class="play-buttons" class:revealed={playButtonsRevealed}>
-        {#if playButtonsContent}
-            <a href={BS_GAME_LIST}>
-                <div style="grid-row: span 2">Test new games</div>
-                <div class="notifications"> {data.newGames} </div>
-            </a>
-            <a class="inactive" href={BS_GAME_LIST}>
-                <div>Play Today's Game</div>
-                <div class="desc">Not available yet</div>
-            </a>
-            <a href={BS_FEEDBACK_LIST}>
-                <div>View Games</div>
-                <div class="desc">See reviews from others</div>
-                <!-- <div class="notifications"> 15 </div> -->
-            </a>
-        {/if}
+    <div class="play-container">
+        <button on:click={() => goto(BS_GAME_LIST)}>
+            Play
+            <span> 1 game remaining </span>
+        </button>
     </div>
-
-    <button 
-        class="settings" 
-        class:revealed={settingsRevealed} 
-        class:selected={selectedSetting === "settings"}
-        on:click={toggleOpenSettings("settings")}>
-        {#if settingsContent}
-            <Fa icon={faSliders} size="2x" />
-        {/if}
-    </button>
-
-    <button 
-        class="account" 
-        class:revealed={accountRevealed}
-        class:selected={selectedSetting === "account"}
-        on:click={toggleOpenSettings("account")}
-    >
-        {#if accountContent}
-            <Fa icon={faUser} size="2x" />
-        {/if}
-    </button>
-
-    <button 
-        class="rules" 
-        class:revealed={rulesRevealed}
-        class:selected={selectedSetting === "rules"}
-        on:click={toggleOpenSettings("rules")}
-    >
-        {#if rulesContent}
-            <Fa icon={faCircleInfo} size="2x" />
-        {/if}
-    </button>
+    <div class="pin-container">
+        {#each [true, false, true, null] as won}
+            <div class:won={won === true} class:unplayed={won === null}>
+                {#if won === true}
+                    <Fa icon={faCheck} />
+                {:else if won === false}
+                    <Fa icon={faXmark} />
+                {/if}
+            </div>
+        {/each}
+    </div>
+    <div class="guess-distro-container">
+        <h2> Guess Distribution </h2>
+        <div>
+            <BarPlot {bars} allowTruncate={false} />
+        </div>
+    </div>
+    <div class="footer">
+        <button>
+            {countdown}
+            <span> next set </span>
+        </button>
+        <button>
+            <Fa icon={faShareAlt} />
+            <span> share </span>
+        </button>
+    </div>
 </div>
 
 <style>
-    :global(html) {
-        font-family: 'Fira Sans', sans-serif;
-    }
-
-    :root {
-        background-color: black;
-    }
-
-    .root {
-        background-color: white;
-        display: grid;
-        grid-template-rows: 1fr 0fr 0fr 0fr;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-areas:
-            "header      header     header"
-            "welcome     welcome    welcome  "
-            "play        play       play  "
-            "settings    account    rules ";
-        place-items: center;
+    #root {
+        background: white;
+        width: 100vw;
         height: 100vh;
         height: 100svh;
-        overflow: hidden;
-    }
-
-    .root.collapse {
-        grid-template-rows: 1.2fr 0.5fr 2fr 0.5fr;
-        transition: grid-template-rows 1500ms;
-    }
-
-    .root.open-settings {
-        grid-template-rows: 0fr 0fr 0fr 1fr;
-        transition: grid-template-rows 500ms;
-    }
-
-    .header {
-        position: relative;
-        grid-area: header;
-        background: linear-gradient(to right, #000 0%, #000 50%, #fff 50%, #fff 100%);
-        text-align: center;
-        place-self: stretch;
         display: grid;
-        place-items: center;
-        text-transform: uppercase;
-        outline: none;
-        border: none;
+        grid-template-rows: 25% 1.25fr 2fr 1fr 2fr 1.5fr;
+        place-items: stretch;
     }
 
-    .header h1 {
-        font-size: 2.5rem;
-        font-weight: 500;
-        letter-spacing: 0.5rem;
-        transform: translateX(-0.2rem);
-    }
-
-    .header h3 {
-        position: absolute;
-        bottom: 10%;
-        transform: translateX(0.15rem);
-        text-transform: lowercase;
-        font-weight: 400;
-    }
-
-    .header .left {
-        color: white;
-    }
-
-    .header, .welcome, .play-buttons, .settings, .account, .rules {
-        opacity: 0;
-        transition: opacity 500ms ease-in-out;
-    }
-
-    .revealed {
-        opacity: 1;
-    }
-
-    .welcome {
-        grid-area: welcome;
-        padding: 0 1rem;
-        text-align: center;
-    }
-
-    .welcome h2 {
-        font-weight: 400;
-    }
-
-    .play-buttons {
-        grid-area: play;
+    .stats {
         display: grid;
-    }
-
-    .play-buttons a {
-        display: grid;
-        place-items: center;
-        color: black;
-        background: white;
-        padding: 0.5rem 1rem;
-        font-size: 1.5rem;
-        text-transform: uppercase;
-        border-radius: 0.5rem;
-        border: 1px solid black;
-        margin-bottom: 2rem;
-        text-decoration: none;
-        width: 80vw;
+        grid-template-columns: repeat(4, 1fr);
         grid-template-rows: 2fr 1fr;
-        height: 4.5rem;
-        position: relative;
-    }
-
-    .play-buttons a.inactive {
-        pointer-events: none;
-        cursor: not-allowed;
-        background: #ddd;
-        color: #666 !important;
-        border-color: #666;
-    }
-
-    .play-buttons a .desc {
-        font-size: 0.75rem;
-    }
-
-    .play-buttons a .notifications {
-        position: absolute;
-        top: 0;
-        right: 0;
-        transform: translateX(50%) translateY(-50%);
-        background: red;
-        color: white;
-        width: 1.75rem;
-        height: 1.75rem;
-        font-size: 1rem;
-        border-radius: 50%;
-        padding: 0;
-        display: grid;
         place-items: center;
     }
 
-    .play-buttons a:visited {
-        color: black;
+    .stats p {
+        text-align: center; 
+        font-size: 1.2rem;
+        text-transform: uppercase;
     }
 
-    .settings, .account, .rules {
+    .stats p:nth-child(even) {
+        grid-row: 2;
+        font-size: 0.7rem;
+        align-self: start;
+        font-weight: bold;
+    }
+
+    .stats p:nth-child(odd) {
+        align-self: end;
+    }
+
+    .play-container {
         display: grid;
         place-items: center;
-        place-self: stretch;
+        align-self: end;
+        padding-bottom: 1rem;
+    }
+
+    .play-container button {
         border: none;
         outline: none;
+        background: rgb(234, 234, 234);
+        border: 1px solid black;
+        font-size: 2rem;
+        border-radius: 0.25rem;
+        padding: 0.5rem 5rem;
+        text-transform: uppercase;
+        display: grid;
+        place-items: center;
+        grid-template-rows: 75% 25%;
+    }
+
+    .play-container button span {
+        font-size: 0.8rem;
+        text-transform: lowercase;
+        font-style: italic;
+    }
+
+    .pin-container {
+        place-self: center;
+        width: 50%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        align-self: start; 
+        place-items: center;
+    }
+
+    .pin-container div {
+        display: grid;
+        place-items: center;
+        background: rgb(250, 113, 79);
+        width: 1.5rem;
+        height: 1.5rem;
         padding: 0;
-        background: white;
+        border-radius: 100%;
+        font-size: 0.75rem;
+        outline: 1px solid black;
     }
 
-    .settings.selected, .account.selected, .rules.selected {
-        background: black;
-        color: white;
+    .pin-container div.won {
+        background-color: rgb(80, 194, 104);
     }
 
-    .settings {
-        grid-area: settings;
+    .pin-container div.unplayed {
+        background-color: white;
+        outline: 1px solid black;
     }
 
-    .account {
-        grid-area: account;
+    .guess-distro-container {
+        display: grid;
+        place-items: center;
     }
 
-    .rules {
-        grid-area: rules;
+    .guess-distro-container > h2 {
+        text-transform: uppercase;
+        font-weight: 400;
+        font-size: 1rem;
+        font-style: italic;
+        padding-bottom: 0.5rem;
+    }
+
+    .guess-distro-container > div {
+        width: 85%;
+    }
+
+    .footer {
+        display: grid;
+        place-items: center;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1rem;
+    }
+
+    .footer button {
+        background: rgb(234, 234, 234);
+        outline: none;
+        border: 1px solid black;
+        border-radius: 0.25rem;
+        width: 80%;
+        height: 2.75rem;
+        padding: 0;
+        font-size: 1.5rem;
+        display: grid;
+        place-items: center;
+        grid-template-rows: 75% 25%;
+        padding-bottom: 0.25rem;
+        justify-self: end;
+    }
+
+    .footer button:last-child {
+        justify-self: start;
+    }
+
+    .footer button span {
+        font-size: 0.8rem;
+        font-style: italic;
     }
 </style>
