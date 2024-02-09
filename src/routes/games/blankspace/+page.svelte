@@ -7,7 +7,7 @@
     import { BS_GAME_LIST } from "$lib/links";
     import { onDestroy } from "svelte";
 
-    let folded = false;
+    let folded = true;
     let foldedHeight = "25%";
 
     let bars = new Map(Object.entries({"1st": 1, "2nd": 2, "3rd": 3, "4th": 2, "5th": 1, "lost": 3}));
@@ -38,17 +38,17 @@
     <Curtain bind:folded {foldedHeight} />
 
     <div />
+    <div class="guess-distro-container">
+        <h2> Your Overall Performance</h2>
+        <div>
+            <BarPlot {bars} allowTruncate={false} />
+        </div>
+    </div>
     <div class="stats"> 
         <p>125</p><p>total games</p>
         <p>60%</p><p>win rate</p>
         <p>0</p><p>streak</p>
         <p>15</p><p>max. streak</p>
-    </div>
-    <div class="play-container">
-        <button on:click={() => goto(BS_GAME_LIST)}>
-            Play
-            <span> 1 game remaining </span>
-        </button>
     </div>
     <div class="pin-container">
         {#each [true, false, true, null] as won}
@@ -61,11 +61,11 @@
             </div>
         {/each}
     </div>
-    <div class="guess-distro-container">
-        <h2> Guess Distribution </h2>
-        <div>
-            <BarPlot {bars} allowTruncate={false} />
-        </div>
+    <div class="play-container">
+        <button on:click={() => goto(BS_GAME_LIST)}>
+            Play
+            <span> 1 game remaining </span>
+        </button>
     </div>
     <div class="footer">
         <button>
@@ -86,14 +86,13 @@
         height: 100vh;
         height: 100svh;
         display: grid;
-        grid-template-rows: 25% 1.25fr 2fr 1fr 2fr 1.5fr;
+        grid-template-rows: 25% 2fr 1.25fr 0.6fr 2fr 1.25fr;
         place-items: stretch;
     }
 
     .stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: 2fr 1fr;
         place-items: center;
     }
 
@@ -111,6 +110,7 @@
     }
 
     .stats p:nth-child(odd) {
+        grid-row: 1;
         align-self: end;
     }
 
@@ -129,6 +129,7 @@
         font-size: 2rem;
         border-radius: 0.25rem;
         padding: 0.5rem 5rem;
+        width: 81%;
         text-transform: uppercase;
         display: grid;
         place-items: center;
@@ -146,8 +147,9 @@
         width: 50%;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        align-self: start; 
+        align-self: end; 
         place-items: center;
+        margin-bottom: -4%;
     }
 
     .pin-container div {
@@ -174,6 +176,8 @@
     .guess-distro-container {
         display: grid;
         place-items: center;
+        padding-top: 1rem;
+        padding-bottom: 0.5rem;
     }
 
     .guess-distro-container > h2 {
@@ -192,7 +196,8 @@
         display: grid;
         place-items: center;
         grid-template-columns: 1fr 1fr;
-        column-gap: 1rem;
+        column-gap: 5%;
+        align-items: start;
     }
 
     .footer button {
