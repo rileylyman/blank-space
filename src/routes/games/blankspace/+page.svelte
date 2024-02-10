@@ -5,12 +5,19 @@
     import BarPlot from "$lib/ui/BarPlot.svelte";
     import { GameStatus } from './common';
     import { goto } from "$app/navigation";
-    import { BS_GAME_LIST } from "$lib/links";
+    import { BS_GAME_LIST, bsGameLink } from "$lib/links";
     import { onDestroy } from "svelte";
 
     export let data;
 
     $: gamesRemaining = data.gameResults.filter((res) => res === GameStatus.Unplayed || res === GameStatus.InProgress).length;
+    $: nextGameIndex = data.gameResults.findIndex((res) => res === GameStatus.Unplayed || res === GameStatus.InProgress)
+    let nextGameId = "";
+    $: {
+        if (nextGameIndex >= 0) {
+            nextGameId = data.todaySet.games[nextGameIndex];
+        }
+    }
 
     let gameDate = new Date(data.todaySet.publish_on);
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -71,7 +78,7 @@
         {/each}
     </div>
     <div class="play-container">
-        <button on:click={() => goto(BS_GAME_LIST)}>
+        <button on:click={() => goto(bsGameLink(nextGameId))}>
             Play
             <span> {gamesRemaining} game{gamesRemaining !== 1 ? 's' : ''} remaining </span>
         </button>
