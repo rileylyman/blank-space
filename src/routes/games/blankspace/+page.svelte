@@ -7,10 +7,10 @@
     import { BS_GAME_LIST } from "$lib/links";
     import { onDestroy } from "svelte";
 
+    export let data;
+
     let folded = true;
     let foldedHeight = "25%";
-
-    let bars = new Map(Object.entries({"1st": 10, "2nd": 12, "3rd": 7, "4th": 5, "5th": 3, "lost": 4}));
 
     let countdown = "00:00:00";
     const updateCountdown = () => {
@@ -41,12 +41,12 @@
     <div class="guess-distro-container">
         <h2> Overall Guess Performance</h2>
         <div>
-            <BarPlot {bars} allowTruncate={false} />
+            <BarPlot bars={data.scoreCounts} allowTruncate={false} />
         </div>
     </div>
     <div class="stats"> 
-        <p>125</p><p>total games</p>
-        <p>60%</p><p>win rate</p>
+        <p>{data.totalGames}</p><p>total games</p>
+        <p>{data.winPct}%</p><p>win rate</p>
         <p>0</p><p>streak</p>
         <p>15</p><p>max. streak</p>
     </div>
