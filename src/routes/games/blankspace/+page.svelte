@@ -78,7 +78,9 @@
         {/each}
     </div>
     <div class="play-container">
-        <button on:click={() => goto(bsGameLink(nextGameId))}>
+        <button on:click={() => {
+            if (nextGameId) goto(bsGameLink(nextGameId))
+        }}>
             Play
             <span> {gamesRemaining} game{gamesRemaining !== 1 ? 's' : ''} remaining </span>
         </button>
