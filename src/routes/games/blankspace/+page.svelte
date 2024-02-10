@@ -3,11 +3,20 @@
     import { faShareAlt, faXmark, faCheck } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
     import BarPlot from "$lib/ui/BarPlot.svelte";
+    import { GameStatus } from './common';
     import { goto } from "$app/navigation";
     import { BS_GAME_LIST } from "$lib/links";
     import { onDestroy } from "svelte";
 
     export let data;
+
+    $: gamesRemaining = data.gameResults.filter((res) => res === GameStatus.Unplayed || res === GameStatus.InProgress).length;
+
+    let gameDate = new Date(data.todaySet.publish_on);
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
+
 
     let folded = true;
     let foldedHeight = "25%";
@@ -15,20 +24,15 @@
     let countdown = "00:00:00";
     const updateCountdown = () => {
         let now = new Date();
-        let tomorrow = new Date();
-        tomorrow.setHours(0);
-        tomorrow.setMinutes(0);
-        tomorrow.setSeconds(0);
-        tomorrow.setDate(tomorrow.getDate() + 1);
 
-        let distance = tomorrow.getTime() - now.getTime();
-        let rhr = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-        let rmin = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-        let rsec = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+        let distance = data.nextDate.getTime() - now.getTime();
+        let rhr = Math.floor(Math.max((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60), 0)).toString().padStart(2, '0');
+        let rmin = Math.floor(Math.max((distance % (1000 * 60 * 60)) / (1000 * 60), 0)).toString().padStart(2, '0');
+        let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0)).toString().padStart(2, '0');
 
         countdown = `${rhr}:${rmin}:${rsec}`;
-
     }
+
     updateCountdown();
     let countdownInterval = setInterval(updateCountdown, 1000);
     onDestroy(() => clearInterval(countdownInterval));
@@ -50,13 +54,18 @@
         <p>0</p><p>streak</p>
         <p>15</p><p>max. streak</p>
     </div>
+    <div class="game-date">
+        {gameDateString}
+    </div>
     <div class="pin-container">
-        {#each [true, false, true, null] as won}
-            <div class:won={won === true} class:unplayed={won === null}>
-                {#if won === true}
+        {#each data.gameResults as res}
+            <div class:won={res === GameStatus.Won} class:unplayed={res === GameStatus.Unplayed || res === GameStatus.InProgress}>
+                {#if res === GameStatus.Won}
                     <Fa icon={faCheck} />
-                {:else if won === false}
+                {:else if res === GameStatus.Lost}
                     <Fa icon={faXmark} />
+                {:else if res === GameStatus.InProgress}
+                    ~
                 {/if}
             </div>
         {/each}
@@ -64,7 +73,7 @@
     <div class="play-container">
         <button on:click={() => goto(BS_GAME_LIST)}>
             Play
-            <span> 1 game remaining </span>
+            <span> {gamesRemaining} game{gamesRemaining !== 1 ? 's' : ''} remaining </span>
         </button>
     </div>
     <div class="footer">
@@ -86,7 +95,7 @@
         height: 100vh;
         height: 100svh;
         display: grid;
-        grid-template-rows: 25% 2fr 1.25fr 0.6fr 2fr 1.25fr;
+        grid-template-rows: 25% 2fr 1.25fr 1fr 0.6fr 2fr 1.25fr;
         place-items: stretch;
     }
 
@@ -142,6 +151,12 @@
         font-size: 0.8rem;
         text-transform: lowercase;
         font-style: italic;
+    }
+
+    .game-date {
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
     }
 
     .pin-container {

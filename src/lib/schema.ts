@@ -74,10 +74,16 @@ export interface BsGameFeedback {
     }
 }
 
+export interface BsGameSet {
+    games: string[];
+    publish_on: string;
+}
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
     collection(idOrName: 'bs_games'): RecordService<BsGame>;
     collection(idOrName: 'bs_game_progress'): RecordService<BsGameProgress>;
     collection(idOrName: 'bs_game_feedback'): RecordService<BsGameFeedback>;
+    collection(idOrName: 'bs_game_sets'): RecordService<BsGameSet>;
 }
