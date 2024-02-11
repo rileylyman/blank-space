@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { BS_HOME_SKIP, bsGameLink } from '$lib/links.js';
+    import { BS_GAME_LIST, BS_HOME_SKIP, bsGameLink } from '$lib/links.js';
     import type { BsGameProgress, BsGame } from '$lib/schema';
 
     export let games: BsGame[];
@@ -24,7 +24,7 @@
         <h2> In-Progress Games </h2>
         <ul>
             {#each inProgressGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
+                <li><a href={bsGameLink(game.id, BS_GAME_LIST)}>{game.name}</a></li>
             {/each}
         </ul>
     {/if}
@@ -32,7 +32,7 @@
         <h2> Unplayed Games </h2>
         <ul>
             {#each unplayedGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
+                <li><a href={bsGameLink(game.id, BS_GAME_LIST)}>{game.name}</a></li>
             {/each}
         </ul>
     {/if}
@@ -40,7 +40,7 @@
         <h2> Won Games </h2>
         <ul>
             {#each wonGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
+                <li><a href={bsGameLink(game.id, BS_GAME_LIST)}>{game.name}</a></li>
             {/each}
         </ul>
     {/if}
@@ -48,7 +48,7 @@
         <h2> Lost Games </h2>
         <ul>
             {#each lostGames as game}
-                <li><a href={bsGameLink(game.id)}>{game.name}</a></li>
+                <li><a href={bsGameLink(game.id, BS_GAME_LIST)}>{game.name}</a></li>
             {/each}
         </ul>
     {/if}

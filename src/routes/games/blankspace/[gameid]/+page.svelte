@@ -6,13 +6,18 @@
     import ResultScreen from './ResultScreen.svelte';
     import { BsResponseParser } from '$lib/blankspace-game-api';
     import { error } from '@sveltejs/kit';
-    import { tick } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
     export let data;
     export let form;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
+
+    console.log((new Date()).getTime());
+    onMount(() => {
+        console.log((new Date()).getTime());
+    });
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 1;

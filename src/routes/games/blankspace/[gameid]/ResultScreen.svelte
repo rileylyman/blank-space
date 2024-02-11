@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import { BS_GAME_LIST } from "$lib/links";
+    import { BS_HOME_SKIP } from "$lib/links";
     import { type BsResponse } from "$lib/blankspace-game-api";
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';;;;
@@ -74,7 +74,7 @@
     {#if oldFeedback && !restored}
         <h1 style="text-align: center"> Feedback submitted! </h1>
         <div style="width: 100%; display: grid; place-items: center">
-            <button class="submit" on:click={() => goto(returnTo ?? BS_GAME_LIST)}> Done </button>
+            <button class="submit" on:click={() => goto(returnTo ?? BS_HOME_SKIP)}> Done </button>
             <button class="submit" on:click={restoreFeedback}> Edit feedback </button>
         </div>
     {:else}

@@ -4,9 +4,10 @@
     import Curtain from "./Curtain.svelte";
     import BarPlot from "$lib/ui/BarPlot.svelte";
     import { GameStatus } from './common';
-    import { goto } from "$app/navigation";
-    import { BS_GAME_LIST, bsGameLink } from "$lib/links";
+    import { goto, preloadData } from "$app/navigation";
+    import { BS_GAME_LIST, BS_HOME, BS_HOME_SKIP, bsGameLink } from "$lib/links";
     import { onDestroy } from "svelte";
+    import { browser } from "$app/environment";
 
     export let data;
 
@@ -16,6 +17,10 @@
     $: {
         if (nextGameIndex >= 0) {
             nextGameId = data.todaySet.games[nextGameIndex];
+            if (browser) {
+                console.log("preloading data");
+                preloadData(bsGameLink(nextGameId, BS_HOME_SKIP));
+            }
         }
     }
 
@@ -78,9 +83,11 @@
         {/each}
     </div>
     <div class="play-container">
-        <button on:click={() => {
-            if (nextGameId) goto(bsGameLink(nextGameId))
-        }}>
+        <button 
+            on:click={() => {
+                if (nextGameId) goto(bsGameLink(nextGameId, BS_HOME_SKIP))
+            }}
+        >
             Play
             <span> {gamesRemaining} game{gamesRemaining !== 1 ? 's' : ''} remaining </span>
         </button>
