@@ -4,6 +4,10 @@ import type TypedPocketBase from '$lib/schema';
 import { AUTH_HOME } from "$lib/links";
 
 export const handle = async ({event, resolve}) => {
+    if (!event.url.pathname.startsWith('/api/tz') || !event.cookies.get('tz')) {
+        return redirect(302, `/api/tz?from=${event.url.pathname}`);
+    }
+
     const pb = new PocketBase('https://pb.slappygames.com') as TypedPocketBase;
     pb.authStore.loadFromCookie(event.request.headers.get('cookie') ?? '');
 
