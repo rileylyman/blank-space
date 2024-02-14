@@ -3,41 +3,66 @@
     import { faShareAlt, faXmark, faCheck } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
     import BarPlot from "$lib/ui/BarPlot.svelte";
-    import { GameStatus } from './common';
     import { goto, preloadData } from "$app/navigation";
-    import { BS_GAME_LIST, BS_HOME, BS_HOME_SKIP, bsGameLink } from "$lib/links";
-    import { onDestroy } from "svelte";
+    import { BS_HOME, BS_HOME_SKIP, bsGameLink } from "$lib/links";
+    import { onDestroy, onMount } from "svelte";
     import { browser } from "$app/environment";
+    import type { BsGameSet } from "$lib/schema";
+    import { dateToYmdUtc, todayYmdLocal, todayYmdLocalString, tomorrow0hrsLocal, ymdToString } from "$lib/utils";
 
     export let data;
 
-    $: gamesRemaining = data.gameResults.filter((res) => res === GameStatus.Unplayed || res === GameStatus.InProgress).length;
-    $: nextGameIndex = data.gameResults.findIndex((res) => res === GameStatus.Unplayed || res === GameStatus.InProgress)
+    let currentSet: BsGameSet | undefined = undefined;
+    let setProgress: Array<boolean | null> = [];
+
+    onMount(async () => {
+        const [year, month, day] = todayYmdLocal();
+        const res = await fetch(BS_HOME, { method: "POST", body: JSON.stringify({ year, month, day }) });
+        const setResponse = await res.json();
+        currentSet = setResponse.currentSet;
+        setProgress = setResponse.setProgress ?? [];
+        updateCountdown();
+    });
+
+    $: gamesRemaining = setProgress.filter((prog) => prog === null).length;
+    $: nextGameIndex = setProgress.findIndex((prog) => prog === null);
     let nextGameId = "";
     $: {
-        if (nextGameIndex >= 0) {
-            nextGameId = data.todaySet.games[nextGameIndex];
+        if (nextGameIndex >= 0 && currentSet) {
+            nextGameId = currentSet.games[nextGameIndex];
             if (browser) {
-                console.log("preloading data");
                 preloadData(bsGameLink(nextGameId, BS_HOME_SKIP));
             }
         }
     }
 
-    let gameDate = new Date(data.todaySet.publish_on);
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    let gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
+    let gameDateString = "";
+    $: {
+        if (currentSet) {
+            const gameDate = new Date(currentSet.publish_on);
+            gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
+        }
+    }
 
 
     let folded = true;
     let foldedHeight = "25%";
 
-    let countdown = "00:00:00";
+    let countdown = "loading...";
     const updateCountdown = () => {
-        let now = new Date();
+        if (!currentSet) {
+            return;
+        } else if (ymdToString(...dateToYmdUtc(new Date(currentSet.publish_on))) !== todayYmdLocalString()) {
+            countdown = "00:00:00";
+            return;
+        }
 
-        let distance = data.nextDate.getTime() - now.getTime();
+        let now = new Date();
+        let tomorrow = tomorrow0hrsLocal();
+
+        let distance = tomorrow.getTime() - now.getTime();
         let rhr = Math.floor(Math.max((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60), 0)).toString().padStart(2, '0');
         let rmin = Math.floor(Math.max((distance % (1000 * 60 * 60)) / (1000 * 60), 0)).toString().padStart(2, '0');
         let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0)).toString().padStart(2, '0');
@@ -70,14 +95,12 @@
         {gameDateString}
     </div>
     <div class="pin-container">
-        {#each data.gameResults as res}
-            <div class:won={res === GameStatus.Won} class:unplayed={res === GameStatus.Unplayed || res === GameStatus.InProgress}>
-                {#if res === GameStatus.Won}
+        {#each setProgress as prog}
+            <div class:won={prog} class:unplayed={prog === null}>
+                {#if prog === true}
                     <Fa icon={faCheck} />
-                {:else if res === GameStatus.Lost}
+                {:else if prog === false}
                     <Fa icon={faXmark} />
-                {:else if res === GameStatus.InProgress}
-                    ~
                 {/if}
             </div>
         {/each}
@@ -179,10 +202,10 @@
         place-self: center;
         width: 81%;
         padding: 0.5rem;
+        margin-bottom: 0.5rem;
         border-radius: 0.25rem;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        align-self: end; 
         place-items: center;
     }
 
