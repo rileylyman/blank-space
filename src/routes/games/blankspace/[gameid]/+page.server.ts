@@ -4,11 +4,7 @@ import { BS_GAME_LIST, blankspaceApi } from '$lib/links';
 import type { BsGameFeedback } from '$lib/schema.js';
 import { redirect } from '@sveltejs/kit';
 
-
-let i = 0;
 export const load = async (event: ServerLoadEvent) => {
-    console.log(i);
-    i += 1;
     const gameId = event.params.gameid ?? "";
     const userId = event.locals.pb.authStore.model?.id ?? "";
 

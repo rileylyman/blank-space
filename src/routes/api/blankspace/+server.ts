@@ -75,9 +75,15 @@ export const POST = async (event: RequestEvent) => {
 
     if (guess) {
         try {
-            await event.locals.pb
-                .collection('bs_game_progress')
-                .update(progress.id, { won, lost, guesses: guesses.join(',')});
+            if (progress.id) {
+                await event.locals.pb
+                    .collection('bs_game_progress')
+                    .update(progress.id, { won, lost, guesses: guesses.join(',')});
+            } else {
+                await event.locals.pb
+                    .collection('bs_game_progress')
+                    .create({ bs_game: gameId, user: userId, won, lost, guesses: guesses.join(',') });
+            }
         } catch (err) {
             console.log(err);
             return json({ error: 'internal server error: could not update progress' }, { status: 500 });
@@ -108,13 +114,6 @@ const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: 
             .getFirstListItem(`user.id = "${args.userId}" && bs_game.id = "${args.gameId}"`);
     } catch (_) {
         progress = { id: "", bs_game: args.gameId, user: args.userId, guesses: "", won: false, lost: false };
-        try {
-            progress = await pb
-                .collection('bs_game_progress')
-                .create(progress);
-        } catch (_) {
-            return [null, 'could not create progress'];
-        }
     }
     return [progress, null];
 }
