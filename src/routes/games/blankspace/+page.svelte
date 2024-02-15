@@ -12,24 +12,12 @@
 
     export let data;
 
-    let currentSet: BsGameSet | undefined = undefined;
-    let setProgress: Array<boolean | null> = [];
-
-    onMount(async () => {
-        const [year, month, day] = todayYmdLocal();
-        const res = await fetch(BS_HOME, { method: "POST", body: JSON.stringify({ year, month, day }) });
-        const setResponse = await res.json();
-        currentSet = setResponse.currentSet;
-        setProgress = setResponse.setProgress ?? [];
-        updateCountdown();
-    });
-
-    $: gamesRemaining = setProgress.filter((prog) => prog === null).length;
-    $: nextGameIndex = setProgress.findIndex((prog) => prog === null);
+    $: gamesRemaining = data.setProgress.filter((prog) => prog === null).length;
+    $: nextGameIndex = data.setProgress.findIndex((prog) => prog === null);
     let nextGameId = "";
     $: {
-        if (nextGameIndex >= 0 && currentSet) {
-            nextGameId = currentSet.games[nextGameIndex];
+        if (nextGameIndex >= 0) {
+            nextGameId = data.currentSet.games[nextGameIndex];
             if (browser) {
                 preloadData(bsGameLink(nextGameId, BS_HOME_SKIP));
             }
@@ -38,13 +26,8 @@
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    let gameDateString = "";
-    $: {
-        if (currentSet) {
-            const gameDate = new Date(currentSet.publish_on);
-            gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
-        }
-    }
+    const gameDate = new Date(data.currentSet.publish_on);
+    const gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
 
 
     let folded = true;
@@ -52,17 +35,17 @@
 
     let countdown = "loading...";
     const updateCountdown = () => {
-        if (!currentSet) {
-            return;
-        } else if (ymdToString(...dateToYmdUtc(new Date(currentSet.publish_on))) !== todayYmdLocalString()) {
-            countdown = "00:00:00";
-            return;
+        let now = new Date();
+        let nextSetAvail: Date;
+        if (data.currentSet.next_set_avail) {
+            nextSetAvail = new Date(data.currentSet.next_set_avail);
+        } else {
+            nextSetAvail = new Date(data.currentSet.publish_on);
+            nextSetAvail.setDate(nextSetAvail.getDate() + 1);
         }
 
-        let now = new Date();
-        let tomorrow = tomorrow0hrsLocal();
-
-        let distance = tomorrow.getTime() - now.getTime();
+        let distance = nextSetAvail.getTime() - now.getTime();
+        if (distance < 0) distance = 0;
         let rhr = Math.floor(Math.max((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60), 0)).toString().padStart(2, '0');
         let rmin = Math.floor(Math.max((distance % (1000 * 60 * 60)) / (1000 * 60), 0)).toString().padStart(2, '0');
         let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0)).toString().padStart(2, '0');
@@ -88,14 +71,14 @@
     <div class="stats"> 
         <p>{data.totalGames}</p><p>total games</p>
         <p>{data.winPct}%</p><p>win rate</p>
-        <p>0</p><p>streak</p>
-        <p>15</p><p>max. streak</p>
+        <p>{data.streak}</p><p>streak</p>
+        <p>{data.maxStreak}</p><p>max. streak</p>
     </div>
     <div class="game-date">
         {gameDateString}
     </div>
     <div class="pin-container">
-        {#each setProgress as prog}
+        {#each data.setProgress as prog}
             <div class:won={prog} class:unplayed={prog === null}>
                 {#if prog === true}
                     <Fa icon={faCheck} />

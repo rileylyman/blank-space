@@ -77,6 +77,20 @@ export interface BsGameFeedback {
 export interface BsGameSet {
     games: string[];
     publish_on: string;
+    next_set_avail?: string | null;
+}
+
+export interface BsStats {
+    user: string;
+    max_streak: number | null;
+    current_streak: number | null;
+    total_games: number | null;
+    won_games: number | null;
+    gd1: number | null;
+    gd2: number | null;
+    gd3: number | null;
+    gd4: number | null;
+    gd5: number | null;
 }
 
 export default interface TypedPocketBase extends PocketBase {
@@ -84,6 +98,9 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'users'): RecordService<PbUser>;
     collection(idOrName: 'bs_games'): RecordService<BsGame>;
     collection(idOrName: 'bs_game_progress'): RecordService<BsGameProgress>;
+    collection(idOrName: 'bs_current_set_progress'): RecordService<BsGameProgress>;
     collection(idOrName: 'bs_game_feedback'): RecordService<BsGameFeedback>;
     collection(idOrName: 'bs_game_sets'): RecordService<BsGameSet>;
+    collection(idOrName: 'bs_current_set'): RecordService<BsGameSet>;
+    collection(idOrName: 'bs_stats'): RecordService<BsStats>;
 }
