@@ -9,7 +9,7 @@
     let barLens: string[] = [];
     $: {
         normalizedBars = new Map();
-        let max = 0;
+        let max = 1;
         bars.forEach((v) => max = Math.max(v, max));
         bars.forEach((v, k) => normalizedBars.set(k, v / max));
 

@@ -24,8 +24,6 @@ export const load = async (event: ServerLoadEvent) => {
     const totalGames = stats.total_games ?? 0;
     const winPct = Math.round((wonGames / Math.max(totalGames, 1)) * 100);
 
-    console.log(currentProgs);
-
     let setProgress: Array<boolean | null> = [];
     for (let id of currentSet.games) {
         let prog = currentProgs.find((p) => p.bs_game === id);
