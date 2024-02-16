@@ -32,8 +32,8 @@
         {:else}
             <div class="login">
                 <button on:click={() => state = State.LogIn}>Log in</button>
-                <button class="inactive" on:click={() => state = State.SignUp}>Sign up</button>
-                <button class="inactive" style="margin-top: 2rem"> Continue as guest </button>
+                <button on:click={() => state = State.SignUp}>Sign up</button>
+                <button style="margin-top: 2rem"> Continue as guest </button>
             </div>
         {/if}
     {:else if state == State.PasswordReset}
@@ -211,10 +211,10 @@
         color: red;
     }
 
-    .inactive {
+    /*.inactive {
         pointer-events: none;
         background: #555;
         color: #ccc;
-    }
+    }*/
 </style>
 
