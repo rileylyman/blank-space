@@ -19,7 +19,7 @@
         if (nextGameIndex >= 0) {
             nextGameId = data.currentSet.games[nextGameIndex];
             if (browser) {
-                preloadData(bsGameLink(nextGameId, BS_HOME_SKIP));
+                preloadData(bsGameLink(nextGameId));
             }
         }
     }
@@ -91,7 +91,7 @@
     <div class="play-container">
         <button 
             on:click={() => {
-                if (nextGameId) goto(bsGameLink(nextGameId, BS_HOME_SKIP))
+                if (nextGameId) goto(bsGameLink(nextGameId))
             }}
         >
             Play

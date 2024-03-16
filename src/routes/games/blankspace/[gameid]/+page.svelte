@@ -3,20 +3,22 @@
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
-    import ResultScreen from './ResultScreen.svelte';
     import { BsResponseParser } from '$lib/blankspace-game-api';
     import { error } from '@sveltejs/kit';
     import { onMount, tick } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { bsResultLink } from '$lib/links';
 
     export let data;
-    export let form;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
 
-    console.log((new Date()).getTime());
     onMount(() => {
-        console.log((new Date()).getTime());
+        console.log("hey eh ye e");
+        if (won || lost) {
+            handleWonOrLost();
+        }
     });
 
     let flippedHint: number | null = null;
@@ -33,7 +35,7 @@
             error(500);
         }
         if (parseRes.data.error && !parseRes.data.invalidWord) {
-            error (500);
+            error(500);
         } else if (parseRes.data.error) {
             invalidWord = true;
             if (invalidWordResetTimeout) clearTimeout(invalidWordResetTimeout);
@@ -45,10 +47,21 @@
         await tick();
     }
 
+    const handleWonOrLost = async () => {
+        console.log("handleWon");
+        goto(bsResultLink(data.gameId));
+    }
+
     const handleGuess = async () => {
         if (flippedHint === null) return;
         const guess = hints[flippedHint].guess;
         await submitGuess(guess);
+
+
+        if (won || lost) {
+            handleWonOrLost();
+        }
+
         if (won || lost || invalidWord) {
             return;
         }
@@ -90,12 +103,6 @@
         flippedHint = lastRevealedHint;
     }
 </script>
-
-{#if won || lost}
-    <div style="background: white; z-index: 2; position: absolute; width: 100vw; height: 100vh; height: 100svh">
-        <ResultScreen {form} oldFeedback={data.feedback} response={data.bsResponse} />
-    </div>
-{/if}
 
 <div id="root">
     <div>

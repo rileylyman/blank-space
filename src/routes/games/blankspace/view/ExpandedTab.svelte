@@ -4,7 +4,7 @@
     import TextMessages from '$lib/ui/TextMessages.svelte';
     import { bsGameHints } from '$lib/schema';
     import { type GameAllInfo } from './common';
-    import { BS_FEEDBACK_LIST, bsGameLink } from '$lib/links';
+    import { BS_FEEDBACK_LIST, bsFeedbackLink } from '$lib/links';
 
     export let info: GameAllInfo;
     export let userId: string;
@@ -49,7 +49,7 @@
         <p><em> No messages to show</em></p>
     {/if}
     <br />
-    <a href={bsGameLink(info.game.id, BS_FEEDBACK_LIST) + `&edit=true`}> Edit your feedback </a>
+    <a href={bsFeedbackLink(info.game.id, BS_FEEDBACK_LIST)}> Edit your feedback </a>
 </div>
 
 <style>
