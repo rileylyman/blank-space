@@ -62,41 +62,35 @@
     <Curtain bind:folded {foldedHeight} />
 
     <div />
+    <div class="game-date">
+        {gameDateString}
+    </div>
+    <div class="pin-container">
+        {#each data.setProgress as prog, idx}
+            <button 
+                on:click={() => goto(bsGameLink(data.currentSet.games[idx]))}
+                class:won={prog} 
+                class:lost={prog === false} 
+                class:unplayed={prog === null}>
+                {#if prog === true}
+                    <Fa icon={faCheck} />
+                {:else if prog === false}
+                    <Fa icon={faXmark} />
+                {:else}
+                    <p> Tap to play</p>
+                {/if}
+            </button>
+        {/each}
+    </div>
     <div class="guess-distro-container">
-        <h2> Overall Guess Performance</h2>
-        <div>
-            <BarPlot bars={data.scoreCounts} allowTruncate={false} />
-        </div>
+        <p> Today's Score </p> <p> Daily average </p>
+        <div> 0 </div> <div> 71 </div>
     </div>
     <div class="stats"> 
         <p>{data.totalGames}</p><p>total games</p>
         <p>{data.winPct}%</p><p>win rate</p>
         <p>{data.streak}</p><p>streak</p>
         <p>{data.maxStreak}</p><p>max. streak</p>
-    </div>
-    <div class="game-date">
-        {gameDateString}
-    </div>
-    <div class="pin-container">
-        {#each data.setProgress as prog}
-            <div class:won={prog} class:unplayed={prog === null}>
-                {#if prog === true}
-                    <Fa icon={faCheck} />
-                {:else if prog === false}
-                    <Fa icon={faXmark} />
-                {/if}
-            </div>
-        {/each}
-    </div>
-    <div class="play-container">
-        <button 
-            on:click={() => {
-                if (nextGameId) goto(bsGameLink(nextGameId))
-            }}
-        >
-            Play
-            <span> {gamesRemaining} game{gamesRemaining !== 1 ? 's' : ''} remaining </span>
-        </button>
     </div>
     <div class="footer">
         <button>
@@ -114,10 +108,12 @@
     #root {
         background: white;
         width: 100vw;
+        max-width: 50rem;
+        margin: 0 auto;
         height: 100vh;
         height: 100svh;
         display: grid;
-        grid-template-rows: 25% 2fr 1.25fr 1fr 0.6fr 2fr 1.25fr;
+        grid-template-rows: 25% 3rem 1fr 6.5rem 5rem 4rem;
         place-items: stretch;
     }
 
@@ -125,19 +121,21 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         place-items: center;
-        padding-bottom: 0.5rem;
-        margin-bottom: 0.5rem;
+        width: 85%;
+        place-self: center;
+        font-size: 1.2rem;
     }
 
     .stats p {
         text-align: center; 
-        font-size: 1.2rem;
+        font-size: 1.2em;
         text-transform: uppercase;
+        white-space: nowrap;
     }
 
     .stats p:nth-child(even) {
         grid-row: 2;
-        font-size: 0.7rem;
+        font-size: 0.7em;
         align-self: start;
         font-weight: bold;
     }
@@ -147,97 +145,86 @@
         align-self: end;
     }
 
-    .play-container {
-        display: grid;
-        place-items: center;
-        align-self: end;
-        padding-bottom: 1rem;
-    }
-
-    .play-container button {
-        border: none;
-        outline: none;
-        background: rgb(234, 234, 234);
-        border: 1px solid black;
-        font-size: 2rem;
-        border-radius: 0.25rem;
-        padding: 0.5rem 5rem;
-        width: 81%;
-        text-transform: uppercase;
-        display: grid;
-        place-items: center;
-        grid-template-rows: 75% 25%;
-    }
-
-    .play-container button span {
-        font-size: 0.8rem;
-        text-transform: lowercase;
-        font-style: italic;
-    }
-
     .game-date {
         display: grid;
         place-items: center;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 
     .pin-container {
-        place-self: center;
-        width: 81%;
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-        border-radius: 0.25rem;
+        margin: 0 auto;
+        place-self: stretch;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
         place-items: center;
+        grid-template-columns: 50% 50%;
+        grid-template-rows: 50% 50%;
+        overflow: hidden;
+        width: 85%;
     }
 
-    .pin-container div {
+    .pin-container button {
         display: grid;
         place-items: center;
-        background: rgb(250, 113, 79);
-        width: 1.5rem;
-        height: 1.5rem;
+        height: 80%;
+        max-height: 9rem;
+        min-height: 5.7rem;
+        aspect-ratio: 1 / 1;
         padding: 0;
         border-radius: 100%;
-        font-size: 0.75rem;
         outline: 1px solid black;
+        border: none;
     }
 
-    .pin-container div.won {
+    .pin-container button.lost {
+        background: rgb(250, 113, 79);
+        font-size: 3.5rem;
+    }
+
+    .pin-container button.won {
         background-color: rgb(80, 194, 104);
+        font-size: 3.5rem;
     }
 
-    .pin-container div.unplayed {
+    .pin-container button.unplayed {
         background-color: white;
-        outline: 1px solid black;
+    }
+
+    .pin-container button.unplayed p {
+        max-width: 75%;
+        font-size: 1.25rem;
     }
 
     .guess-distro-container {
         display: grid;
         place-items: center;
-        padding-top: 1rem;
-        padding-bottom: 0.5rem;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 35% 65%;
+        width: 85%;
+        place-self: center;
     }
 
-    .guess-distro-container > h2 {
-        text-transform: uppercase;
-        font-weight: 400;
-        font-size: 1rem;
-        font-style: italic;
-        padding-bottom: 0.5rem;
+    .guess-distro-container p {
+        font-size: 1.25rem;
+        white-space: nowrap;
+        text-align: center;
+        align-self: end;
+        max-height: 100%;
     }
 
-    .guess-distro-container > div {
-        width: 81%;
+    .guess-distro-container div {
+        font-size: 4rem;
+        font-weight: 600;
+        align-self: start;
+        margin-top: -1rem;
     }
 
     .footer {
         display: grid;
         place-items: center;
+        align-items: end;
         grid-template-columns: 1fr 1fr;
         column-gap: 5%;
-        align-items: start;
+        padding-bottom: 1rem;
     }
 
     .footer button {

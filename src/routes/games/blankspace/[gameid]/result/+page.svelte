@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SCORES } from "$lib/constants";
-    import { bsFeedbackLink } from "$lib/links";
+    import { BS_HOME_SKIP, bsFeedbackLink } from "$lib/links";
     import GuessTable from "$lib/ui/GuessTable.svelte";
 
     export let data;
@@ -30,6 +30,7 @@
         <GuessTable {target} {fullHints} {guesses}/>
     </div>
     <div class="button">
+        <a href={BS_HOME_SKIP}> Go Home </a>
         <a href={bsFeedbackLink(data.gameId)}> Add Feedback </a>
     </div>
 </div>
@@ -96,6 +97,7 @@
     .button {
         display: grid;
         place-items: center;
+        grid-template-columns: 1fr 1fr;
     }
 
     .button a {
@@ -106,5 +108,8 @@
         padding: 0.5rem 1rem;
         border-radius: 0.25rem;
         font-size: 1.5rem;
+        width: 90%;
+        text-align: center;
+        white-space: nowrap;
     }
 </style>
