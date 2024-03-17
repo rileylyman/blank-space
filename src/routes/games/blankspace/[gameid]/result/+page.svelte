@@ -40,6 +40,8 @@
         width: 100vw; 
         height: 100vh;
         height: 100svh;
+        max-width: 50rem;
+        margin: 0 auto;
         display: grid;
         grid-template-rows: 1fr 1fr 1.25fr 0.75fr;
         place-items: stretch;

@@ -71,6 +71,7 @@
         height: 100vh;
         height: 100svh;
         width: 80%;
+        max-width: 50rem;
         margin: 0 auto;
     }
 

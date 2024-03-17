@@ -15,7 +15,6 @@
     $: lost = data.bsResponse.result?.lost;
 
     onMount(() => {
-        console.log("hey eh ye e");
         if (won || lost) {
             handleWonOrLost();
         }
@@ -48,7 +47,6 @@
     }
 
     const handleWonOrLost = async () => {
-        console.log("handleWon");
         goto(bsResultLink(data.gameId));
     }
 
@@ -152,6 +150,8 @@
     #root {
         height: 100vh;
         height: 100svh;
+        max-width: 50rem;
+        margin: 0 auto;
         display: grid;
         grid-template-rows: 5rem 10rem 10rem 1fr;
         overflow: hidden;
@@ -170,9 +170,10 @@
         display: grid;
         align-items: start;
         justify-items: center;
-        width: 90vw;
-        margin: 0 5vw;
+        width: calc(min(90vw, 45rem));
+        margin: 0 calc(min(5vw, 2.5rem));
         height: 100%;
+        max-width: 50rem;
         background: transparent;
         transition: transform 500ms ease-in-out;
     }

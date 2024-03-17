@@ -33,7 +33,7 @@
             <div class="login">
                 <button on:click={() => state = State.LogIn}>Log in</button>
                 <button on:click={() => state = State.SignUp}>Sign up</button>
-                <button style="margin-top: 2rem"> Continue as guest </button>
+                <button class="inactive" style="margin-top: 2rem"> Continue as guest </button>
             </div>
         {/if}
     {:else if state == State.PasswordReset}
@@ -119,6 +119,8 @@
         height: 100svh;
         max-height: 100vh;
         width: 100vw;
+        max-width: 50rem;
+        margin: 0 auto;
         align-items: center;
         overflow: hidden;
     }
@@ -211,10 +213,10 @@
         color: red;
     }
 
-    /*.inactive {
+    .inactive {
         pointer-events: none;
         background: #555;
         color: #ccc;
-    }*/
+    }
 </style>
 

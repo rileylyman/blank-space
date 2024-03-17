@@ -2,33 +2,21 @@
     import Fa from "svelte-fa";
     import { faShareAlt, faXmark, faCheck } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
-    import BarPlot from "$lib/ui/BarPlot.svelte";
     import { goto, preloadData } from "$app/navigation";
-    import { BS_HOME, BS_HOME_SKIP, bsGameLink } from "$lib/links";
-    import { onDestroy, onMount } from "svelte";
+    import { bsGameLink } from "$lib/links";
+    import { onMount, onDestroy } from "svelte";
     import { browser } from "$app/environment";
-    import type { BsGameSet } from "$lib/schema";
-    import { dateToYmdUtc, todayYmdLocal, todayYmdLocalString, tomorrow0hrsLocal, ymdToString } from "$lib/utils";
 
     export let data;
 
-    $: gamesRemaining = data.setProgress.filter((prog) => prog === null).length;
-    $: nextGameIndex = data.setProgress.findIndex((prog) => prog === null);
-    let nextGameId = "";
-    $: {
-        if (nextGameIndex >= 0) {
-            nextGameId = data.currentSet.games[nextGameIndex];
-            if (browser) {
-                preloadData(bsGameLink(nextGameId));
-            }
-        }
-    }
+    onMount(() => {
+        data.currentSet.games.forEach((gameId) => preloadData(bsGameLink(gameId)));
+    })
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const gameDate = new Date(data.currentSet.publish_on);
     const gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
-
 
     let folded = true;
     let foldedHeight = "25%";

@@ -95,6 +95,8 @@
     #root {
         width: 100%;
         height: 100%;
+        max-width: 50rem;
+        margin: 0 auto;
         padding: 1rem;
         display: grid;
         align-items: center;
