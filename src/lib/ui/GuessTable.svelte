@@ -22,11 +22,10 @@
             {@html hint} 
         </div>
         <div class="guess" class:correct={guess === target}>
-            {#if guess} {guess} {/if}
             {#if guess === target}
-                <span><Fa icon={faCheck} /></span>
+                {guess}<span><Fa icon={faCheck} /></span>
             {:else if guess}
-                <span><Fa icon={faX} size="0.8x" /></span>
+                {guess}<span><Fa icon={faX} size="0.8x" /></span>
             {/if}
         </div>
     {/each}
@@ -35,19 +34,19 @@
 <style>
 #root {
     background-color: black;
-    border: 1px solid black;
+    outline: 1px solid black;
     width: 100%;
     height: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 1px;
     row-gap: 1px;
-    font-size: 0.85rem;
 }
 
 #root div {
     background-color: white;
     padding: 0.1rem 0.3rem;
+    text-align: center;
 }
 
 #root .col-title {
@@ -56,8 +55,10 @@
 }
 
 .guess {
+    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     color: red;
     font-weight: bold;
 }

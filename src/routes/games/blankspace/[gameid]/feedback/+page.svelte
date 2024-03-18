@@ -6,6 +6,8 @@
     import GuessTable from "$lib/ui/GuessTable.svelte";
     import { page } from "$app/stores";
     import { BS_HOME_SKIP } from "$lib/links.js";
+    import { onMount } from "svelte";
+    import { fitText } from "$lib/utils.js";
 
     export let data;
 
@@ -45,17 +47,26 @@
         }, 2000);
     }
 
+    let root: HTMLElement;
+    onMount(() => {
+        fitText(root, '.thumbs button div', 0.75);
+    })
+
     const from = $page.url.searchParams.get('from');
     const returnTo = from ? from : BS_HOME_SKIP;
 </script>
 
-<div id="root">
+<div id="root" bind:this={root}>
     <h1>You { result.won ? 'Won!' : 'Lost!' }</h1>
     <div class="rating"> 
         <div class="thumbs">
-        <span>Rate This Round:</span> 
-        <button on:click={() => thumbs = false} class:selected={thumbs === false}><Fa size="1.5x" icon={faThumbsDown} /> </button>
-        <button on:click={() => thumbs = true} class:selected={thumbs === true}><Fa size="1.5x" icon={faThumbsUp} /> </button>
+            <span>Rate This Round:</span> 
+            <button on:click={() => thumbs = false} class:selected={thumbs === false}>
+                <div><Fa icon={faThumbsDown} /> </div>
+            </button>
+            <button on:click={() => thumbs = true} class:selected={thumbs === true}>
+                <div><Fa icon={faThumbsUp} /> </div>
+            </button>
         </div>
         <div class="tags">
             {#each possibleTags as tag}
@@ -117,14 +128,24 @@
     }
 
     .thumbs button {
-        display: grid;
-        place-items: center;
+        position: relative;
+        font-size: 1.5rem;
         outline: none;
         border: 1px solid black;
         background-color: white;
         border-radius: 0.25rem;
         height: 3rem;
-        aspect-ratio: 1/1;
+        width: 3rem;
+    }
+
+    .thumbs button div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
     }
 
     .thumbs button.selected {
@@ -163,7 +184,7 @@
         height: 15vh;
         width: 100%; 
         padding: 0.25rem 1rem;
-        overflow: hidden;
+        overflow-y: scroll;
         border: 1px solid black;
     }
 

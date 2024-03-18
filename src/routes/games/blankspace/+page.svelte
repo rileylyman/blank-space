@@ -5,12 +5,14 @@
     import { goto, preloadData } from "$app/navigation";
     import { bsGameLink } from "$lib/links";
     import { onMount, onDestroy } from "svelte";
-    import { browser } from "$app/environment";
+    import { fitText } from "$lib/utils";
 
     export let data;
 
+    let root: HTMLElement;
     onMount(() => {
         data.currentSet.games.forEach((gameId) => preloadData(bsGameLink(gameId)));
+        fitText(root, '.pin-container button', 0.5);
     })
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -46,7 +48,7 @@
     onDestroy(() => clearInterval(countdownInterval));
 </script>
 
-<div id="root">
+<div id="root" bind:this={root}>
     <Curtain bind:folded {foldedHeight} />
 
     <div />
@@ -65,7 +67,7 @@
                 {:else if prog === false}
                     <Fa icon={faXmark} />
                 {:else}
-                    <p> Tap to play</p>
+                    Tap to play
                 {/if}
             </button>
         {/each}
@@ -155,7 +157,7 @@
         place-items: center;
         height: 80%;
         max-height: 9rem;
-        min-height: 5.7rem;
+        min-height: 5rem;
         aspect-ratio: 1 / 1;
         padding: 0;
         border-radius: 100%;
@@ -165,21 +167,14 @@
 
     .pin-container button.lost {
         background: rgb(250, 113, 79);
-        font-size: 3.5rem;
     }
 
     .pin-container button.won {
         background-color: rgb(80, 194, 104);
-        font-size: 3.5rem;
     }
 
     .pin-container button.unplayed {
         background-color: white;
-    }
-
-    .pin-container button.unplayed p {
-        max-width: 75%;
-        font-size: 1.25rem;
     }
 
     .guess-distro-container {

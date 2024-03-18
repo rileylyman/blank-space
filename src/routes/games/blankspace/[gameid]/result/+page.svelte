@@ -2,6 +2,8 @@
     import { SCORES } from "$lib/constants";
     import { BS_HOME_SKIP, bsFeedbackLink } from "$lib/links";
     import GuessTable from "$lib/ui/GuessTable.svelte";
+    import { fitText } from "$lib/utils.js";
+    import { onMount } from "svelte";
 
     export let data;
 
@@ -12,9 +14,14 @@
     $: target = data.bsResponse.result!.target!;
     $: fullHints = data.bsResponse.result!.fullHints;
     $: guesses = hints.map(({ guess }) => guess);
+
+    let root: HTMLElement;
+    onMount(() => {
+        fitText(root, '.score div', 0.8);
+    })
 </script>
 
-<div id="root">
+<div id="root" bind:this={root}>
     <div class="score">
         <div class:lost={!won}>
             {#if won}
