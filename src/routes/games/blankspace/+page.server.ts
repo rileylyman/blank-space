@@ -1,4 +1,5 @@
 import { type ServerLoadEvent } from "@sveltejs/kit"
+import { censorGame } from "$lib/schema";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
@@ -10,7 +11,7 @@ export const load = async (event: ServerLoadEvent) => {
         .getFullList({ fetch: event.fetch, filter: `user = "${userId}"`}))[0];
     const currentSet = (await event.locals.pb
         .collection('bs_current_set')
-        .getFullList({ fetch: event.fetch }))[0];
+        .getFullList({ fetch: event.fetch, expand: 'games' }))[0];
 
     let scoreCounts = new Map<string, number>();
     scoreCounts.set("1st", stats.gd1 ?? 0);
@@ -25,15 +26,18 @@ export const load = async (event: ServerLoadEvent) => {
     const winPct = Math.round((wonGames / Math.max(totalGames, 1)) * 100);
 
     let setProgress: Array<boolean | null> = [];
+    let i = 0;
     for (let id of currentSet.games) {
         let prog = currentProgs.find((p) => p.bs_game === id);
         if (prog === undefined || !(prog.won || prog.lost)) {
+            censorGame(currentSet.expand!.games[i]);
             setProgress.push(null);
         } else if (prog.lost) {
             setProgress.push(false);
         } else {
             setProgress.push(true);
         }
+        i += 1;
     }
 
     return {

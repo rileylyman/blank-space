@@ -34,6 +34,15 @@ export const bsGameAllLowercase = (g: BsGame) => {
       g.pity_hint = g.pity_hint.toLocaleLowerCase();
 }
 
+export const censorGame = (game: BsGame) => {
+    game.target = "";
+    game.hint1 = "";
+    game.hint2 = "";
+    game.hint3 = "";
+    game.hint4 = "";
+    game.pity_hint = "";
+}
+
 export const censorGames = (games: Array<BsGame>) => games.forEach((game) => {
     game.target = "";
     game.hint1 = "";
@@ -78,6 +87,9 @@ export interface BsGameSet {
     games: string[];
     publish_on: string;
     next_set_avail?: string | null;
+    expand?: {
+        games: BsGame[];
+    }
 }
 
 export interface BsStats {

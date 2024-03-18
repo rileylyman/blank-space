@@ -17,8 +17,15 @@
 <div id="root">
     <div class="score">
         <div class:lost={!won}>
-            {hints.length} guess{hints.length !== 1 ? 'es' : ''}
+            {#if won}
+                {hints.length} guess{hints.length !== 1 ? 'es' : ''}
+            {:else}
+                You Lost
+            {/if}
         </div>
+    </div>
+    <div class="target">
+        The target word was <span>{data.bsResponse.result?.target}</span>
     </div>
     <div class="points">
         <p class="head">{ won ? 'WINNER!' : 'TOO BAD!' }</p>
@@ -43,8 +50,19 @@
         max-width: 50rem;
         margin: 0 auto;
         display: grid;
-        grid-template-rows: 1fr 1fr 1.25fr 0.75fr;
+        grid-template-rows: 1fr 3rem 1fr 1.25fr 0.75fr;
         place-items: stretch;
+    }
+
+    .target {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+
+    .target span {
+        font-weight: bold;
+        font-size: 1.25em;
+        text-transform: uppercase;
     }
 
     .score {
@@ -109,7 +127,7 @@
         background: black;
         padding: 0.5rem 1rem;
         border-radius: 0.25rem;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         width: 90%;
         text-align: center;
         white-space: nowrap;
