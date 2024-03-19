@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { SCORES } from "$lib/constants";
     import { BS_HOME_SKIP, bsFeedbackLink } from "$lib/links";
     import GuessTable from "$lib/ui/GuessTable.svelte";
     import { fitText } from "$lib/utils.js";
@@ -9,7 +8,7 @@
 
     $: won = data.bsResponse.result!.won;
     // $: won = false;
-    $: score = won ? SCORES.at(data.bsResponse.result!.hints.length - 1)! : 0;
+    $: score = data.bsResponse.result!.score!;
     $: hints = data.bsResponse.result!.hints;
     $: target = data.bsResponse.result!.target!;
     $: fullHints = data.bsResponse.result!.fullHints;

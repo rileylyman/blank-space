@@ -9,6 +9,7 @@ import type TypedPocketBase from "$lib/schema";
 import { type RequestEvent, json } from "@sveltejs/kit"
 import { BsRequestParser, type BsResponse } from "$lib/blankspace-game-api";
 import { fromZodError } from 'zod-validation-error';
+import { SCORES } from "$lib/constants";
 
 let dictionaryList = fs.readFileSync("./src/routes/api/blankspace/words.txt", { encoding: 'utf16le' }).split('\n').map((s) => s.trim());
 let dictionary: Set<string> = new Set(dictionaryList);
@@ -73,16 +74,22 @@ export const POST = async (event: RequestEvent) => {
         fullHints: (won || lost) ? bsGameHints(game) : [],
     }
 
+    let score: number | undefined = undefined;
+    if (won || lost) {
+        score = lost ? 0 : SCORES.at(guesses.length - 1);
+        response.result.score = score;
+    }
+
     if (guess) {
         try {
             if (progress.id) {
                 await event.locals.pb
                     .collection('bs_game_progress')
-                    .update(progress.id, { won, lost, guesses: guesses.join(',')});
+                    .update(progress.id, { won, lost, guesses: guesses.join(','), score});
             } else {
                 await event.locals.pb
                     .collection('bs_game_progress')
-                    .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(',') });
+                    .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(','), score });
             }
         } catch (err) {
             console.log(err);
