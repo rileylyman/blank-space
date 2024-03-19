@@ -27,7 +27,7 @@
     let invalidWordResetTimeout: NodeJS.Timeout | null = null;
 
     const submitGuess = async (guess: string) => {
-        const res = await fetch(blankspaceApiGuess(data.gameId, guess), { method: "POST" });
+        const res = await fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" });
         const resJson = await res.json();
         const parseRes = BsResponseParser.safeParse(resJson);
         if (!parseRes.success) {
@@ -47,7 +47,7 @@
     }
 
     const handleWonOrLost = async () => {
-        goto(bsResultLink(data.gameId));
+        goto(bsResultLink(data.setId, data.gameIdx));
     }
 
     const handleGuess = async () => {

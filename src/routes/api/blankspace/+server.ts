@@ -20,8 +20,8 @@ export const POST = async (event: RequestEvent) => {
         invalidWord: false,
     };
 
-    let gameId: string, userId: string, guess: string | undefined;
-    [{ userId, gameId, guess }, response.error] = parseRequest(event);
+    let gameId: string, userId: string, setId: string, guess: string | undefined;
+    [{ userId, gameId, setId, guess }, response.error] = parseRequest(event);
     if (response.error) return json(response, { status: 400 });
 
     if (guess && !dictionary.has(guess)) {
@@ -35,7 +35,7 @@ export const POST = async (event: RequestEvent) => {
     if (!game) return json(response, { status: 400 });
 
     let progress: BsGameProgress | null;
-    [progress, response.error] = await getProgress(event.locals.pb, { gameId, userId });
+    [progress, response.error] = await getProgress(event.locals.pb, { gameId, setId, userId });
     if (!progress) return json(response, { status: 400 });
 
     let fullHints = bsGameHints(game);
@@ -82,7 +82,7 @@ export const POST = async (event: RequestEvent) => {
             } else {
                 await event.locals.pb
                     .collection('bs_game_progress')
-                    .create({ bs_game: gameId, user: userId, won, lost, guesses: guesses.join(',') });
+                    .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(',') });
             }
         } catch (err) {
             console.log(err);
@@ -106,20 +106,21 @@ const getGame = async (pb: TypedPocketBase, gameId: string): Promise<[BsGame | n
     }
 }
 
-const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: string }): Promise<[BsGameProgress | null, string | null]> => {
+const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: string, setId: string }): Promise<[BsGameProgress | null, string | null]> => {
     let progress: BsGameProgress;
     try {
         progress = await pb
             .collection('bs_game_progress')
-            .getFirstListItem(`user.id = "${args.userId}" && bs_game.id = "${args.gameId}"`);
+            .getFirstListItem(
+                `user.id = "${args.userId}" && bs_game.id = "${args.gameId}" && bs_game_set.id = "${args.setId}"`);
     } catch (_) {
-        progress = { id: "", bs_game: args.gameId, user: args.userId, guesses: "", won: false, lost: false };
+        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", won: false, lost: false };
     }
     return [progress, null];
 }
 
-const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, guess: string | undefined}, string | null] => {
-    let ret = { userId: "", gameId: "", guess: "" };
+const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, setId: string, guess: string | undefined}, string | null] => {
+    let ret = { userId: "", setId: "", gameId: "", guess: "" };
     if (!event.locals.pb.authStore.isValid || !event.locals.pb.authStore.model?.id) {
         return [ret, 'not authenticated'];
     }
@@ -129,8 +130,8 @@ const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, gu
     if (!res.success) {
         return [ret, fromZodError(res.error).toString()];
     }
-    let { gameId, guess } = res.data;
+    let { gameId, setId, guess } = res.data;
     guess = guess?.toLocaleLowerCase().trim();
 
-    return [{ userId, gameId, guess}, null];
+    return [{ userId, gameId, setId, guess}, null];
 }

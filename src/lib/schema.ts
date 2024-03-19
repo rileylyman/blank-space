@@ -58,10 +58,15 @@ export interface BsGameProgress {
     updated?: string;
 
     bs_game: string;
+    bs_game_set: string;
     user: string;
     guesses: string;
     won: boolean;
     lost: boolean;
+
+    expand?: {
+        bs_game_set?: BsGameSet;
+    }
 }
 
 export interface BsGameFeedback {
@@ -84,6 +89,7 @@ export interface BsGameFeedback {
 }
 
 export interface BsGameSet {
+    id: string;
     games: string[];
     publish_on: string;
     next_set_avail?: string | null;

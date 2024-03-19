@@ -49,7 +49,9 @@
         <p><em> No messages to show</em></p>
     {/if}
     <br />
-    <a href={bsFeedbackLink(info.game.id, BS_FEEDBACK_LIST)}> Edit your feedback </a>
+    <a href={bsFeedbackLink(info.setId, info.gameIdx, BS_FEEDBACK_LIST)}>
+        Edit your feedback 
+    </a>
 </div>
 
 <style>

@@ -6,7 +6,8 @@ import { BS_HOME_SKIP } from '$lib/links.js';
 export const actions = {
     feedback: async (event: RequestEvent) => {
         const userId = event.locals.pb.authStore.model?.id ?? "";
-        const gameId = event.params.gameid ?? "";
+        const setId = event.params.setid ?? "";
+        const gameIdx = parseInt(event.params.gameidx ?? "0");
 
         let form = await event.request.formData()
         let thumbs = form.get('thumbs')?.toString() === "true";
@@ -14,9 +15,14 @@ export const actions = {
         let feedback = form.get('feedback')?.toString() ?? "";
         let returnTo = form.get('returnTo')?.toString() ?? BS_HOME_SKIP;
 
+        let currentSet = await event.locals.pb
+            .collection('bs_game_sets')
+            .getOne(setId);
+        let gameId = currentSet.games.at(gameIdx)!;
+
         let prog = await event.locals.pb
             .collection('bs_game_progress')
-            .getFirstListItem(`user.id = "${userId}" && bs_game.id = "${gameId}"`);
+            .getFirstListItem(`user.id = "${userId}" && bs_game_set.id = "${setId}" && bs_game.id = "${gameId}"`);
 
         let bsFeedback: BsGameFeedback = {
             id: "",

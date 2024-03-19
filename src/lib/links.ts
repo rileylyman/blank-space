@@ -10,12 +10,13 @@ export const AUTH_LOGOUT_ACTION = "/auth?/logout";
 export const AUTH_LOGIN_ACTION = "/auth?/login";
 export const AUTH_REGISTER_ACTION = "/auth?/register";
 
-export const bsGameLink = (gameId: string) => `/games/blankspace/${gameId}`;
-export const bsResultLink = (gameId: string) => `${bsGameLink(gameId)}/result`;
+export const bsGameLink = (setId: string, gameIdx: number) => `/games/blankspace/${setId}/${gameIdx}`;
+export const bsResultLink = (setId: string, gameIdx: number) => `${bsGameLink(setId, gameIdx)}/result`;
 export const bsFeedbackLink = 
-    (gameId: string, from: string = "") => `${bsGameLink(gameId)}/feedback${from ? '?from=' + from : ''}`;
+    (setId: string, gameIdx: number, from: string = "") => `${bsGameLink(setId, gameIdx)}/feedback${from ? '?from=' + from : ''}`;
 
 export const dictionaryWordApi = (word: string) => `/api/dictionary?word=${word}`;
-export const blankspaceApi = (gameId: string) => `/api/blankspace?gameId=${gameId}`;
-export const blankspaceApiGuess = (gameId: string, guess: string) => 
-    `/api/blankspace?gameId=${gameId}&guess=${guess}`;
+export const blankspaceApi = (setId: string, gameId: string) =>
+    `/api/blankspace?gameId=${gameId}&setId=${setId}`;
+export const blankspaceApiGuess = (setId: string, gameId: string, guess: string) => 
+    `/api/blankspace?gameId=${gameId}&setId=${setId}&guess=${guess}`;

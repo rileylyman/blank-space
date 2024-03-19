@@ -11,7 +11,7 @@
 
     let root: HTMLElement;
     onMount(() => {
-        data.currentSet.games.forEach((gameId) => preloadData(bsGameLink(gameId)));
+        data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx)));
         fitText(root, '.pin-container button', 0.5);
     })
 
@@ -58,7 +58,7 @@
     <div class="pin-container">
         {#each data.setProgress as prog, idx}
             <button 
-                on:click={() => goto(bsGameLink(data.currentSet.games[idx]))}
+                on:click={() => goto(bsGameLink(data.currentSet.id, idx))}
                 class:won={prog} 
                 class:lost={prog === false} 
                 class:unplayed={prog === null}>

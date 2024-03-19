@@ -2,9 +2,10 @@ import { redirect } from "@sveltejs/kit";
 import PocketBase from 'pocketbase';
 import type TypedPocketBase from '$lib/schema';
 import { AUTH_HOME } from "$lib/links";
+import 'dotenv/config';
 
 export const handle = async ({event, resolve}) => {
-    const pb = new PocketBase('https://pb.slappygames.com') as TypedPocketBase;
+    const pb = new PocketBase(process.env.PB_ADDR) as TypedPocketBase;
     pb.authStore.loadFromCookie(event.request.headers.get('cookie') ?? '');
 
     try {
