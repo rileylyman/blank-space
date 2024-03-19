@@ -73,8 +73,8 @@
         {/each}
     </div>
     <div class="guess-distro-container">
-        <p> Score <span style="font-size: 0.85rem">(coming soon)</span> </p> <p> Daily average </p>
-        <div> ?? </div> <div> ?? </div>
+        <p> Today's Score </p> <p> Daily average </p>
+        <div> {data.currentScore} </div> <div> ?? </div>
     </div>
     <div class="stats"> 
         <p>{data.totalGames}</p><p>total games</p>

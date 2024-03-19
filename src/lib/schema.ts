@@ -63,6 +63,7 @@ export interface BsGameProgress {
     guesses: string;
     won: boolean;
     lost: boolean;
+    score: number;
 
     expand?: {
         bs_game_set?: BsGameSet;

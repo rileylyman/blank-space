@@ -16,6 +16,7 @@ export const load = async (event: ServerLoadEvent) => {
     const wonGames = stats.won_games ?? 0;
     const totalGames = stats.total_games ?? 0;
     const winPct = Math.round((wonGames / Math.max(totalGames, 1)) * 100);
+    const currentScore = progs.reduce((prev: number, p) => prev + p.score, 0);
 
     let setProgress: Array<boolean | null> = [];
     let i = 0;
@@ -36,6 +37,7 @@ export const load = async (event: ServerLoadEvent) => {
         totalGames,
         winPct,
         currentSet,
+        currentScore,
         setProgress,
         streak: stats.current_streak ?? 0,
         maxStreak: stats.max_streak ?? 0,
