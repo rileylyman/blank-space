@@ -15,7 +15,7 @@ export const load = async (event: ServerLoadEvent) => {
     const feedbackList = await event.locals.pb
         .collection('bs_game_feedback')
         .getList(1, 1, { 
-            filter: `user.id = '${userId}' && bs_game.id = '${gameId}'`,
+            filter: `user.id = '${userId}' && bs_game.id = '${gameId}' && prog.bs_game_set = '${setId}'`,
             fetch,
         });
 
