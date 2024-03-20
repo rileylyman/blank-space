@@ -9,8 +9,8 @@ export const fitText = (root: HTMLElement, query: string, scale: number) => {
             node.style.fontSize = s.toString() + 'px';
         }
 
-        const height = parseFloat(window.getComputedStyle(node).getPropertyValue('height'));
-        const width = parseFloat(window.getComputedStyle(node).getPropertyValue('width'));
+        const height = Math.round(parseFloat(window.getComputedStyle(node).getPropertyValue('height')));
+        const width = Math.round(parseFloat(window.getComputedStyle(node).getPropertyValue('width')));
         let fontSize = 128;
 
         setFontSize(fontSize);
