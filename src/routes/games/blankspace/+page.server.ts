@@ -12,11 +12,15 @@ export const load = async (event: ServerLoadEvent) => {
     const progs = await event.locals.pb
         .collection('bs_game_progress')
         .getFullList({ fetch: event.fetch, filter: `user = "${userId}" && bs_game_set = "${currentSet.id}"`})
+    const standing = (await event.locals.pb
+        .collection('bs_weekly_standings')
+        .getFullList({ fetch, filter: `user = "${userId}"` })).at(0);
 
     const wonGames = stats.won_games ?? 0;
     const totalGames = stats.total_games ?? 0;
     const winPct = Math.round((wonGames / Math.max(totalGames, 1)) * 100);
     const currentScore = progs.reduce((prev: number, p) => prev + p.score, 0);
+    const weekScore = standing?.total_score ?? 0;
 
     let setProgress: Array<boolean | null> = [];
     let i = 0;
@@ -38,6 +42,7 @@ export const load = async (event: ServerLoadEvent) => {
         winPct,
         currentSet,
         currentScore,
+        weekScore,
         setProgress,
         streak: stats.current_streak ?? 0,
         maxStreak: stats.max_streak ?? 0,

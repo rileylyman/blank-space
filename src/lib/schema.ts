@@ -112,6 +112,14 @@ export interface BsStats {
     gd5: number | null;
 }
 
+export interface BsWeeklyStanding {
+    id: string;
+    user: string;
+    total_score: number;
+    games_played: number;
+    total_games: number;
+}
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
@@ -122,4 +130,5 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'bs_game_sets'): RecordService<BsGameSet>;
     collection(idOrName: 'bs_current_set'): RecordService<BsGameSet>;
     collection(idOrName: 'bs_stats'): RecordService<BsStats>;
+    collection(idOrName: 'bs_weekly_standings'): RecordService<BsWeeklyStanding>;
 }
