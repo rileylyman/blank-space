@@ -1,11 +1,11 @@
 <script lang="ts">
     export let value: string;
-    export let strike: boolean;
-    $: shownValue = value ? value : String.fromCharCode(160);
+    export let incorrect: boolean;
+    $: shownValue = value ? value.replace(".", "") : String.fromCharCode(160);
 </script>
 
-<div class:strike>
-    <span style={`width: calc(${shownValue.length + 1}ch + 2rem)`}> {shownValue} </span>
+<div>
+    <span class:incorrect style={`width: calc(${shownValue.length + 1}ch + 2rem)`}> {shownValue} </span>
 </div>
 
 <style>
@@ -21,6 +21,11 @@ span {
     text-transform: uppercase;
     position: relative;
     display: inline-block;
+    transition: color 250ms;
+}
+
+span.incorrect {
+    color: red;
 }
 
 div {
@@ -28,26 +33,4 @@ div {
     margin: 0;
     position: relative;
 }
-
-div::after {
-    position: absolute;
-    top: 50%;
-    left: 0.5rem;
-    width: 0;
-    height: 1px;
-    background: black;
-    display: block;
-    content: '';
-}
-
-div.strike::after {
-    animation: strike 500ms forwards 250ms ease-in-out;
-}
-
-@keyframes strike {
-    to {
-        width: calc(100% - 2rem);
-    }
-}
-
 </style>

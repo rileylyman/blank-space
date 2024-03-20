@@ -25,7 +25,7 @@ export const POST = async (event: RequestEvent) => {
     [{ userId, gameId, setId, guess }, response.error] = parseRequest(event);
     if (response.error) return json(response, { status: 400 });
 
-    if (guess && !dictionary.has(guess)) {
+    if (guess && guess != ".skipped" && !dictionary.has(guess)) {
         response.error = "not a word";
         response.invalidWord = true;
         return json(response, { status: 200 });
@@ -121,7 +121,7 @@ const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: 
             .getFirstListItem(
                 `user.id = "${args.userId}" && bs_game.id = "${args.gameId}" && bs_game_set.id = "${args.setId}"`);
     } catch (_) {
-        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", won: false, lost: false };
+        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", score: 0, won: false, lost: false };
     }
     return [progress, null];
 }

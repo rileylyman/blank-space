@@ -64,7 +64,7 @@
             return;
         }
 
-        await sleepMs(1000);
+        await sleepMs(500);
 
         flippedHint = null;
 
@@ -115,21 +115,22 @@
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput strike={!won && submitted} value={guess}/>
+                            <GuessInput incorrect={!won && submitted} value={guess}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput strike={!won && submitted} value={guess}/>
+                            <GuessInput incorrect={!won && submitted} value={guess}/>
                         </div>
                     {/if}
+                    <button on:click={() => {guess=".skipped"; handleGuess();}}> Skip </button>
                 </div>
                 <button class="back-side">
                     {#if submitted && before}
-                        <div class="top-guess"> <span> {guess} </span> {hint}  </div>
+                        <div> <span class:skipped={guess === ".skipped"}> {guess.replace(".", "")} </span> {hint}  </div>
                     {:else if submitted}
-                        <div class="top-guess"> {hint} <span> {guess} </span> </div>
+                        <div> {hint} <span class:skipped={guess === ".skipped"}> {guess.replace(".", "")} </span> </div>
                     {:else}
                         <div />
                     {/if}
@@ -221,6 +222,23 @@
         text-transform: uppercase;
     }
 
+    .hint-side button {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 0.75rem;
+        font-size: 1.1rem;
+        outline: none;
+        border: none;
+        background-color: #c0c0c0;
+        font-weight: 600;
+        border-radius: 0.25rem;
+        padding: 0.25rem 1rem;
+    }
+
+    .hint-side button:active {
+        background: #808080;
+    }
+
     .back-side div {
         text-transform: uppercase;
         font-weight: bold;
@@ -228,8 +246,14 @@
     }
 
     .back-side div span {
-        text-decoration: line-through;
-        font-weight: normal;
+        font-weight: bold;
+        color: red;
+    }
+
+    .back-side div span.skipped {
+        font-style: italic;
+        color: black;
+        font-size: 0.7rem;
     }
 
     .hint-shown > .hint-side {
