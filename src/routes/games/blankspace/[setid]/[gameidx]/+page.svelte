@@ -21,7 +21,7 @@
     });
 
     let flippedHint: number | null = null;
-    let lastRevealedHint: number = data.bsResponse.result!.hints.length - 1;
+    let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
     let invalidWord = false;
 
     let invalidWordResetTimeout: NodeJS.Timeout | null = null;
@@ -94,12 +94,12 @@
         hints[flippedHint].guess += key;
     }
 
-    const handleHintClick = (idx: number) => () => {
-        if (idx !== lastRevealedHint || hints[lastRevealedHint].submitted) {
-            return;
-        }
+    onMount(async () => {
+        await sleepMs(500);
+        lastRevealedHint = data.bsResponse.result!.hints.length - 1;
+        await sleepMs(1000);
         flippedHint = lastRevealedHint;
-    }
+    })
 </script>
 
 <div id="root">
@@ -125,7 +125,7 @@
                         </div>
                     {/if}
                 </div>
-                <button on:click={handleHintClick(idx)} class="back-side">
+                <button class="back-side">
                     {#if submitted && before}
                         <div class="top-guess"> <span> {guess} </span> {hint}  </div>
                     {:else if submitted}
@@ -134,7 +134,7 @@
                         <div />
                     {/if}
                     {#if !submitted}
-                        <h1> {idx > 0 ? `Hint #${idx + 1}` : 'Tap to Start'} </h1>
+                        <h1> Hint #{idx + 1} </h1>
                     {/if}
                 </button>
             </div>
