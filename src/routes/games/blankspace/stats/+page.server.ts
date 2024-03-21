@@ -23,14 +23,12 @@ export const load = async (event: ServerLoadEvent) => {
     bars.set("4th", stats.gd4 ?? 0)
     bars.set("5th", stats.gd5 ?? 0)
 
-    const rankings: Array<Ranking> = standings.map(({total_score, username}) => ({score: total_score, user: username}));
-
     const yourStandingIdx = standings.findIndex((standing) => standing.user === userId);
     const yourWeekScore = yourStandingIdx < 0 ? 0 : standings[yourStandingIdx]?.total_score ?? 0;
 
     return {
         bars,
-        rankings,
+        standings,
         yourStandingIdx,
         yourWeekScore,
     }

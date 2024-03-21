@@ -16,23 +16,27 @@
 
 <div id="root">
     <div class="header">
-        <p> Score this week</p>
+        <p style="font-style: italic; font-size: 0.9rem"> Week of 3/19 - 3/26</p>
+        <p> Score Through Day 4 </p>
         <h1>{data.yourWeekScore}</h1>
         {#if data.yourStandingIdx > 0}
-            <p> #{data.yourStandingIdx + 1} out of {data.rankings.length} players</p>
+            <p> #{data.yourStandingIdx + 1} out of {data.standings.length} players</p>
         {/if}
+        <p style="font-style: italic; font-size: 0.9rem"> Play all your games to attain max rank! </p>
     </div>
     <div class="rankings" bind:this={rankingsElement}>
         <div style="position: sticky; top: 0; background: white;" class="entry" bind:clientHeight={entryHeight}>
             <span class="table-header"> # </span>
             <span class="table-header"> User </span>
-            <span class="table-header"> Score </span>
+            <span class="table-header score"> Played </span>
+            <span class="table-header score"> Score </span>
         </div>
-        {#each data.rankings as {user, score}, idx}
+        {#each data.standings as {username, total_score, games_played}, idx}
             <div class="entry" class:highlight={idx === data.yourStandingIdx}>
                 <span class="rank">  {idx + 1} </span>
-                <span class="user"> {user} </span>
-                <span class="score"> {score} </span>
+                <span class="user"> {username} </span>
+                <span class="score"> {games_played} </span>
+                <span class="score"> {total_score} </span>
             </div>
         {/each}
     </div>
@@ -57,8 +61,7 @@
         height: 100svh;
         display: grid;
         place-items: center;
-        padding-top: 1rem;
-        grid-template-rows: 20% 40% 30% 10%;
+        grid-template-rows: 25% 35% 30% 10%;
     }
 
     .header {
@@ -69,17 +72,24 @@
     .rankings {
         width: 100%;
         height: 100%;
-        border-top: 1px solid black;
-        border-bottom: 1px solid black;
+        border: 1px solid black;
         overflow-y: auto;
         scroll-behavior: smooth;
+    }
+
+    @media (width < 50rem) {
+        .rankings {
+            border-left: none;
+            border-right: none;
+            border-radius: 0;
+        }
     }
 
     .rankings .entry {
         display: grid;
         justify-items: start;
         align-items: center;
-        grid-template-columns: 10% 80% 10%;
+        grid-template-columns: 10% 55% 20% 15%;
         padding: 0.5rem 1rem;
     }
 
@@ -93,6 +103,11 @@
 
     .entry.highlight {
         background-color: rgb(251, 240, 124);
+    }
+
+    .entry .score {
+        text-align: center;
+        width: 100%;
     }
 
     .bars {
