@@ -2,7 +2,6 @@ export const sleepMs = (ms: number) => new Promise(resolve => setTimeout(resolve
 
 export const fitText = (root: HTMLElement, query: string, scale: number) => {
     const nodes = root.querySelectorAll(query);
-    // console.log("starting fit with ", nodes.length, " nodes");
     nodes.forEach((node) => {
         if (!(node instanceof HTMLElement)) return;
         const setFontSize = (s: number) => {
@@ -15,7 +14,6 @@ export const fitText = (root: HTMLElement, query: string, scale: number) => {
 
         setFontSize(fontSize);
         while (fontSize > 0 && (node.scrollWidth > width || node.scrollHeight > height)) {
-            console.log(`${fontSize}: ${node.scrollWidth} > ${width} || ${node.scrollHeight} > ${height}`)
             fontSize -= 1;
             setFontSize(fontSize);
         }
@@ -23,9 +21,7 @@ export const fitText = (root: HTMLElement, query: string, scale: number) => {
             fontSize = 16;
         }
         setFontSize(fontSize * scale);
-        // console.log("found font size ", fontSize);
     })
-    // console.log("done fitting");
 }
 
 

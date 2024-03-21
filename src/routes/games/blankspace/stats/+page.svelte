@@ -12,12 +12,19 @@
             rankingsElement.scrollTop = entryHeight * (data.yourStandingIdx - 2);
         }, 500);
     })
+
+    let today = new Date();
+    let day = today.getDay();
+    let sunday = new Date();
+    let nextSunday = new Date();
+    sunday.setDate(today.getDate() - day);
+    nextSunday.setDate(today.getDate() + (7 - day)); 
 </script>
 
 <div id="root">
     <div class="header">
-        <p style="font-style: italic; font-size: 0.9rem"> Week of 3/19 - 3/26</p>
-        <p> Score Through Day 4 </p>
+        <p style="font-style: italic; font-size: 0.9rem"> Week of {sunday.getMonth() + 1}/{sunday.getDate()} - {nextSunday.getMonth() + 1}/{nextSunday.getDate()}</p>
+        <p> Score Through Day {day + 1} </p>
         <h1>{data.yourWeekScore}</h1>
         {#if data.yourStandingIdx > 0}
             <p> #{data.yourStandingIdx + 1} out of {data.standings.length} players</p>
