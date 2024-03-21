@@ -80,6 +80,7 @@
         width: 100%;
         height: 100%;
         border: 1px solid black;
+        border-radius: 0.5rem;
         overflow-y: auto;
         scroll-behavior: smooth;
     }
