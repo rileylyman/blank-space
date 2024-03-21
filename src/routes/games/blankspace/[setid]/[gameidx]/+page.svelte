@@ -124,7 +124,7 @@
                             <GuessInput incorrect={!won && submitted} value={guess}/>
                         </div>
                     {/if}
-                    <button on:click={() => {guess=".skipped"; handleGuess();}}> Skip </button>
+                    <!-- <button on:click={() => {guess=".skipped"; handleGuess();}}> Skip </button> -->
                 </div>
                 <button class="back-side">
                     {#if submitted && before}
