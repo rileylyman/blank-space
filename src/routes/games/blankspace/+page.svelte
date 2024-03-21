@@ -87,9 +87,9 @@
             {countdown}
             <span> next set </span>
         </button>
-        <a href={BS_STATS}>
-            <Fa icon={faRankingStar} />
-            <span> see rankings </span>
+        <a class:unseen={true} href={BS_STATS}>
+            See Rankings
+            <div class="noti"> ! </div>
         </a>
     </div>
 </div>
@@ -219,20 +219,56 @@
         height: 2.75rem;
         padding: 0;
         font-size: 1.5rem;
+        justify-self: end;
+        color: black;
+        text-decoration: none;
+        justify-self: end;
+    }
+
+    .footer button {
         display: grid;
         place-items: center;
         grid-template-rows: 75% 25%;
         padding-bottom: 0.25rem;
-        justify-self: end;
-        color: black;
-        text-decoration: none;
     }
 
-    .footer button:last-child, .footer a:last-child {
+    .footer a {
+        font-size: 1rem;
+        white-space: nowrap;
+        justify-self: start;
+        display: grid;
+        place-items: center;
+        position: relative;
+    }
+
+    .footer a.unseen {
+        background-color: rgb(246, 235, 115);
+    }
+
+    .footer a .noti {
+        display: none;
+    }
+
+    .footer a.unseen .noti {
+        display: block;
+        border-radius: 100%;
+        width: 1.3rem;
+        height: 1.3rem;
+        background-color: rgb(252, 67, 21);
+        color: white;
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translateX(50%) translateY(-50%);
+        display: grid;
+        place-items: center;
+    }
+
+    .footer button:last-child {
         justify-self: start;
     }
 
-    .footer button span, .footer a span {
+    .footer button span {
         font-size: 0.8rem;
         font-style: italic;
     }
