@@ -115,6 +115,7 @@ export interface BsStats {
 export interface BsWeeklyStanding {
     id: string;
     user: string;
+    username: string;
     total_score: number;
     games_played: number;
     total_games: number;

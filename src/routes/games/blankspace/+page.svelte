@@ -1,9 +1,9 @@
 <script lang="ts">
     import Fa from "svelte-fa";
-    import { faShareAlt, faXmark, faCheck } from "@fortawesome/free-solid-svg-icons";
+    import { faXmark, faCheck, faRankingStar } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
     import { goto, preloadData } from "$app/navigation";
-    import { bsGameLink } from "$lib/links";
+    import { BS_STATS, bsGameLink } from "$lib/links";
     import { onMount, onDestroy } from "svelte";
     import { fitText } from "$lib/utils";
 
@@ -87,10 +87,10 @@
             {countdown}
             <span> next set </span>
         </button>
-        <button>
-            <Fa icon={faShareAlt} />
-            <span> share </span>
-        </button>
+        <a href={BS_STATS}>
+            <Fa icon={faRankingStar} />
+            <span> see rankings </span>
+        </a>
     </div>
 </div>
 
@@ -210,7 +210,7 @@
         padding-bottom: 1rem;
     }
 
-    .footer button {
+    .footer button, .footer a {
         background: rgb(234, 234, 234);
         outline: none;
         border: 1px solid black;
@@ -224,13 +224,15 @@
         grid-template-rows: 75% 25%;
         padding-bottom: 0.25rem;
         justify-self: end;
+        color: black;
+        text-decoration: none;
     }
 
-    .footer button:last-child {
+    .footer button:last-child, .footer a:last-child {
         justify-self: start;
     }
 
-    .footer button span {
+    .footer button span, .footer a span {
         font-size: 0.8rem;
         font-style: italic;
     }
