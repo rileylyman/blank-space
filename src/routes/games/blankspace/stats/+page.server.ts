@@ -2,13 +2,18 @@ import { type ServerLoadEvent } from "@sveltejs/kit"
 import { type Ranking } from './common';
 
 export const load = async (event: ServerLoadEvent) => {
+    const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584"];
     const userId = event.locals.pb.authStore.model?.id ?? "";
     const stats = (await event.locals.pb
         .collection('bs_stats')
         .getFullList({ fetch: event.fetch, filter: `user = "${userId}"`}))[0];
-    const standings = await event.locals.pb
+    let standings = await event.locals.pb
         .collection('bs_weekly_standings')
         .getFullList({ fetch: event.fetch });
+    standings = standings.filter((standing) => {
+        // If we are an excluded user, then we keep the whole list. Otherwise, get rid of excluded users.
+        return excludedUsers.includes(userId) ? true : !excludedUsers.includes(standing.user);
+    })
     standings.sort((a, b) => b.total_score - a.total_score);
 
     const bars = new Map<string, number>();
