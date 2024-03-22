@@ -12,8 +12,12 @@
     let root: HTMLElement;
     onMount(() => {
         data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx)));
-        fitText(root, '.pin-container button', 0.5);
+        onResize();
     })
+
+    const onResize = () => {
+        fitText(root, '.pin-container button', 0.5);
+    }
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -47,6 +51,8 @@
     let countdownInterval = setInterval(updateCountdown, 1000);
     onDestroy(() => clearInterval(countdownInterval));
 </script>
+
+<svelte:window on:resize={onResize} />
 
 <div id="root" bind:this={root}>
     <Curtain bind:folded {foldedHeight} />

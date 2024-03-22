@@ -7,18 +7,23 @@
     export let data;
 
     $: won = data.bsResponse.result!.won;
-    // $: won = false;
     $: score = data.bsResponse.result!.score!;
     $: hints = data.bsResponse.result!.hints;
     $: target = data.bsResponse.result!.target!;
     $: fullHints = data.bsResponse.result!.fullHints;
     $: guesses = hints.map(({ guess }) => guess);
 
-    let root: HTMLElement;
     onMount(() => {
-        fitText(root, '.score div', 0.8);
+        onResize;
     })
+
+    let root: HTMLElement;
+    const onResize = () => {
+        fitText(root, '.score div', 0.8);
+    }
 </script>
+
+<svelte:window on:resize={onResize} />
 
 <div id="root" bind:this={root}>
     <div class="score">

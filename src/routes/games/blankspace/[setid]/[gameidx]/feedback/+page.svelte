@@ -47,14 +47,20 @@
         }, 2000);
     }
 
-    let root: HTMLElement;
     onMount(() => {
-        fitText(root, '.thumbs button div', 0.75);
+        onResize();
     })
+
+    let root: HTMLElement;
+    const onResize = () => {
+        fitText(root, '.thumbs button div', 0.75);
+    }
 
     const from = $page.url.searchParams.get('from');
     const returnTo = from ? from : BS_HOME_SKIP;
 </script>
+
+<svelte:window on:resize={onResize} />
 
 <div id="root" bind:this={root}>
     <h1>You { result.won ? 'Won!' : 'Lost!' }</h1>
