@@ -22,7 +22,7 @@
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
-    let invalidWord = false;
+    let invalidWordError = "";
 
     let invalidWordResetTimeout: NodeJS.Timeout | null = null;
 
@@ -36,9 +36,9 @@
         if (parseRes.data.error && !parseRes.data.invalidWord) {
             error(500);
         } else if (parseRes.data.error) {
-            invalidWord = true;
+            invalidWordError = parseRes.data.error;
             if (invalidWordResetTimeout) clearTimeout(invalidWordResetTimeout);
-            invalidWordResetTimeout = setTimeout(() => invalidWord = false, 1500);
+            invalidWordResetTimeout = setTimeout(() => invalidWordError = "", 1500);
         } else if (parseRes.data.result) {
             data.bsResponse = parseRes.data;
         }
@@ -60,7 +60,7 @@
             handleWonOrLost();
         }
 
-        if (won || lost || invalidWord) {
+        if (won || lost || invalidWordError) {
             return;
         }
 
@@ -142,7 +142,7 @@
     </div>
     <div />
     <div style="align-self: end; margin-bottom: 1rem">
-        <VirtualKeyboard bind:invalidWord enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
+        <VirtualKeyboard bind:error={invalidWordError} enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
     </div>
 </div>
 

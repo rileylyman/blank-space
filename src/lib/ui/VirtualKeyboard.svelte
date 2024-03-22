@@ -3,7 +3,7 @@
     const dispatch = createEventDispatcher();
 
     export let enterDisabled: boolean;
-    export let invalidWord: boolean;
+    export let error: string;
     export let disabledKeys: string = "";
     $: disabledKeys = disabledKeys.toLocaleLowerCase();
 
@@ -12,7 +12,7 @@
     let shiftButton: HTMLButtonElement | null = null;
 
     const handleKeyClick = (e: Event & { currentTarget: HTMLButtonElement }) => {
-        invalidWord = false;
+        error = "";
         if (e.currentTarget === deleteButton) {
             dispatch('keypress', { enter: false, del: true, key: e.currentTarget.textContent });
         } else if (e.currentTarget === enterButton) {
@@ -28,7 +28,7 @@
         if (!/^[a-zA-Z]$/.test(e.key) && e.key !== "Enter" && e.key !== "Backspace") {
             return;
         }
-        invalidWord = false;
+        error = "";
         if (e.key === "Backspace") {
             dispatch('keypress', { enter: false, del: true, key: e.key });
         } else if (e.key === "Enter") {
@@ -43,8 +43,8 @@
 
 <div id="root">
     <div style="grid-column: span 4" />
-    <button bind:this={enterButton} class:invalid={invalidWord} disabled={enterDisabled} on:click|preventDefault={handleKeyClick} value="ENTER" class="key ultrawide">
-        { invalidWord ? 'NOT A WORD' : 'ENTER YOUR GUESS'}
+    <button bind:this={enterButton} class:invalid={error} disabled={enterDisabled} on:click|preventDefault={handleKeyClick} value="ENTER" class="key ultrawide">
+        { error ? error.toLocaleUpperCase() : 'ENTER YOUR GUESS'}
     </button>
     <div style="grid-column: span 4" />
     <button on:click|preventDefault={handleKeyClick} value="Q" class="key popup" class:disabled={disabledKeys.includes("q")}>

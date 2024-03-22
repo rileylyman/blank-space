@@ -25,15 +25,15 @@ export const POST = async (event: RequestEvent) => {
     [{ userId, gameId, setId, guess }, response.error] = parseRequest(event);
     if (response.error) return json(response, { status: 400 });
 
-    if (guess && guess != ".skipped" && !dictionary.has(guess)) {
-        response.error = "not a word";
-        response.invalidWord = true;
-        return json(response, { status: 200 });
-    }
-
     let game: BsGame | null;
     [ game, response.error ] = await getGame(event.locals.pb, gameId);
     if (!game) return json(response, { status: 400 });
+
+    if (guess && guess !== game.target && (guess.length <= 2 || !dictionary.has(guess))) {
+        response.error = guess.length <= 2 ? "too short" : "not a word";
+        response.invalidWord = true;
+        return json(response, { status: 200 });
+    }
 
     let progress: BsGameProgress | null;
     [progress, response.error] = await getProgress(event.locals.pb, { gameId, setId, userId });
