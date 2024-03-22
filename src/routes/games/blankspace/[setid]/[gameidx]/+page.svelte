@@ -124,7 +124,6 @@
                             <GuessInput incorrect={!won && submitted} value={guess}/>
                         </div>
                     {/if}
-                    <!-- <button on:click={() => {guess=".skipped"; handleGuess();}}> Skip </button> -->
                 </div>
                 <button class="back-side">
                     {#if submitted && before}
@@ -220,23 +219,6 @@
         font-size: 1.5rem;
         font-weight: bold;
         text-transform: uppercase;
-    }
-
-    .hint-side button {
-        position: absolute;
-        bottom: 0.75rem;
-        right: 0.75rem;
-        font-size: 1.1rem;
-        outline: none;
-        border: none;
-        background-color: #c0c0c0;
-        font-weight: 600;
-        border-radius: 0.25rem;
-        padding: 0.25rem 1rem;
-    }
-
-    .hint-side button:active {
-        background: #808080;
     }
 
     .back-side div {
