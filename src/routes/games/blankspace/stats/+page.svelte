@@ -26,7 +26,7 @@
         <p style="font-style: italic; font-size: 0.9rem"> Week of {sunday.getMonth() + 1}/{sunday.getDate()} - {nextSunday.getMonth() + 1}/{nextSunday.getDate()}</p>
         <p> Score Through Day {day + 1} </p>
         <h1>{data.yourWeekScore}</h1>
-        {#if data.yourStandingIdx > 0}
+        {#if data.yourStandingIdx >= 0}
             <p> #{data.yourStandingIdx + 1} out of {data.standings.length} players</p>
         {/if}
         <p style="font-style: italic; font-size: 0.9rem"> Play all your games to attain max rank! </p>
