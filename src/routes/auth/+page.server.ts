@@ -23,23 +23,27 @@ const redirectMe = async (event: RequestEvent) => {
 export const actions = {
     login: async (event: RequestEvent) => {
         const form = await event.request.formData();
-        const email = form.get('email')?.toString();
+        let emailOrUsername = form.get('email')?.toString();
         const password = form.get('password')?.toString();
 
         let ret = {
             state: State.LogIn,
-            email,
+            email: emailOrUsername,
             errors: new Array<string>(),
         };
         
-        if (!email || !password) {
+        if (!emailOrUsername || !password) {
             ret.errors.push("error: all fields must be filled out");
             return fail(400, ret);
         }
 
+        if (emailOrUsername.includes('@')) {
+            // Usernames are case insensitive, but emails are not.
+            emailOrUsername = emailOrUsername.toLocaleLowerCase();
+        }
 
         try {
-            await event.locals.pb.collection('users').authWithPassword(email, password);
+            await event.locals.pb.collection('users').authWithPassword(emailOrUsername, password);
         } catch (err) {
             ret.errors.push('error: incorrect email or password');
             return fail(400, ret);
@@ -49,8 +53,8 @@ export const actions = {
     },
     register: async (event: RequestEvent) => {
         const form = await event.request.formData();
-        const email = form.get('email')?.toString();
-        const emailConfirm = form.get('emailConfirm')?.toString();
+        const email = form.get('email')?.toString().toLocaleLowerCase();
+        const emailConfirm = form.get('emailConfirm')?.toString().toLocaleLowerCase();
         const username = form.get('username')?.toString();
         const password = form.get('password')?.toString();
         const passwordConfirm = form.get('passwordConfirm')?.toString();

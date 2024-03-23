@@ -49,7 +49,7 @@
 
             {#if state == State.LogIn}
                 <form action={AUTH_LOGIN_ACTION} method="POST">
-                    <label for="email"> email </label>
+                    <label for="email"> email/username </label>
                     <input id="email" name="email" type="text" autocomplete="username" value={form?.email ?? ''}/>
 
                     <label for="password"> password </label>
