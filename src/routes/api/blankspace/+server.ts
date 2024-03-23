@@ -40,8 +40,14 @@ export const POST = async (event: RequestEvent) => {
     if (!progress) return json(response, { status: 400 });
 
     let fullHints = bsGameHints(game);
-
     let guesses = progress.guesses.split(',').filter((s) => s);
+
+    if (guess && guesses.includes(guess)) {
+        response.error = "already used";
+        response.invalidWord = true;
+        return json(response, { status: 200 });
+    }
+
     let guessAllowed = !progress.won && guesses.length < fullHints.length;
     if (guess && guessAllowed) {
         guesses.push(guess);
