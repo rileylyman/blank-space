@@ -32,7 +32,7 @@
         <p style="font-style: italic; font-size: 0.9rem"> Play all your games to attain max rank! </p>
     </div>
     <div class="rankings" bind:this={rankingsElement}>
-        <div style="position: sticky; top: 0; background: white;" class="entry" bind:clientHeight={entryHeight}>
+        <div class="header entry" bind:clientHeight={entryHeight}>
             <span class="table-header"> # </span>
             <span class="table-header"> User </span>
             <span class="table-header score"> Played </span>
@@ -40,7 +40,14 @@
         </div>
         {#each data.standings as {username, total_score, games_played, rank}, idx}
             <div class="entry" class:highlight={idx === data.yourStandingIdx}>
-                <span class="rank">  {rank} </span>
+                <span class="rank">  
+                    {rank} 
+                    {#if idx > 0 && rank == data.standings[idx - 1].rank}
+                        <div class="tied">
+                            ||
+                        </div>
+                    {/if}
+                </span>
                 <span class="user"> {username} </span>
                 <span class="score"> {games_played} </span>
                 <span class="score"> {total_score} </span>
@@ -99,6 +106,25 @@
         align-items: center;
         grid-template-columns: 10% 55% 20% 15%;
         padding: 0.5rem 1rem;
+    }
+
+    .rankings .entry.header {
+        position: sticky; 
+        top: 0; 
+        background: white; 
+        z-index: 2;
+    }
+
+    .entry .rank {
+        position: relative;
+    }
+
+    .entry .rank .tied {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translateY(-100%) translateX(-50%);
+        font-size: 0.65rem;
     }
 
     .entry .user {
