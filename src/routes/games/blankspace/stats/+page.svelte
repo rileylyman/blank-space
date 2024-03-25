@@ -27,7 +27,7 @@
         <p> Score Through Day {day + 1} </p>
         <h1>{data.yourWeekScore}</h1>
         {#if data.yourStandingIdx >= 0}
-            <p> #{data.yourStandingIdx + 1} out of {data.standings.length} players</p>
+            <p> #{data.standings[data.yourStandingIdx].rank} out of {data.standings.length} players</p>
         {/if}
         <p style="font-style: italic; font-size: 0.9rem"> Play all your games to attain max rank! </p>
     </div>
@@ -38,9 +38,9 @@
             <span class="table-header score"> Played </span>
             <span class="table-header score"> Score </span>
         </div>
-        {#each data.standings as {username, total_score, games_played}, idx}
+        {#each data.standings as {username, total_score, games_played, rank}, idx}
             <div class="entry" class:highlight={idx === data.yourStandingIdx}>
-                <span class="rank">  {idx + 1} </span>
+                <span class="rank">  {rank} </span>
                 <span class="user"> {username} </span>
                 <span class="score"> {games_played} </span>
                 <span class="score"> {total_score} </span>

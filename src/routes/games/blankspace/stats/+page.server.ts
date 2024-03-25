@@ -1,5 +1,20 @@
 import { type ServerLoadEvent } from "@sveltejs/kit"
 import { type Ranking } from './common';
+import type { BsWeeklyStanding } from "$lib/schema";
+
+const addRankstoStandings = (standings: Array<BsWeeklyStanding>) => {
+    let lastKnownScore = -1;
+    let lastKnownRank = 0;
+    let currentIndex = 0;
+    for (let standing of standings) {
+        if (standing.total_score != lastKnownScore) {
+            lastKnownScore = standing.total_score;
+            lastKnownRank = currentIndex + 1;
+        }
+        standing.rank = lastKnownRank;
+        currentIndex += 1;
+    }
+}
 
 export const load = async (event: ServerLoadEvent) => {
     const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584"];
@@ -15,6 +30,7 @@ export const load = async (event: ServerLoadEvent) => {
         return excludedUsers.includes(userId) ? true : !excludedUsers.includes(standing.user);
     })
     standings.sort((a, b) => b.total_score - a.total_score);
+    addRankstoStandings(standings);
 
     const bars = new Map<string, number>();
     bars.set("1st", stats.gd1 ?? 0)

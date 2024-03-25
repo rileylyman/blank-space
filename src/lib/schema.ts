@@ -119,6 +119,9 @@ export interface BsWeeklyStanding {
     total_score: number;
     games_played: number;
     total_games: number;
+
+    // Augmented client side
+    rank?: number;
 }
 
 export default interface TypedPocketBase extends PocketBase {
