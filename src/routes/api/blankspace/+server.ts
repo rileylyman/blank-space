@@ -7,7 +7,7 @@ import {
 import fs from 'fs';
 import type TypedPocketBase from "$lib/schema";
 import { type RequestEvent, json } from "@sveltejs/kit"
-import { BsRequestParser, type BsResponse } from "$lib/blankspace-game-api";
+import { BsRequestParser, updateGameState, type BsResponse } from "$lib/blankspace-game-api";
 import { fromZodError } from 'zod-validation-error';
 import { SCORES } from "$lib/constants";
 
@@ -29,62 +29,17 @@ export const POST = async (event: RequestEvent) => {
     [ game, response.error ] = await getGame(event.locals.pb, gameId);
     if (!game) return json(response, { status: 400 });
 
-    if (guess && guess !== game.target && (guess.length <= 2 || !dictionary.has(guess))) {
-        response.error = guess.length <= 2 ? "too short" : "not a word";
-        response.invalidWord = true;
-        return json(response, { status: 200 });
-    }
-
     let progress: BsGameProgress | null;
     [progress, response.error] = await getProgress(event.locals.pb, { gameId, setId, userId });
     if (!progress) return json(response, { status: 400 });
 
-    let fullHints = bsGameHints(game);
     let guesses = progress.guesses.split(',').filter((s) => s);
 
-    if (guess && guesses.includes(guess)) {
-        response.error = "already used";
-        response.invalidWord = true;
+    response = updateGameState(guess ?? null, guesses, progress.won, game, dictionary);
+    if (response.error || response.invalidWord) {
         return json(response, { status: 200 });
     }
-
-    let guessAllowed = !progress.won && guesses.length < fullHints.length;
-    if (guess && guessAllowed) {
-        guesses.push(guess);
-    } else if (guess && !guessAllowed) {
-        response.error = "you cannot make any more guesses";
-        return json(response, { status: 400 });
-    }
-
-    let won = progress.won || guess === game.target;
-
-    const cleanHint = (guess: string, i: number) => {
-        const hint = fullHints[i].replace(game?.target ?? "", '').trim();
-        const before = fullHints[i].indexOf(game?.target ?? "") < fullHints[i].indexOf(hint);
-        return { hint, before, guess, submitted: !!guess };
-    }
-
-    let lost = false;
-    let hints = guesses.map(cleanHint);
-    if (!won && guesses.length < fullHints.length) {
-        hints.push(cleanHint("", guesses.length));
-    } else if (!won) {
-        lost = true;
-    }
-
-    response.result = {
-        won,
-        lost, 
-        target: (won || lost) ? game.target : undefined,
-        hints,
-        fullHints: (won || lost) ? bsGameHints(game) : [],
-    }
-
-    let score: number | undefined = undefined;
-    if (won || lost) {
-        score = lost ? 0 : SCORES.at(guesses.length - 1);
-        response.result.score = score;
-    }
+    let { score, won, lost } = response.result!;
 
     if (guess) {
         try {
