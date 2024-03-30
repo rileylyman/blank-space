@@ -1,6 +1,6 @@
 <script lang="ts">
     import { blankspaceApiGuess } from '$lib/links';
-    import { sleepMs } from '$lib/utils';
+    import { getStorage, sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
     import { BsResponseParser, updateGameState, type BsResponse } from '$lib/blankspace-game-api';
@@ -8,7 +8,6 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
-    import { browser } from '$app/environment';
 
     export let data;
 
@@ -32,10 +31,10 @@
         }
         recalculateFlippedAndRevealed(true);
 
-        if (!localStorage.getItem("bsDictionary")) {
+        if (!getStorage().getItem("bsDictionary")) {
             goto("/get_dictionary?from=" + window.location.pathname);
         }
-        dictionary = new Set(localStorage.getItem("bsDictionary")?.split(","));
+        dictionary = new Set(getStorage().getItem("bsDictionary")?.split(","));
     });
 
     const recalculateFlippedAndRevealed = async (firstTime: boolean) => {

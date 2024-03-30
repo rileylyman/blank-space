@@ -24,6 +24,50 @@ export const fitText = (root: HTMLElement, query: string, scale: number) => {
     })
 }
 
+class StoragePolyfill implements Storage {
+    storage: Map<string, string>;
+    length: number;
+    key: any;
+
+    constructor() {
+        this.storage = new Map<string, string>();
+        this.length = 0;
+    }
+
+    getItem(key: string): string | null {
+        return this.storage.get(key) ?? null;
+    }
+
+    setItem(key: string, value: string) {
+        this.storage.set(key, value);
+        this.length = this.storage.size;
+    }
+
+    removeItem(key: string) {
+        this.storage.delete(key);
+        this.length = this.storage.size;
+    }
+
+    clear() {
+        this.storage.clear();
+    }
+}
+
+const storagePoly = new StoragePolyfill();
+
+export const isLocalStorageAvailable = () => {
+    try {
+        localStorage.setItem("test", "test");
+        localStorage.removeItem("test");
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
+export const getStorage = (): Storage => {
+    return isLocalStorageAvailable() ? localStorage : storagePoly;
+}
 
 export const tomorrow0hrsLocal = (): Date => {
     const [year, month, day] = todayYmdLocal();

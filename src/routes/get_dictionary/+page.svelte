@@ -2,7 +2,10 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { BS_HOME_SKIP } from "$lib/links";
+    import { getStorage } from "$lib/utils";
     import { onMount } from "svelte";
+
+    const from = $page.url.searchParams.get("from") ?? BS_HOME_SKIP;
 
     let wordList: string[] = [];
     let numChunksRecvd = 0;
@@ -23,9 +26,8 @@
         await Promise.all(promises);
         progressPct = 100;
 
-        localStorage.setItem("bsDictionary", wordList.join(","));
+        getStorage().setItem("bsDictionary", wordList.join(","));
 
-        let from = $page.url.searchParams.get("from") ?? BS_HOME_SKIP;
         goto(from);
     });
 </script>
