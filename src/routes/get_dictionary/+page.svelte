@@ -4,16 +4,23 @@
     import { BS_HOME_SKIP } from "$lib/links";
     import { onMount } from "svelte";
 
-    let progressPct = 0;
     let wordList: string[] = [];
+    let numChunksRecvd = 0;
+    let totalChunks = 1;
+    $: progressPct = (numChunksRecvd / totalChunks) * 100;
 
     onMount(async () => {
-        let numChunks = (await (await fetch("/api/dictionary")).json()).numChunks;
-        for (let i = 0; i < numChunks; i++) {
-            let chunk = (await (await fetch("/api/dictionary?chunk=" + i)).json());
-            wordList = wordList.concat(chunk.wordList);
-            progressPct = (chunk.chunk / numChunks) * 100;
+        totalChunks = (await (await fetch("/api/dictionary")).json()).numChunks;
+        let promises = new Array<Promise<void>>();
+        for (let i = 0; i < totalChunks; i++) {
+            let p = fetch("/api/dictionary?chunk=" + i).then((r) => r.json().then((chunk) => {
+                numChunksRecvd += 1;
+                wordList = wordList.concat(chunk.wordList);
+            }));
+            promises.push(p);
         }
+
+        await Promise.all(promises);
         progressPct = 100;
 
         localStorage.setItem("bsDictionary", wordList.join(","));
