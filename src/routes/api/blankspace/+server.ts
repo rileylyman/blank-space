@@ -1,7 +1,6 @@
 import {
     type BsGame,
     type BsGameProgress,
-    bsGameHints,
     bsGameAllLowercase
 } from "$lib/schema";
 import fs from 'fs';
@@ -9,7 +8,6 @@ import type TypedPocketBase from "$lib/schema";
 import { type RequestEvent, json } from "@sveltejs/kit"
 import { BsRequestParser, updateGameState, type BsResponse } from "$lib/blankspace-game-api";
 import { fromZodError } from 'zod-validation-error';
-import { SCORES } from "$lib/constants";
 
 let dictionaryList = fs.readFileSync("./src/routes/api/blankspace/words.txt", { encoding: 'utf16le' }).split('\n').map((s) => s.trim());
 let dictionary: Set<string> = new Set(dictionaryList);

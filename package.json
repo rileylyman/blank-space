@@ -25,6 +25,8 @@
 	"type": "module",
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^6.5.1",
+		"@types/deep-equal": "^1.0.4",
+		"deep-equal": "^2.2.3",
 		"dotenv": "^16.4.5",
 		"normalize.css": "^8.0.1",
 		"pocketbase": "^0.20.1",

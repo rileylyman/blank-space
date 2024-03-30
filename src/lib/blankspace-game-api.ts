@@ -82,9 +82,13 @@ export const updateGameState = (
     response.result = {
         won,
         lost, 
-        target: (won || lost) ? game.target : undefined,
         hints,
         fullHints: (won || lost) ? bsGameHints(game) : [],
+    }
+    if (won || lost) {
+        // Can't put this in the object literal above or else the response differs
+        // locally vs from server
+        response.result.target = game.target;
     }
 
     let score: number | undefined = undefined;

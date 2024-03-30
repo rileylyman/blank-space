@@ -3,44 +3,75 @@
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
-    import { BsResponseParser } from '$lib/blankspace-game-api';
+    import { BsResponseParser, updateGameState, type BsResponse } from '$lib/blankspace-game-api';
     import { error } from '@sveltejs/kit';
     import { onMount, tick } from 'svelte';
-    import { goto } from '$app/navigation';
+    import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
+    import deepEqual from 'deep-equal';
 
     export let data;
-    $: hints = data.bsResponse.result!.hints;
-    $: won = data.bsResponse.result?.won;
-    $: lost = data.bsResponse.result?.lost;
-
-    onMount(() => {
-        if (won || lost) {
-            handleWonOrLost();
-        }
-    });
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
     let invalidWordError = "";
-
     let invalidWordResetTimeout: NodeJS.Timeout | null = null;
 
-    const submitGuess = async (guess: string) => {
-        const res = await fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" });
-        const resJson = await res.json();
-        const parseRes = BsResponseParser.safeParse(resJson);
-        if (!parseRes.success) {
-            error(500);
+    let lastResponse: BsResponse | null = null;
+
+    $: hints = data.bsResponse.result!.hints;
+    $: won = data.bsResponse.result?.won;
+    $: lost = data.bsResponse.result?.lost;
+
+    onMount(async () => {
+        if (won || lost) {
+            handleWonOrLost();
+            return;
         }
-        if (parseRes.data.error && !parseRes.data.invalidWord) {
-            error(500);
-        } else if (parseRes.data.error) {
-            invalidWordError = parseRes.data.error;
+        recalculateFlippedAndRevealed(true);
+    });
+
+    const recalculateFlippedAndRevealed = async (firstTime: boolean) => {
+        flippedHint = null;
+        lastRevealedHint = data.bsResponse.result!.hints.length - 2;
+        await sleepMs(500);
+        lastRevealedHint = data.bsResponse.result!.hints.length - 1;
+        await sleepMs(1000);
+        flippedHint = lastRevealedHint;
+    }
+
+    const reloadPage = () => {
+        invalidateAll();
+        recalculateFlippedAndRevealed(false);
+    }
+
+    const submitGuess = async (guess: string) => {
+        fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" })
+            .then(async (res) => {
+                const resJson = await res.json();
+                const parseRes = BsResponseParser.safeParse(resJson);
+                if (!parseRes.success) {
+                    console.error("failed to parse server response");
+                } else if (!deepEqual(parseRes.data, lastResponse)) {
+                    console.log(parseRes.data);
+                    console.log(lastResponse);
+                    console.error("server response does not match");
+                    reloadPage();
+                }
+            });
+
+        const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
+        const res = updateGameState(guess, prevGuesses, won ?? false, data.bsGame, data.dictionary);
+        lastResponse = res;
+
+        if (res.error && !res.invalidWord) {
+            reloadPage();
+        } else if (res.error) {
+            invalidWordError = res.error;
             if (invalidWordResetTimeout) clearTimeout(invalidWordResetTimeout);
             invalidWordResetTimeout = setTimeout(() => invalidWordError = "", 1500);
-        } else if (parseRes.data.result) {
-            data.bsResponse = parseRes.data;
+        } else if (res.result) {
+            data.bsResponse = res;
         }
 
         await tick();
@@ -93,13 +124,6 @@
         }
         hints[flippedHint].guess += key;
     }
-
-    onMount(async () => {
-        await sleepMs(500);
-        lastRevealedHint = data.bsResponse.result!.hints.length - 1;
-        await sleepMs(1000);
-        flippedHint = lastRevealedHint;
-    })
 </script>
 
 <div id="root">
