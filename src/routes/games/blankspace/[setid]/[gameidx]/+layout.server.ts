@@ -1,10 +1,6 @@
 import { type ServerLoadEvent, error } from '@sveltejs/kit';
 import { BsResponseParser } from '$lib/blankspace-game-api';
 import { blankspaceApi } from '$lib/links';
-import fs from 'fs';
-
-let dictionaryList = fs.readFileSync("./src/routes/api/blankspace/words.txt", { encoding: 'utf16le' }).split('\n').map((s) => s.trim());
-let dictionary: Set<string> = new Set(dictionaryList);
 
 export const load = async (event: ServerLoadEvent) => {
     const setId = event.params.setid ?? "";
@@ -40,7 +36,6 @@ export const load = async (event: ServerLoadEvent) => {
         gameIdx,
         gameId,
         bsGame,
-        dictionary,
         feedback: feedbackList.items.at(0) ?? null,
     }
 }

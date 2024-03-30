@@ -4,13 +4,18 @@
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
     import { BsResponseParser, updateGameState, type BsResponse } from '$lib/blankspace-game-api';
-    import { error } from '@sveltejs/kit';
     import { onMount, tick } from 'svelte';
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
+    import { browser } from '$app/environment';
 
     export let data;
+
+    let dictionary = new Set<string>();
+    if (browser && !localStorage.getItem("bsDictionary")) {
+        goto("/get_dictionary?from=" + window.location.pathname);
+    }
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
@@ -29,6 +34,7 @@
             return;
         }
         recalculateFlippedAndRevealed(true);
+        dictionary = new Set(localStorage.getItem("bsDictionary")?.split(","));
     });
 
     const recalculateFlippedAndRevealed = async (firstTime: boolean) => {
@@ -61,7 +67,7 @@
             });
 
         const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
-        const res = updateGameState(guess, prevGuesses, won ?? false, data.bsGame, data.dictionary);
+        const res = updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
         lastResponse = res;
 
         if (res.error && !res.invalidWord) {
