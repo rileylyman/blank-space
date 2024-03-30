@@ -41,6 +41,7 @@
 
 <style>
     #root {
+        margin: 0 auto;
         width: 100vw;
         max-width : 50rem;
         height: 100vh;
