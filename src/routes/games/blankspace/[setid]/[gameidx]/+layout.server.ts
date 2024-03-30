@@ -1,6 +1,7 @@
 import { type ServerLoadEvent, error } from '@sveltejs/kit';
 import { BsResponseParser } from '$lib/blankspace-game-api';
 import { blankspaceApi } from '$lib/links';
+import { bsGameAllLowercase } from '$lib/schema';
 
 export const load = async (event: ServerLoadEvent) => {
     const setId = event.params.setid ?? "";
@@ -12,6 +13,7 @@ export const load = async (event: ServerLoadEvent) => {
         .getOne(setId, { expand: 'games' });
     const gameId = set.games[gameIdx];
     const bsGame = set.expand!.games[gameIdx];
+    bsGameAllLowercase(bsGame);
     // censorGame(bsGame);
 
     const feedbackList = await event.locals.pb

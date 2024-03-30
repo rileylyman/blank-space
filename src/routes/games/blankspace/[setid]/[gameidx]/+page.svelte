@@ -13,9 +13,6 @@
     export let data;
 
     let dictionary = new Set<string>();
-    if (browser && !localStorage.getItem("bsDictionary")) {
-        goto("/get_dictionary?from=" + window.location.pathname);
-    }
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
@@ -34,6 +31,10 @@
             return;
         }
         recalculateFlippedAndRevealed(true);
+
+        if (!localStorage.getItem("bsDictionary")) {
+            goto("/get_dictionary?from=" + window.location.pathname);
+        }
         dictionary = new Set(localStorage.getItem("bsDictionary")?.split(","));
     });
 
@@ -59,8 +60,8 @@
                 if (!parseRes.success) {
                     console.error("failed to parse server response");
                 } else if (!deepEqual(parseRes.data, lastResponse)) {
-                    console.log(parseRes.data);
-                    console.log(lastResponse);
+                    console.log(JSON.stringify(parseRes.data));
+                    console.log(JSON.stringify(lastResponse));
                     console.error("server response does not match");
                     reloadPage();
                 }
@@ -128,7 +129,7 @@
             hints[flippedHint].guess = hints[flippedHint].guess.slice(0, -1)
             return;
         }
-        hints[flippedHint].guess += key;
+        hints[flippedHint].guess += key.toLocaleLowerCase();
     }
 </script>
 
