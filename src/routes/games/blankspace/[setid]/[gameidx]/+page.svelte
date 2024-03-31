@@ -1,6 +1,6 @@
 <script lang="ts">
     import { blankspaceApiGuess } from '$lib/links';
-    import { getStorage, sleepMs } from '$lib/utils';
+    import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
     import { BsResponseParser, updateGameState, type BsResponse } from '$lib/blankspace-game-api';
@@ -8,10 +8,11 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
+    import { WordDB } from '$lib/dictionary-db';
 
     export let data;
 
-    let dictionary = new Set<string>();
+    let wordDb: WordDB | null = null;
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
@@ -31,10 +32,12 @@
         }
         recalculateFlippedAndRevealed(true);
 
-        if (!getStorage().getItem("bsDictionary")) {
-            goto("/get_dictionary?from=" + window.location.pathname);
-        }
-        dictionary = new Set(getStorage().getItem("bsDictionary")?.split(","));
+        await tick();
+
+        console.log("loading word db");
+        wordDb = await WordDB.new();
+        console.log(wordDb);
+        console.log("done loading word db, isOperational=", await wordDb.isOperational());
     });
 
     const recalculateFlippedAndRevealed = async (firstTime: boolean) => {
@@ -52,8 +55,9 @@
     }
 
     const submitGuess = async (guess: string) => {
-        fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" })
-            .then(async (res) => {
+        let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" });
+        if (await wordDb!.isOperational()) {
+            fetchRes.then(async (res) => {
                 const resJson = await res.json();
                 const parseRes = BsResponseParser.safeParse(resJson);
                 if (!parseRes.success) {
@@ -65,10 +69,19 @@
                     reloadPage();
                 }
             });
+        }
 
-        const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
-        const res = updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
-        lastResponse = res;
+        let res: BsResponse;
+        if (await wordDb!.isOperational()) {
+            const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
+            const dictionary = async (word: string): Promise<boolean> => wordDb!.get(word);
+            res = await updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
+            lastResponse = res;
+            console.log("looked up locally");
+        } else {
+            res = await (await fetchRes).json();
+            console.log("looked up from server");
+        }
 
         if (res.error && !res.invalidWord) {
             reloadPage();

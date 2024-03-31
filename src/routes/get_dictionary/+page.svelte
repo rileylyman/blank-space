@@ -2,31 +2,39 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import { BS_HOME_SKIP } from "$lib/links";
-    import { getStorage } from "$lib/utils";
     import { onMount } from "svelte";
+    import wordDb from '$lib/word-db';
 
     const from = $page.url.searchParams.get("from") ?? BS_HOME_SKIP;
 
-    let wordList: string[] = [];
     let numChunksRecvd = 0;
     let totalChunks = 1;
     $: progressPct = (numChunksRecvd / totalChunks) * 100;
 
     onMount(async () => {
+        let db = await wordDb.initWordDb();
+        if (!db) {
+            // XXX
+            return;
+        }
+
+        document.cookie = "no_word_db=1; max-age=2592000"
+        console.log(document.cookie);
+
         totalChunks = (await (await fetch("/api/dictionary")).json()).numChunks;
         let promises = new Array<Promise<void>>();
         for (let i = 0; i < totalChunks; i++) {
             let p = fetch("/api/dictionary?chunk=" + i).then((r) => r.json().then((chunk) => {
+                if (db) {
+                    wordDb.addWordDbData(db, chunk.wordList);
+                }
                 numChunksRecvd += 1;
-                wordList = wordList.concat(chunk.wordList);
             }));
             promises.push(p);
         }
 
         await Promise.all(promises);
         progressPct = 100;
-
-        getStorage().setItem("bsDictionary", wordList.join(","));
 
         goto(from);
     });

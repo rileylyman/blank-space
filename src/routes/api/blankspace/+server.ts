@@ -33,7 +33,8 @@ export const POST = async (event: RequestEvent) => {
 
     let guesses = progress.guesses.split(',').filter((s) => s);
 
-    response = updateGameState(guess ?? null, guesses, progress.won, game, dictionary);
+    let dictionaryFn = async (word: string): Promise<boolean> => dictionary.has(word);
+    response = await updateGameState(guess ?? null, guesses, progress.won, game, dictionaryFn);
     if (response.error || response.invalidWord) {
         return json(response, { status: 200 });
     }

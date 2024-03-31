@@ -28,20 +28,20 @@ export const BsResponseParser = z.object({
 });
 export type BsResponse = z.infer<typeof BsResponseParser>;
 
-export const updateGameState = (
+export const updateGameState = async (
     guess: string | null,
     prevGuesses: Array<string>,
     hasWon: boolean,
     game: BsGame,
-    dictionary: Set<string>,
-): BsResponse => {
+    dictionary: ((word: string) => Promise<boolean>),
+): Promise<BsResponse> => {
     let response: BsResponse = {
         result: null,
         error: null,
         invalidWord: false,
     };
 
-    if (guess && guess !== game.target && (guess.length <= 2 || !dictionary.has(guess))) {
+    if (guess && guess !== game.target && (guess.length <= 2 || !(await dictionary(guess)))) {
         response.error = guess.length <= 2 ? "too short" : "not a word";
         response.invalidWord = true;
         return response;
