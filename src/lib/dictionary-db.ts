@@ -31,11 +31,11 @@ export class WordDB {
     }
 
     async isOperational(): Promise<boolean> {
-        return !!this.db && await this.get("__loaded");
+        return !!this.db && await this.get("salamander");
     }
 
     async fetchData() {
-        if (!this.db || await this.get("__loaded")) return;
+        if (!this.db || await this.get("salamander")) return;
 
         try {
             console.log("starting data fetch");
@@ -45,12 +45,12 @@ export class WordDB {
                 this.add(res.wordList);
             }
 
-            console.log("testing if salamander is present");
-            // Test a random word and add "__loaded" marker if present.
-            if (await this.get("salamander")) {
-                console.log("it is present, setting __loaded");
-                this.add(["__loaded"]);
-            }
+            // console.log("testing if salamander is present");
+            // // Test a random word and add "__loaded" marker if present.
+            // if (await this.get("salamander")) {
+            //     console.log("it is present, setting __loaded");
+            //     this.add(["__loaded"]);
+            // }
         } catch (err) {
             console.error("error fetching dictionary from server", err);
         }

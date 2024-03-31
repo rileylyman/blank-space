@@ -32,12 +32,13 @@
         }
         recalculateFlippedAndRevealed(true);
 
-        await tick();
-
-        console.log("loading word db");
-        wordDb = await WordDB.new();
-        console.log(wordDb);
-        console.log("done loading word db, isOperational=", await wordDb.isOperational());
+        (async () => {
+            console.log("loading word db");
+            wordDb = await WordDB.new();
+            console.log(wordDb);
+            console.log("done loading word db, isOperational=", await wordDb.isOperational());
+        })();
+        console.log(":heyoo");
     });
 
     const recalculateFlippedAndRevealed = async (firstTime: boolean) => {
@@ -54,9 +55,13 @@
         recalculateFlippedAndRevealed(false);
     }
 
+    const wordDbIsOperational = async () => {
+        return wordDb !== null && await wordDb.isOperational();
+    }
+
     const submitGuess = async (guess: string) => {
         let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" });
-        if (await wordDb!.isOperational()) {
+        if (await wordDbIsOperational()) {
             fetchRes.then(async (res) => {
                 const resJson = await res.json();
                 const parseRes = BsResponseParser.safeParse(resJson);
@@ -72,7 +77,7 @@
         }
 
         let res: BsResponse;
-        if (await wordDb!.isOperational()) {
+        if (await wordDbIsOperational()) {
             const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
             const dictionary = async (word: string): Promise<boolean> => wordDb!.get(word);
             res = await updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
