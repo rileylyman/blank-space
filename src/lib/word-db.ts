@@ -38,19 +38,10 @@ export class WordDB {
         if (!this.db || await this.get("salamander")) return;
 
         try {
-            console.log("starting data fetch");
             const res = await (await fetch("/api/dictionary")).json();
-            console.log("got response back");
             if (res.wordList) {
-                this.add(res.wordList);
+                await this.add(res.wordList);
             }
-
-            // console.log("testing if salamander is present");
-            // // Test a random word and add "__loaded" marker if present.
-            // if (await this.get("salamander")) {
-            //     console.log("it is present, setting __loaded");
-            //     this.add(["__loaded"]);
-            // }
         } catch (err) {
             console.error("error fetching dictionary from server", err);
         }
@@ -58,8 +49,6 @@ export class WordDB {
 
     async add(data: Array<string>): Promise<boolean> {
         if (!this.db) return false;
-
-        console.log("starting data insert");
 
         let resolver: ((value: boolean) => void) | null = null;
         let resultPromise = new Promise<boolean>((resolve) => resolver = resolve);
@@ -70,8 +59,6 @@ export class WordDB {
         transaction.oncomplete = (event) => resolver!(true);
 
         data.forEach((word) => objStore.put({ word }));
-
-        console.log("finished data insert");
 
         return await resultPromise;
     }

@@ -8,7 +8,7 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
-    import { WordDB } from '$lib/dictionary-db';
+    import { WordDB } from '$lib/word-db';
 
     export let data;
 
@@ -32,13 +32,12 @@
         }
         recalculateFlippedAndRevealed(true);
 
-        (async () => {
-            console.log("loading word db");
-            wordDb = await WordDB.new();
-            console.log(wordDb);
-            console.log("done loading word db, isOperational=", await wordDb.isOperational());
-        })();
-        console.log(":heyoo");
+        WordDB.new().then((res) => {
+            res.isOperational().then((isOp) => {
+                if (isOp) wordDb = res;
+                console.log("loaded word db");
+            })
+        })
     });
 
     const recalculateFlippedAndRevealed = async (firstTime: boolean) => {
@@ -55,13 +54,9 @@
         recalculateFlippedAndRevealed(false);
     }
 
-    const wordDbIsOperational = async () => {
-        return wordDb !== null && await wordDb.isOperational();
-    }
-
     const submitGuess = async (guess: string) => {
         let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" });
-        if (await wordDbIsOperational()) {
+        if (wordDb) {
             fetchRes.then(async (res) => {
                 const resJson = await res.json();
                 const parseRes = BsResponseParser.safeParse(resJson);
@@ -77,12 +72,11 @@
         }
 
         let res: BsResponse;
-        if (await wordDbIsOperational()) {
+        if (wordDb) {
             const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
             const dictionary = async (word: string): Promise<boolean> => wordDb!.get(word);
             res = await updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
             lastResponse = res;
-            console.log("looked up locally");
         } else {
             res = await (await fetchRes).json();
             console.log("looked up from server");
@@ -151,6 +145,7 @@
 </script>
 
 <div id="root">
+    <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordDb ? "white" : "red"}`} />
     <div>
     </div>
     <div class="card-container">
