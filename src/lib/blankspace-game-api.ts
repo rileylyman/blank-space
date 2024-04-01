@@ -5,7 +5,8 @@ import { SCORES } from '$lib/constants';
 export const BsRequestParser = z.object({
     gameId: z.string().regex(/^[a-zA-Z0-9]+$/).length(15),
     setId: z.string().regex(/^[a-zA-Z0-9]+$/).length(15),
-    guess: z.string().regex(/^[a-zA-Z\.]+$/).optional()
+    guess: z.string().regex(/^[a-zA-Z\.]+$/).optional(),
+    localDict: z.string().regex(/^(true|false)$/).optional(),
 });
 export type BsRequest = z.infer<typeof BsRequestParser>;
 

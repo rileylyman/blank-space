@@ -55,7 +55,7 @@
     }
 
     const submitGuess = async (guess: string) => {
-        let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess), { method: "POST" });
+        let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess, !!wordDb), { method: "POST" });
         if (wordDb) {
             fetchRes.then(async (res) => {
                 const resJson = await res.json();

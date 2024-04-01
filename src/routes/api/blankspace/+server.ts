@@ -19,8 +19,8 @@ export const POST = async (event: RequestEvent) => {
         invalidWord: false,
     };
 
-    let gameId: string, userId: string, setId: string, guess: string | undefined;
-    [{ userId, gameId, setId, guess }, response.error] = parseRequest(event);
+    let gameId: string, userId: string, setId: string, guess: string | undefined, localDict: boolean | undefined;
+    [{ userId, gameId, setId, guess, localDict }, response.error] = parseRequest(event);
     if (response.error) return json(response, { status: 400 });
 
     let game: BsGame | null;
@@ -45,11 +45,11 @@ export const POST = async (event: RequestEvent) => {
             if (progress.id) {
                 await event.locals.pb
                     .collection('bs_game_progress')
-                    .update(progress.id, { won, lost, guesses: guesses.join(','), score});
+                    .update(progress.id, { won, lost, guesses: guesses.join(','), score, local_dict: localDict});
             } else {
                 await event.locals.pb
                     .collection('bs_game_progress')
-                    .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(','), score });
+                    .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(','), score, local_dict: localDict });
             }
         } catch (err) {
             console.log(err);
@@ -86,8 +86,8 @@ const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: 
     return [progress, null];
 }
 
-const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, setId: string, guess: string | undefined}, string | null] => {
-    let ret = { userId: "", setId: "", gameId: "", guess: "" };
+const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, setId: string, guess: string | undefined, localDict: boolean | undefined}, string | null] => {
+    let ret = { userId: "", setId: "", gameId: "", guess: "", localDict: false };
     if (!event.locals.pb.authStore.isValid || !event.locals.pb.authStore.model?.id) {
         return [ret, 'not authenticated'];
     }
@@ -97,8 +97,10 @@ const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, se
     if (!res.success) {
         return [ret, fromZodError(res.error).toString()];
     }
-    let { gameId, setId, guess } = res.data;
+    let { gameId, setId, guess, localDict } = res.data;
     guess = guess?.toLocaleLowerCase().trim();
 
-    return [{ userId, gameId, setId, guess}, null];
+    let localDictParsed = localDict === undefined ? undefined : localDict === "true";
+
+    return [{ userId, gameId, setId, guess, localDict: localDictParsed}, null];
 }

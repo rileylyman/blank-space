@@ -18,5 +18,5 @@ export const bsFeedbackLink =
 export const dictionaryWordApi = (word: string) => `/api/dictionary?word=${word}`;
 export const blankspaceApi = (setId: string, gameId: string) =>
     `/api/blankspace?gameId=${gameId}&setId=${setId}`;
-export const blankspaceApiGuess = (setId: string, gameId: string, guess: string) => 
-    `/api/blankspace?gameId=${gameId}&setId=${setId}&guess=${guess}`;
+export const blankspaceApiGuess = (setId: string, gameId: string, guess: string, localDict: boolean) => 
+    `/api/blankspace?gameId=${gameId}&setId=${setId}&guess=${guess}&localDict=${localDict}`;
