@@ -8,11 +8,10 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
-    import { WordDB } from '$lib/word-db';
 
     export let data;
 
-    let wordDb: WordDB | null = null;
+    let wordList: string[] = [];
 
     let flippedHint: number | null = null;
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
@@ -32,12 +31,12 @@
         }
         recalculateFlippedAndRevealed(true);
 
-        WordDB.new().then((res) => {
-            res.isOperational().then((isOp) => {
-                if (isOp) wordDb = res;
-                console.log("loaded word db");
-            })
-        })
+        fetch("/api/dictionary").then(res => res.json().then(res => {
+            if (res.wordList) {
+                wordList = res.wordList;
+                console.log("wordlist loaded");
+            }
+        }));
     });
 
     const recalculateFlippedAndRevealed = async (firstTime: boolean) => {
@@ -55,8 +54,8 @@
     }
 
     const submitGuess = async (guess: string) => {
-        let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess, !!wordDb), { method: "POST" });
-        if (wordDb) {
+        let fetchRes = fetch(blankspaceApiGuess(data.setId, data.gameId, guess, !!wordList.length), { method: "POST" });
+        if (wordList.length) {
             fetchRes.then(async (res) => {
                 const resJson = await res.json();
                 const parseRes = BsResponseParser.safeParse(resJson);
@@ -72,9 +71,9 @@
         }
 
         let res: BsResponse;
-        if (wordDb) {
+        if (wordList.length) {
             const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
-            const dictionary = async (word: string): Promise<boolean> => wordDb!.get(word);
+            const dictionary = async (word: string): Promise<boolean> => wordList.includes(word);
             res = await updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
             lastResponse = res;
         } else {
@@ -145,7 +144,9 @@
 </script>
 
 <div id="root">
-    <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordDb ? "white" : "red"}`} />
+    {#if data.pbUser?.id === "g46kjxyg22of584"}
+        <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordList.length ? "white" : "red"}`} />
+    {/if}
     <div>
     </div>
     <div class="card-container">
