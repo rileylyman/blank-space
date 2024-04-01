@@ -1,5 +1,6 @@
 import { type ServerLoadEvent } from "@sveltejs/kit"
 import { censorGame } from "$lib/schema";
+import { GameProgress } from "./common";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
@@ -22,17 +23,20 @@ export const load = async (event: ServerLoadEvent) => {
     const currentScore = progs.reduce((prev: number, p) => prev + p.score, 0);
     const weekScore = standing?.total_score ?? 0;
 
-    let setProgress: Array<boolean | null> = [];
+    let setProgress: Array<GameProgress> = [];
     let i = 0;
     for (let id of currentSet.games) {
         let prog = progs.find((p) => p.bs_game === id);
-        if (prog === undefined || !(prog.won || prog.lost)) {
+        if (prog === undefined) {
             censorGame(currentSet.expand!.games[i]);
-            setProgress.push(null);
+            setProgress.push(GameProgress.NO_PROGRESS);
+        } else if (!prog.won && !prog.lost) {
+            censorGame(currentSet.expand!.games[i]);
+            setProgress.push(GameProgress.SOME_PROGRESS);
         } else if (prog.lost) {
-            setProgress.push(false);
+            setProgress.push(GameProgress.LOST);
         } else {
-            setProgress.push(true);
+            setProgress.push(GameProgress.WON);
         }
         i += 1;
     }

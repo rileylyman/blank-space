@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { blankspaceApiGuess } from '$lib/links';
+    import { BS_HOME_SKIP, blankspaceApiGuess } from '$lib/links';
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
@@ -147,7 +147,10 @@
     {#if data.pbUser?.id === "g46kjxyg22of584"}
         <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordList.length ? "white" : "red"}`} />
     {/if}
-    <div>
+    <div class="top-bar">
+        <a class="break" href={BS_HOME_SKIP}>
+            Pause Game
+        </a>
     </div>
     <div class="card-container">
         {#each hints as { hint, before, guess, submitted }, idx}
@@ -197,11 +200,29 @@
         max-width: 50rem;
         margin: 0 auto;
         display: grid;
-        grid-template-rows: 5rem 10rem 10rem 1fr;
+        grid-template-rows: 6rem 10rem 9rem 1fr;
         overflow: hidden;
         place-items: stretch;
         background: white;
     }
+
+    .top-bar {
+        padding: 1rem calc(min(5vw, 2.5rem));
+    }
+
+    .break {
+        outline: none;
+        border: none;
+        background: #e0e0e0;
+        font-size: 1rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: black;
+    }
+
 
     .card-container {
         display: grid;

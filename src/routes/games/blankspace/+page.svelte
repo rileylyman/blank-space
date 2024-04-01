@@ -1,11 +1,12 @@
 <script lang="ts">
     import Fa from "svelte-fa";
-    import { faXmark, faCheck, faRankingStar } from "@fortawesome/free-solid-svg-icons";
+    import { faXmark, faCheck, faPlay, faPersonWalkingArrowLoopLeft } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
     import { goto, preloadData } from "$app/navigation";
     import { BS_STATS, bsGameLink } from "$lib/links";
     import { onMount, onDestroy } from "svelte";
     import { fitText } from "$lib/utils";
+    import { GameProgress } from "./common";
 
     export let data;
 
@@ -65,15 +66,18 @@
         {#each data.setProgress as prog, idx}
             <button 
                 on:click={() => goto(bsGameLink(data.currentSet.id, idx))}
-                class:won={prog} 
-                class:lost={prog === false} 
-                class:unplayed={prog === null}>
-                {#if prog === true}
+                class:won={prog === GameProgress.WON} 
+                class:lost={prog === GameProgress.LOST} 
+                class:some-prog={prog === GameProgress.SOME_PROGRESS} 
+                class:unplayed={prog === GameProgress.NO_PROGRESS}>
+                {#if prog === GameProgress.WON}
                     <Fa icon={faCheck} />
-                {:else if prog === false}
+                {:else if prog === GameProgress.LOST}
                     <Fa icon={faXmark} />
+                {:else if prog === GameProgress.SOME_PROGRESS}
+                    <Fa icon={faPersonWalkingArrowLoopLeft} size="0.8x" />
                 {:else}
-                    Tap to play
+                    <Fa icon={faPlay} size="0.8x" />
                 {/if}
             </button>
         {/each}
@@ -159,6 +163,7 @@
     }
 
     .pin-container button {
+        position: relative;
         display: grid;
         place-items: center;
         height: 80%;
@@ -180,6 +185,10 @@
     }
 
     .pin-container button.unplayed {
+        background-color: white;
+    }
+
+    .pin-container button.some-prog {
         background-color: white;
     }
 
