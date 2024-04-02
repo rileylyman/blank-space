@@ -14,7 +14,7 @@ export const load = async (event: ServerLoadEvent) => {
         .collection('bs_game_progress')
         .getFullList({ fetch: event.fetch, filter: `user = "${userId}" && bs_game_set = "${currentSet.id}"`})
     const standing = (await event.locals.pb
-        .collection('bs_weekly_standings')
+        .collection('bs_this_week_scores')
         .getFullList({ fetch, filter: `user = "${userId}"` })).at(0);
 
     const wonGames = stats.won_games ?? 0;
