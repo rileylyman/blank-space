@@ -27,18 +27,22 @@
 </script>
 
 <div id="root">
-    <div class="tab-container">
+    <div 
+        class="tab-container"
+        class:last-week={selected === "last"}
+        class:this-week={selected === "this"}
+    >
         <button
             class="tab"
             class:selected={selected === "last"}
-            on:click={() => select("last", 0)}
+            on:click={() => select("last", 500)}
         > 
             Last Week 
         </button>
         <button
             class="tab"
             class:selected={selected === "this"}
-            on:click={() => select("this", 0)}
+            on:click={() => select("this", 500)}
         > 
             This Week
         </button>
@@ -48,7 +52,7 @@
             {#if selected === "this"}
                 Score Through Day {day + 1}
             {:else}
-                Final Score
+                Last Week's Score
             {/if}
         </p>
         <h1>{viewed.score}</h1>
@@ -106,11 +110,17 @@
         width: 100vw;
         max-width: 50rem;
         margin: 0 auto;
-        height: 100vh;
-        height: 100svh;
         display: grid;
         place-items: center;
-        grid-template-rows: 10% 25% 55% 10% 90%;
+        grid-template-rows: 10vh 25vh 55vh 10vh 90vh;
+        grid-template-rows: 10svh 25svh 55svh 10svh 90svh;
+    }
+
+    @media (width >= 50rem) {
+        #root {
+            border-left: 1px solid black;
+            border-right: 1px solid black;
+        }
     }
 
     .tab-container {
@@ -119,26 +129,41 @@
         grid-template-columns: 50% 50%;
         width: 100%;
         height: 100%;
+        transition: grid-template-columns 500ms;
+    }
+
+    .tab-container.last-week {
+        grid-template-columns: 65% 35%;
+    }
+
+    .tab-container.this-week {
+        grid-template-columns: 35% 65%;
     }
 
     .tab-container .tab {
-        background: #e0e0e0;
+        background: #eee;
         outline: none;
         border: none;
         border-bottom: 1px solid black;
+        color: #666;
+        font-size: 0.9rem;
     }
 
     .tab-container .tab.selected {
         background: white;
         border-bottom: none;
-    }
-
-    .tab-container .tab.selected:last-of-type {
-        border-left: 1px solid black;
+        font-weight: 600;
+        font-size: 1.5rem;
+        color: black;
+        white-space: nowrap;
     }
 
     .tab-container .tab.selected:first-of-type {
         border-right: 1px solid black;
+    }
+
+    .tab-container .tab.selected:last-of-type {
+        border-left: 1px solid black;
     }
 
     .header {
@@ -147,7 +172,8 @@
     }
 
     .rankings {
-        width: 100%;
+        width: calc(100% - 4rem);
+        margin: 0 2rem;
         height: 100%;
         border: 1px solid black;
         border-radius: 0.5rem;
@@ -161,6 +187,8 @@
             border-left: none;
             border-right: none;
             border-radius: 0;
+            width: 100%;
+            margin: 0;
         }
     }
 
