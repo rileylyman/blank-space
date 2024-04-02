@@ -3,7 +3,7 @@
     import { faXmark, faCheck, faPlay, faPersonWalkingArrowLoopLeft } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
     import { goto, preloadData } from "$app/navigation";
-    import { BS_STATS, bsGameLink } from "$lib/links";
+    import { BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount, onDestroy } from "svelte";
     import { fitText } from "$lib/utils";
     import { GameProgress } from "./common";
@@ -41,11 +41,11 @@
 
         let distance = nextSetAvail.getTime() - now.getTime();
         if (distance < 0) distance = 0;
-        let rhr = Math.floor(Math.max((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60), 0)).toString().padStart(2, '0');
-        let rmin = Math.floor(Math.max((distance % (1000 * 60 * 60)) / (1000 * 60), 0)).toString().padStart(2, '0');
-        let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0)).toString().padStart(2, '0');
+        let rhr = Math.floor(Math.max((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60), 0));
+        let rmin = Math.floor(Math.max((distance % (1000 * 60 * 60)) / (1000 * 60), 0));
+        let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0));
 
-        countdown = `${rhr}:${rmin}:${rsec}`;
+        countdown = `${rhr > 0 ? rhr + "h " : ""}${rmin > 0 ? + rmin + "m " : ""}${rsec + "s"}`;
     }
 
     updateCountdown();
@@ -61,6 +61,9 @@
     <div />
     <div class="game-date">
         {gameDateString}
+    </div>
+    <div class="countdown">
+        next set in {countdown}
     </div>
     <div class="pin-container">
         {#each data.setProgress as prog, idx}
@@ -93,13 +96,13 @@
         <p>{data.maxStreak}</p><p>max. streak</p>
     </div>
     <div class="footer">
-        <button>
-            {countdown}
-            <span> next set </span>
-        </button>
-        <a class:unseen={true} href={BS_STATS}>
-            See Rankings
+        <a class:unseen={true} href={BS_PREV}>
+            Play Past Games
             <div class="noti"> ! </div>
+        </a>
+        <a class:unseen={false} href={BS_STATS}>
+            See Rankings
+            <!-- <div class="noti"> ! </div> -->
         </a>
     </div>
 </div>
@@ -113,7 +116,7 @@
         height: 100vh;
         height: 100svh;
         display: grid;
-        grid-template-rows: 25% 3rem 1fr 6.5rem 5rem 4rem;
+        grid-template-rows: 25% 3rem 1rem 1fr 6.5rem 5rem 4rem;
         place-items: stretch;
     }
 
@@ -149,6 +152,12 @@
         display: grid;
         place-items: center;
         font-size: 1.75rem;
+    }
+
+    .countdown {
+        text-align: center;
+        align-self: end;
+        font-style: italic;
     }
 
     .pin-container {
@@ -225,7 +234,7 @@
         padding-bottom: 1rem;
     }
 
-    .footer button, .footer a {
+    .footer a {
         background: rgb(234, 234, 234);
         outline: none;
         border: 1px solid black;
@@ -240,20 +249,16 @@
         justify-self: end;
     }
 
-    .footer button {
-        display: grid;
-        place-items: center;
-        grid-template-rows: 75% 25%;
-        padding-bottom: 0.25rem;
-    }
-
     .footer a {
         font-size: 1rem;
         white-space: nowrap;
-        justify-self: start;
         display: grid;
         place-items: center;
         position: relative;
+    }
+
+    .footer a:last-of-type {
+        justify-self: start;
     }
 
     .footer a.unseen {
@@ -277,14 +282,5 @@
         transform: translateX(50%) translateY(-50%);
         display: grid;
         place-items: center;
-    }
-
-    .footer button:last-child {
-        justify-self: start;
-    }
-
-    .footer button span {
-        font-size: 0.8rem;
-        font-style: italic;
     }
 </style>
