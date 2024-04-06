@@ -1,8 +1,23 @@
 <script lang="ts">
-    import { BS_HOME_SKIP } from "$lib/links";
-import WeekContainer from "./WeekContainer.svelte";
+    import { BS_HOME_SKIP, BS_PREV, bsGameLink } from "$lib/links";
+    import PinContainer from "$lib/ui/PinContainer.svelte";
+    import WeekContainer from "./WeekContainer.svelte";
+    import { type DayProgress } from './common';
 
     export let data;
+
+    let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    let shownProg: DayProgress | null = null;
+    let shownIdx: number = 0;
+    const onSetClicked = (prog: DayProgress, idx: number) => {
+        shownProg = prog;
+        shownIdx = idx;
+    }
+    const clearShown = () => {
+        shownProg = null;
+    }
+
 </script>
 
 <div id="root">
@@ -18,7 +33,7 @@ import WeekContainer from "./WeekContainer.svelte";
             Play all your games for the best score!
         </p>
         <div class="week-container">
-            <WeekContainer dps={data.thisDp} />
+            <WeekContainer on:clicked={(e) => onSetClicked(e.detail.prog, e.detail.idx)} dps={data.thisDp} />
         </div>
     </div>
     <div class="week">
@@ -29,16 +44,29 @@ import WeekContainer from "./WeekContainer.svelte";
             Last week's score is final, finish games for fun.
         </p>
         <div class="week-container">
-            <WeekContainer dps={data.lastDp} />
+            <WeekContainer on:clicked={(e) => onSetClicked(e.detail.prog, e.detail.idx)} dps={data.lastDp} />
         </div>
     </div>
     <div class="buttons">
         <a href={BS_HOME_SKIP}> Go Home </a>
     </div>
+
+    <div id="modal" class:active={!!shownProg}>
+        <h1> {weekdays[shownIdx]}, Day {shownIdx + 1}</h1>
+        <div class="pin-container">
+            {#if shownProg}
+                <PinContainer setProgress={shownProg.gameProgs} links={[0, 1, 2, 3].map((n) => bsGameLink(shownProg?.set.id ?? "", n, BS_PREV))} />
+            {/if}
+        </div>
+        <div class="buttons">
+            <button on:click={clearShown}> Back </button>
+        </div>
+    </div>
 </div>
 
 <style>
     #root {
+        position: relative;
         width: calc(min(100vw, 50rem));
         margin: 0 auto;
         height: 100vh;
@@ -49,6 +77,31 @@ import WeekContainer from "./WeekContainer.svelte";
         place-items: center;
         text-align: center;
         padding: 0 1rem;
+    }
+
+    #modal {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: translateX(100vw);
+        transition: transform 300ms;
+        background: white;
+        border: 1px solid black;
+        z-index: 2;
+        display: grid;
+        grid-template-rows: 20% 50% 30%;
+        place-items: center;
+    }
+
+    #modal.active {
+        transform: none;
+    }
+
+    .pin-container {
+        width: 80%;
+        height: 100%;
     }
 
     .week {
@@ -68,8 +121,10 @@ import WeekContainer from "./WeekContainer.svelte";
         font-style: italic;
     }
 
-    .buttons a {
+    .buttons a, button {
         text-decoration: none;
+        border: none;
+        min-width: 10rem;
         color: black;
         font-weight: 500;
         background: #c0c0c0;

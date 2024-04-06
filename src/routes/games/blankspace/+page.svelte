@@ -1,20 +1,19 @@
 <script lang="ts">
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
-    import { BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
+    import { BS_HOME_SKIP, BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount, onDestroy } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
 
     export let data;
 
     onMount(() => {
-        data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx)));
+        data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx, BS_HOME_SKIP)));
     })
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const gameDate = new Date(data.currentSet.publish_on);
-    const gameDateString = `${weekdays[gameDate.getUTCDay()]}, ${months[gameDate.getUTCMonth()]} ${gameDate.getUTCDate()}`
+    const gameDateString = `${weekdays[gameDate.getDay()]}, Day ${gameDate.getDay() + 1}`;
 
     let folded = true;
     let foldedHeight = "25%";
@@ -55,7 +54,7 @@
         next set in {countdown}
     </div>
     <div class="pin-container">
-        <PinContainer links={[0, 1, 2, 3].map((n) => bsGameLink(data.currentSet.id, n))} setProgress={data.setProgress} />
+        <PinContainer links={[0, 1, 2, 3].map((n) => bsGameLink(data.currentSet.id, n, BS_HOME_SKIP))} setProgress={data.setProgress} />
     </div>
     <div class="guess-distro-container">
         <p> Score Today </p> <p> Score This Week</p>

@@ -4,8 +4,6 @@
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';;;;
     import { goto } from "$app/navigation";
     import GuessTable from "$lib/ui/GuessTable.svelte";
-    import { page } from "$app/stores";
-    import { BS_HOME_SKIP } from "$lib/links.js";
     import { onMount } from "svelte";
     import { fitText } from "$lib/utils.js";
 
@@ -56,8 +54,7 @@
         fitText(root, '.thumbs button div', 0.75);
     }
 
-    const from = $page.url.searchParams.get('from');
-    const returnTo = from ? from : BS_HOME_SKIP;
+    const returnTo = data.from;
 </script>
 
 <svelte:window on:resize={onResize} />

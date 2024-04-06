@@ -11,10 +11,10 @@ export const AUTH_LOGOUT_ACTION = "/auth?/logout";
 export const AUTH_LOGIN_ACTION = "/auth?/login";
 export const AUTH_REGISTER_ACTION = "/auth?/register";
 
-export const bsGameLink = (setId: string, gameIdx: number) => `/games/blankspace/${setId}/${gameIdx}`;
-export const bsResultLink = (setId: string, gameIdx: number) => `${bsGameLink(setId, gameIdx)}/result`;
+export const bsGameLink = (setId: string, gameIdx: number, from: string) => `/games/blankspace/${setId}/${gameIdx}${from ? '?from=' + from : ''}`;
+export const bsResultLink = (setId: string, gameIdx: number, from: string) => `${bsGameLink(setId, gameIdx, "")}/result${from ? '?from=' + from : ''}`;
 export const bsFeedbackLink = 
-    (setId: string, gameIdx: number, from: string = "") => `${bsGameLink(setId, gameIdx)}/feedback${from ? '?from=' + from : ''}`;
+    (setId: string, gameIdx: number, from: string) => `${bsGameLink(setId, gameIdx, "")}/feedback${from ? '?from=' + from : ''}`;
 
 export const dictionaryWordApi = (word: string) => `/api/dictionary?word=${word}`;
 export const blankspaceApi = (setId: string, gameId: string) =>

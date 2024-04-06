@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { BS_HOME_SKIP, bsFeedbackLink } from "$lib/links";
+    import { bsFeedbackLink } from "$lib/links";
     import GuessTable from "$lib/ui/GuessTable.svelte";
     import { fitText } from "$lib/utils.js";
     import { onMount } from "svelte";
@@ -48,8 +48,8 @@
         <GuessTable {target} {fullHints} {guesses}/>
     </div>
     <div class="button">
-        <a href={BS_HOME_SKIP}> Go Home </a>
-        <a href={bsFeedbackLink(data.setId, data.gameIdx)}> Add Feedback </a>
+        <a href={data.from}> Go Home </a>
+        <a href={bsFeedbackLink(data.setId, data.gameIdx, data.from)}> Add Feedback </a>
     </div>
 </div>
 

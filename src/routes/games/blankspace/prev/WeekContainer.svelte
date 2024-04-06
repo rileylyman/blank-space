@@ -1,8 +1,10 @@
 <script lang="ts">
     import { type DayProgress } from './common';
+    import { createEventDispatcher } from 'svelte';
 
     export let dps: DayProgress[];
 
+    const dispatch = createEventDispatcher();
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 </script>
 
@@ -11,7 +13,7 @@
         <div class="day">
             <p> {days[idx]} </p>
             <div class:none={played === 0} class:some={played > 0} class:all={played === 4}>
-                <a> {played}/4 <a> 
+                <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{played}/4<button> 
             </div> 
         </div>
     {/each}
@@ -45,9 +47,13 @@
         background: rgb(80, 194, 104);
     }
 
-    .day div a {
+    .day div button {
         color: black;
         text-decoration: none;
+        border: none;
+        background: none;
+        padding: 0;
+        display: inline;
     }
 
     .day p {

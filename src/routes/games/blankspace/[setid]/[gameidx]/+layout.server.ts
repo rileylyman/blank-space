@@ -1,12 +1,13 @@
 import { type ServerLoadEvent, error } from '@sveltejs/kit';
 import { BsResponseParser } from '$lib/blankspace-game-api';
-import { blankspaceApi } from '$lib/links';
+import { BS_HOME_SKIP, blankspaceApi } from '$lib/links';
 import { bsGameAllLowercase } from '$lib/schema';
 
 export const load = async (event: ServerLoadEvent) => {
     const setId = event.params.setid ?? "";
     const gameIdx = parseInt(event.params.gameidx ?? '0');
     const userId = event.locals.pb.authStore.model?.id ?? "";
+    const from = event.url.searchParams.get("from") ?? BS_HOME_SKIP;
 
     const set = await event.locals.pb
         .collection('bs_game_sets')
@@ -39,5 +40,6 @@ export const load = async (event: ServerLoadEvent) => {
         gameId,
         bsGame,
         feedback: feedbackList.items.at(0) ?? null,
+        from,
     }
 }

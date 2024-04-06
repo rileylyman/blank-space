@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { BS_HOME_SKIP, blankspaceApiGuess } from '$lib/links';
+    import { blankspaceApiGuess } from '$lib/links';
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
@@ -95,7 +95,7 @@
     }
 
     const handleWonOrLost = async () => {
-        goto(bsResultLink(data.setId, data.gameIdx));
+        goto(bsResultLink(data.setId, data.gameIdx, data.from));
     }
 
     const handleGuess = async () => {
@@ -148,7 +148,7 @@
         <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordList.length ? "white" : "red"}`} />
     {/if}
     <div class="top-bar">
-        <a class="break" href={BS_HOME_SKIP}>
+        <a class="break" href={data.from}>
             Pause Game
         </a>
     </div>
