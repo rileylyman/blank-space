@@ -136,4 +136,6 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'bs_stats'): RecordService<BsStats>;
     collection(idOrName: 'bs_this_week_scores'): RecordService<BsWeeklyStanding>;
     collection(idOrName: 'bs_last_week_scores'): RecordService<BsWeeklyStanding>;
+    collection(idOrName: 'bs_this_week_sets'): RecordService<BsGameSet>;
+    collection(idOrName: 'bs_last_week_sets'): RecordService<BsGameSet>;
 }
