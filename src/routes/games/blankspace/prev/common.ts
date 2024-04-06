@@ -1,4 +1,7 @@
+import { GameProgress, type BsGameSet } from "$lib/schema";
+
 export interface DayProgress {
-    setId: string;
+    set: BsGameSet;
     played: number;
+    gameProgs: GameProgress[];
 }

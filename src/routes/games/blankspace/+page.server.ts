@@ -1,6 +1,5 @@
 import { type ServerLoadEvent } from "@sveltejs/kit"
-import { censorGame } from "$lib/schema";
-import { GameProgress } from "./common";
+import { censorGame, GameProgress, progressToEnum } from "$lib/schema";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
@@ -27,16 +26,9 @@ export const load = async (event: ServerLoadEvent) => {
     let i = 0;
     for (let id of currentSet.games) {
         let prog = progs.find((p) => p.bs_game === id);
-        if (prog === undefined) {
+        setProgress.push(progressToEnum(prog));
+        if ([GameProgress.NO_PROGRESS, GameProgress.SOME_PROGRESS].includes(setProgress[-1])) {
             censorGame(currentSet.expand!.games[i]);
-            setProgress.push(GameProgress.NO_PROGRESS);
-        } else if (!prog.won && !prog.lost) {
-            censorGame(currentSet.expand!.games[i]);
-            setProgress.push(GameProgress.SOME_PROGRESS);
-        } else if (prog.lost) {
-            setProgress.push(GameProgress.LOST);
-        } else {
-            setProgress.push(GameProgress.WON);
         }
         i += 1;
     }

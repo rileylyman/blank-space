@@ -1,24 +1,15 @@
 <script lang="ts">
-    import Fa from "svelte-fa";
-    import { faXmark, faCheck, faPlay, faPersonWalkingArrowLoopLeft } from "@fortawesome/free-solid-svg-icons";
     import Curtain from "./Curtain.svelte";
-    import { goto, preloadData } from "$app/navigation";
+    import { preloadData } from "$app/navigation";
     import { BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount, onDestroy } from "svelte";
-    import { fitText } from "$lib/utils";
-    import { GameProgress } from "./common";
+    import PinContainer from "$lib/ui/PinContainer.svelte";
 
     export let data;
 
-    let root: HTMLElement;
     onMount(() => {
         data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx)));
-        onResize();
     })
-
-    const onResize = () => {
-        fitText(root, '.pin-container button', 0.5);
-    }
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -53,9 +44,7 @@
     onDestroy(() => clearInterval(countdownInterval));
 </script>
 
-<svelte:window on:resize={onResize} />
-
-<div id="root" bind:this={root}>
+<div id="root">
     <Curtain bind:folded {foldedHeight} />
 
     <div />
@@ -66,24 +55,7 @@
         next set in {countdown}
     </div>
     <div class="pin-container">
-        {#each data.setProgress as prog, idx}
-            <button 
-                on:click={() => goto(bsGameLink(data.currentSet.id, idx))}
-                class:won={prog === GameProgress.WON} 
-                class:lost={prog === GameProgress.LOST} 
-                class:some-prog={prog === GameProgress.SOME_PROGRESS} 
-                class:unplayed={prog === GameProgress.NO_PROGRESS}>
-                {#if prog === GameProgress.WON}
-                    <Fa icon={faCheck} />
-                {:else if prog === GameProgress.LOST}
-                    <Fa icon={faXmark} />
-                {:else if prog === GameProgress.SOME_PROGRESS}
-                    <Fa icon={faPersonWalkingArrowLoopLeft} size="0.8x" />
-                {:else}
-                    <Fa icon={faPlay} size="0.8x" />
-                {/if}
-            </button>
-        {/each}
+        <PinContainer links={[0, 1, 2, 3].map((n) => bsGameLink(data.currentSet.id, n))} setProgress={data.setProgress} />
     </div>
     <div class="guess-distro-container">
         <p> Score Today </p> <p> Score This Week</p>
@@ -161,44 +133,9 @@
     }
 
     .pin-container {
-        margin: 0 auto;
-        place-self: stretch;
-        display: grid;
-        place-items: center;
-        grid-template-columns: 50% 50%;
-        grid-template-rows: 50% 50%;
-        overflow: hidden;
         width: 85%;
-    }
-
-    .pin-container button {
-        position: relative;
-        display: grid;
-        place-items: center;
-        height: 80%;
-        max-height: 9rem;
-        min-height: 5rem;
-        aspect-ratio: 1 / 1;
-        padding: 0;
-        border-radius: 100%;
-        outline: 1px solid black;
-        border: none;
-    }
-
-    .pin-container button.lost {
-        background: rgb(250, 113, 79);
-    }
-
-    .pin-container button.won {
-        background-color: rgb(80, 194, 104);
-    }
-
-    .pin-container button.unplayed {
-        background-color: white;
-    }
-
-    .pin-container button.some-prog {
-        background-color: white;
+        height: 100%;
+        place-self: center;
     }
 
     .guess-distro-container {

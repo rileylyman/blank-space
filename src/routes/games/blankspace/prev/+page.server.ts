@@ -1,6 +1,7 @@
 import type { BsGameSet } from "$lib/schema";
 import { type ServerLoadEvent } from "@sveltejs/kit"
 import { type DayProgress } from "./common";
+import { GameProgress, progressToEnum } from "$lib/schema";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
@@ -30,10 +31,15 @@ export const load = async (event: ServerLoadEvent) => {
 
     const appendDayProgress = (set: BsGameSet, arr: DayProgress[]) => {
         let played = progs
-            .filter((p) => p.bs_game_set === set.id && (p.won || p.lost)).length
+            .filter((p) => p.bs_game_set === set.id && (p.won || p.lost));
+        let gameProgs = new Array<GameProgress>();
+        for (let gameId of set.games) {
+            gameProgs.push(progressToEnum(played.find((p) => p.bs_game === gameId)));
+        }
         arr.push({
-            setId: set.id,
-            played,
+            set,
+            played: played.length,
+            gameProgs,
         })
     }
 
