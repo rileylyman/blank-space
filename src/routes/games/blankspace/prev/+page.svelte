@@ -85,10 +85,10 @@
         left: 0;
         width: 100%;
         height: 100%;
+        border-left: 1px solid black;
         transform: translateX(100vw);
         transition: transform 300ms;
         background: white;
-        border: 1px solid black;
         z-index: 2;
         display: grid;
         grid-template-rows: 20% 50% 30%;
@@ -96,7 +96,7 @@
     }
 
     #modal.active {
-        transform: none;
+        transform: translateX(-1px);
     }
 
     .pin-container {
