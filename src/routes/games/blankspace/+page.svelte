@@ -2,13 +2,16 @@
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
     import { BS_HOME_SKIP, BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
-    import { onMount, onDestroy } from "svelte";
+    import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
 
     export let data;
 
     onMount(() => {
         data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx, BS_HOME_SKIP)));
+        updateCountdown();
+        let countdownInterval = setInterval(updateCountdown, 1000);
+        return () => clearInterval(countdownInterval);
     })
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -20,10 +23,11 @@
 
     let countdown = "loading...";
     const updateCountdown = () => {
+        console.log("starting");
         let now = new Date();
         let nextSetAvail: Date;
         if (data.currentSet.next_set_avail) {
-            nextSetAvail = new Date(data.currentSet.next_set_avail.split(' ')[0] + ' 00:00:00 GMT-0700');
+            nextSetAvail = new Date(data.currentSet.next_set_avail.split(' ')[0] + 'T00:00:00-0700');
         } else {
             nextSetAvail = now;
         }
@@ -35,11 +39,9 @@
         let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0));
 
         countdown = `${rhr > 0 ? rhr + "h " : ""}${rmin > 0 ? + rmin + "m " : ""}${rsec + "s"}`;
+        console.log(countdown);
     }
 
-    updateCountdown();
-    let countdownInterval = setInterval(updateCountdown, 1000);
-    onDestroy(() => clearInterval(countdownInterval));
 </script>
 
 <div id="root">
