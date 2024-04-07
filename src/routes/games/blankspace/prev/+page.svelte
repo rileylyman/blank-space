@@ -23,7 +23,7 @@
 <div id="root">
     <div>
         <h1> Previous Games </h1>
-        <p> Revisit games from the last two weeks and finish any you might have missed.</p>
+        <p> Revisit games from the last two weeks. Finish any you might have missed.</p>
     </div>
     <div class="week">
         <h2> 

@@ -3,6 +3,11 @@
     import { createEventDispatcher } from 'svelte';
 
     export let dps: DayProgress[];
+    for (let i = 0; i < 7; i++) {
+        if (i >= dps.length) {
+            dps.push({ set: { id: "", publish_on: "", games: [] }, played: -1, gameProgs: []}) 
+        }
+    }
 
     const dispatch = createEventDispatcher();
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -12,8 +17,12 @@
     {#each dps as { played }, idx}
         <div class="day">
             <p> {days[idx]} </p>
-            <div class:none={played === 0} class:some={played > 0} class:all={played === 4}>
-                <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{played}/4<button> 
+            <div class:future={played === -1} class:none={played === 0} class:some={played > 0} class:all={played === 4}>
+                {#if played >= 0}
+                    <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{played}/4</button> 
+                {:else}
+                    ?/?
+                {/if}
             </div> 
         </div>
     {/each}
@@ -33,6 +42,10 @@
         display: grid;
         place-items: center;
         margin: 0.1rem;
+    }
+
+    .day div.future {
+        background: #c0c0c0;
     }
 
     .day div.none {

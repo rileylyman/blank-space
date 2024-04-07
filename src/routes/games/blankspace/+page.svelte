@@ -12,8 +12,8 @@
     })
 
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const gameDate = new Date(data.currentSet.publish_on);
-    const gameDateString = `${weekdays[gameDate.getDay()]}, Day ${gameDate.getDay() + 1}`;
+    const gameDate = new Date(data.currentSet.publish_on.split(' ')[0] + ' 00:00:00Z');
+    const gameDateString = `${weekdays[gameDate.getUTCDay()]}, Day ${gameDate.getUTCDay() + 1}`;
 
     let folded = true;
     let foldedHeight = "25%";
@@ -23,10 +23,9 @@
         let now = new Date();
         let nextSetAvail: Date;
         if (data.currentSet.next_set_avail) {
-            nextSetAvail = new Date(data.currentSet.next_set_avail);
+            nextSetAvail = new Date(data.currentSet.next_set_avail.split(' ')[0] + ' 00:00:00 GMT-0700');
         } else {
-            nextSetAvail = new Date(data.currentSet.publish_on);
-            nextSetAvail.setDate(nextSetAvail.getDate() + 1);
+            nextSetAvail = now;
         }
 
         let distance = nextSetAvail.getTime() - now.getTime();
