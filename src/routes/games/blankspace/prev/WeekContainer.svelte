@@ -53,7 +53,7 @@
     }
 
     .day div.some {
-        background: linear-gradient(-90deg, white 50%, white 50%, rgb(80, 194, 104) 50%, rgb(80, 194, 104) 100%);
+        background: linear-gradient(-90deg, white 0%, white 50%, rgb(80, 194, 104) 50%, rgb(80, 194, 104) 100%);
     }
 
     .day div.all {
@@ -67,6 +67,9 @@
         background: none;
         padding: 0;
         display: inline;
+        width: 100%;
+        height: 100%;
+        cursor:pointer;
     }
 
     .day p {

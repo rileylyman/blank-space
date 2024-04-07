@@ -52,6 +52,7 @@
         border-radius: 100%;
         outline: 1px solid black;
         border: none;
+        cursor: pointer;
     }
 
     #root button.lost {

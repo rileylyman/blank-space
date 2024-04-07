@@ -50,17 +50,17 @@
     <div class="buttons">
         <a href={BS_HOME_SKIP}> Go Home </a>
     </div>
+</div>
 
-    <div id="modal" class:active={!!shownProg}>
-        <h1> {weekdays[shownIdx]}, Day {shownIdx + 1}</h1>
-        <div class="pin-container">
-            {#if shownProg}
-                <PinContainer setProgress={shownProg.gameProgs} links={[0, 1, 2, 3].map((n) => bsGameLink(shownProg?.set.id ?? "", n, BS_PREV))} />
-            {/if}
-        </div>
-        <div class="buttons">
-            <button on:click={clearShown}> Back </button>
-        </div>
+<div id="modal" class:active={!!shownProg}>
+    <h1> {weekdays[shownIdx]}, Day {shownIdx + 1}</h1>
+    <div class="pin-container">
+        {#if shownProg}
+            <PinContainer setProgress={shownProg.gameProgs} links={[0, 1, 2, 3].map((n) => bsGameLink(shownProg?.set.id ?? "", n, BS_PREV))} />
+        {/if}
+    </div>
+    <div class="buttons">
+        <button on:click={clearShown}> Back </button>
     </div>
 </div>
 
@@ -83,7 +83,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 100vw;
         height: 100%;
         border-left: 1px solid black;
         transform: translateX(100vw);
@@ -131,5 +131,6 @@
         padding: 0.75rem 1rem;
         border-radius: 0.25rem;
         font-size: 1.2rem;
+        cursor: pointer;
     }
 </style>
