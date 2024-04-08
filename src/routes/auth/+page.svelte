@@ -10,7 +10,7 @@
     export let form;
 
     let state = form?.state ?? "welcome";
-    $: welcomeMessage = state === "welcome" ? 'Welcome Back' : 'Create your account';
+    $: welcomeMessage = state === "welcome" ? 'Welcome Back' : ( state === "signup" ? 'Create your account' : "Log In");
 </script>
 
 <div id="root">
@@ -44,6 +44,7 @@
 
                     <label for="password"> password </label>
                     <input id="password" name="password" type="password" autocomplete="current-password"/>
+                    <a href="/auth/reset"> Forgot password </a>
 
                     <ul>
                         {#each form?.errors ?? [] as e}
@@ -53,6 +54,7 @@
 
                     <button style="margin-top: 3rem" type="submit">Submit</button>
                     <button style="margin-top: 1rem" on:click={() => state = "welcome"}>Go back</button>
+
                 </form>
             {:else if state == "signup"}
                 <form action={AUTH_REGISTER_ACTION} method="POST">
