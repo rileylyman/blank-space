@@ -1,7 +1,7 @@
 <script lang="ts">
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
-    import { BS_HOME_SKIP, BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
+    import { ACCOUNT, BS_HOME_SKIP, BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
 
@@ -18,8 +18,9 @@
     const gameDate = new Date(data.currentSet.publish_on.split(' ')[0] + ' 00:00:00Z');
     const gameDateString = `${weekdays[gameDate.getUTCDay()]}, Day ${gameDate.getUTCDay() + 1}`;
 
+    let menuActive = false;
     let folded = true;
-    let foldedHeight = "25%";
+    let foldedHeight = "15%";
 
     let countdown = "loading...";
     const updateCountdown = () => {
@@ -66,14 +67,25 @@
         <p>{data.maxStreak}</p><p>max. streak</p>
     </div>
     <div class="footer">
-        <a class:unseen={true} href={BS_PREV}>
-            Play Past Games
+        <button class="button unseen" on:click={() => menuActive = true}>
+            Menu
             <div class="noti"> ! </div>
+        </button>
+    </div>
+
+    <div id="modal" class:shown={menuActive}>
+        <a class="button" class:unseen={false} href={BS_PREV}>
+            Play Past Games
+            <!-- <div class="noti"> ! </div> -->
         </a>
-        <a class:unseen={false} href={BS_STATS}>
+        <a class="button" class:unseen={false} href={BS_STATS}>
             See Rankings
             <!-- <div class="noti"> ! </div> -->
         </a>
+        <a class="button" class:unseen={false} href={ACCOUNT}>
+            Account Settings
+        </a>
+        <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
 </div>
 
@@ -86,8 +98,30 @@
         height: 100vh;
         height: 100svh;
         display: grid;
-        grid-template-rows: 25% 3rem 1rem 1fr 6.5rem 5rem 4rem;
+        grid-template-rows: 15% 3rem 1rem 1fr 6.5rem 5rem 4rem;
         place-items: stretch;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #modal {
+        position: absolute;
+        height: 85%;
+        width: 100%;
+        top: 15%;
+        left: 0;
+        transform: translateX(100vw);
+        background: white;
+        z-index: 2;
+        transition: transform 300ms;
+        display: grid;
+        place-items: center;
+        padding-top: 30%;
+        grid-template-rows: 15% 15% 15% 45%;
+    }
+
+    #modal.shown {
+        transform: none;
     }
 
     .stats {
@@ -163,48 +197,36 @@
     .footer {
         display: grid;
         place-items: center;
-        align-items: end;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 5%;
         padding-bottom: 1rem;
     }
 
-    .footer a {
+    .button {
         background: rgb(234, 234, 234);
         outline: none;
         border: 1px solid black;
         border-radius: 0.25rem;
-        width: 80%;
+        width: 75%;
         height: 2.75rem;
         padding: 0;
         font-size: 1.5rem;
-        justify-self: end;
         color: black;
         text-decoration: none;
-        justify-self: end;
-    }
-
-    .footer a {
-        font-size: 1rem;
         white-space: nowrap;
         display: grid;
         place-items: center;
         position: relative;
     }
 
-    .footer a:last-of-type {
-        justify-self: start;
-    }
-
-    .footer a.unseen {
+    .button.unseen {
         background-color: rgb(246, 235, 115);
     }
 
-    .footer a .noti {
+    .button .noti {
         display: none;
+        font-size: 1rem;
     }
 
-    .footer a.unseen .noti {
+    .button.unseen .noti {
         display: block;
         border-radius: 100%;
         width: 1.3rem;
