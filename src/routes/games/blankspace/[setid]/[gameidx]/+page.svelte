@@ -17,6 +17,7 @@
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
     let invalidWordError = "";
     let invalidWordResetTimeout: NodeJS.Timeout | null = null;
+    let breakHidden = true;
 
     let lastResponse: BsResponse | null = null;
 
@@ -30,6 +31,8 @@
             return;
         }
         recalculateFlippedAndRevealed(true);
+
+        setTimeout(() => breakHidden = false, 4000);
 
         fetch("/api/dictionary").then(res => res.json().then(res => {
             if (res.wordList) {
@@ -148,8 +151,8 @@
         <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordList.length ? "white" : "red"}`} />
     {/if}
     <div class="top-bar">
-        <a class="break" href={data.from}>
-            Pause Game
+        <a class="break" href={data.from} class:hidden={breakHidden}>
+            Take a Break
         </a>
     </div>
     <div class="card-container">
@@ -221,8 +224,13 @@
         text-transform: uppercase;
         text-decoration: none;
         color: black;
+        transition: opacity 1000ms;
+        margin-left: 0.1rem;
     }
 
+    .break.hidden {
+        opacity: 0; 
+    }
 
     .card-container {
         display: grid;

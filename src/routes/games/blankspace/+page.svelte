@@ -23,7 +23,6 @@
 
     let countdown = "loading...";
     const updateCountdown = () => {
-        console.log("starting");
         let now = new Date();
         let nextSetAvail: Date;
         if (data.currentSet.next_set_avail) {
@@ -39,7 +38,6 @@
         let rsec = Math.floor(Math.max((distance % (1000 * 60)) / 1000, 0));
 
         countdown = `${rhr > 0 ? rhr + "h " : ""}${rmin > 0 ? + rmin + "m " : ""}${rsec + "s"}`;
-        console.log(countdown);
     }
 
 </script>
