@@ -5,25 +5,27 @@
     import WeekContainer from "./WeekContainer.svelte";
     import { preloadData, replaceState } from "$app/navigation";
     import { page } from "$app/stores";
+    import { browser } from "$app/environment";
 
     export let data;
 
     let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-    let shownIdx: number = parseInt($page.url.searchParams.get("show") ?? "-1");
+    let shownIdx = browser 
+        ? parseInt(document.cookie.split(";").find((c) => c.includes("prevShow"))?.split("=").at(1) ?? "-1")
+        : -1;
     $: shownProg = shownIdx < 0 ? null : data.lastDp.concat(data.thisDp).at(shownIdx);
     const onSetClicked = (idx: number) => {
         shownIdx = idx;
+        document.cookie = "prevShow=" + idx;
     }
     const clearShown = () => {
         shownIdx = -1;
+        document.cookie = "prevShow=-1";
     }
 
     onMount(() => {
         preloadData(BS_HOME_SKIP);
-        let path = `${$page.url.origin}${$page.url.pathname}`;
-        // window.history.pushState({ path }, '', path);
-        replaceState(path, {});
     })
 
 </script>
@@ -67,7 +69,7 @@
             <PinContainer
                 setProgress={shownProg.gameProgs}
                 links={[0, 1, 2, 3].map((n) => 
-                    bsGameLink(shownProg?.set.id ?? "", n, `${BS_PREV}?show=${shownIdx}`))}
+                    bsGameLink(shownProg?.set.id ?? "", n, BS_PREV))}
             />
         {/if}
     </div>
