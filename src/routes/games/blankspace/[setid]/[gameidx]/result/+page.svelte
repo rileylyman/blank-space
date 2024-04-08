@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { preloadData } from "$app/navigation";
     import { bsFeedbackLink } from "$lib/links";
     import GuessTable from "$lib/ui/GuessTable.svelte";
     import { fitText } from "$lib/utils.js";
@@ -14,7 +15,8 @@
     $: guesses = hints.map(({ guess }) => guess);
 
     onMount(() => {
-        onResize;
+        preloadData(data.from);
+        onResize();
     })
 
     let root: HTMLElement;

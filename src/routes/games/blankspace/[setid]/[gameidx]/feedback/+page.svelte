@@ -2,7 +2,7 @@
     import { enhance } from "$app/forms";
     import Fa from 'svelte-fa';
     import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';;;;
-    import { goto } from "$app/navigation";
+    import { goto, preloadData } from "$app/navigation";
     import GuessTable from "$lib/ui/GuessTable.svelte";
     import { onMount } from "svelte";
     import { fitText } from "$lib/utils.js";
@@ -46,6 +46,7 @@
     }
 
     onMount(() => {
+        preloadData(data.from);
         onResize();
     })
 

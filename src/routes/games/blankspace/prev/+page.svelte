@@ -1,8 +1,10 @@
 <script lang="ts">
     import { BS_HOME_SKIP, BS_PREV, bsGameLink } from "$lib/links";
     import PinContainer from "$lib/ui/PinContainer.svelte";
+    import { onMount } from "svelte";
     import WeekContainer from "./WeekContainer.svelte";
     import { type DayProgress } from './common';
+    import { preloadData } from "$app/navigation";
 
     export let data;
 
@@ -17,6 +19,10 @@
     const clearShown = () => {
         shownProg = null;
     }
+
+    onMount(() => {
+        preloadData(BS_HOME_SKIP);
+    })
 
 </script>
 

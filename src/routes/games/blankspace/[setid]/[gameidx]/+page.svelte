@@ -106,9 +106,8 @@
         const guess = hints[flippedHint].guess;
         await submitGuess(guess);
 
-
         if (won || lost) {
-            handleWonOrLost();
+            await handleWonOrLost();
         }
 
         if (won || lost || invalidWordError) {

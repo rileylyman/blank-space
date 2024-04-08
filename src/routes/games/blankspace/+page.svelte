@@ -9,6 +9,8 @@
 
     onMount(() => {
         data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx, BS_HOME_SKIP)));
+        preloadData(BS_PREV);
+        preloadData(BS_STATS);
         updateCountdown();
         let countdownInterval = setInterval(updateCountdown, 1000);
         return () => clearInterval(countdownInterval);

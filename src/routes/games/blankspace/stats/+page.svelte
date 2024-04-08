@@ -2,7 +2,7 @@
     import { BS_HOME_SKIP } from "$lib/links";
     import BarPlot from "$lib/ui/BarPlot.svelte";
     import { onMount, tick } from "svelte";
-    import { goto } from "$app/navigation";
+    import { goto, preloadData } from "$app/navigation";
 
     export let data;
     let entryHeight: number;
@@ -10,6 +10,7 @@
 
     onMount(() => {
         select("this", 300);
+        preloadData(BS_HOME_SKIP);
     })
 
     const select = async (week: "this" | "last", timeout: number) => {
