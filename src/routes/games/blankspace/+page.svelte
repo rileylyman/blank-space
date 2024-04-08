@@ -206,6 +206,7 @@
         border: 1px solid black;
         border-radius: 0.25rem;
         width: 75%;
+        max-width: 25rem;
         height: 2.75rem;
         padding: 0;
         font-size: 1.5rem;
