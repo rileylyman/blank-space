@@ -34,7 +34,7 @@ export const load = async (event: ServerLoadEvent) => {
             .filter((p) => p.bs_game_set === set.id && (p.won || p.lost));
         let gameProgs = new Array<GameProgress>();
         for (let gameId of set.games) {
-            gameProgs.push(progressToEnum(played.find((p) => p.bs_game === gameId)));
+            gameProgs.push(progressToEnum(progs.find((p) => p.bs_game === gameId)));
         }
         arr.push({
             set,

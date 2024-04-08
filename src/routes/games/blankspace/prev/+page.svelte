@@ -3,25 +3,27 @@
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { onMount } from "svelte";
     import WeekContainer from "./WeekContainer.svelte";
-    import { type DayProgress } from './common';
-    import { preloadData } from "$app/navigation";
+    import { preloadData, replaceState } from "$app/navigation";
+    import { page } from "$app/stores";
 
     export let data;
 
     let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-    let shownProg: DayProgress | null = null;
-    let shownIdx: number = 0;
-    const onSetClicked = (prog: DayProgress, idx: number) => {
-        shownProg = prog;
+    let shownIdx: number = parseInt($page.url.searchParams.get("show") ?? "-1");
+    $: shownProg = shownIdx < 0 ? null : data.lastDp.concat(data.thisDp).at(shownIdx);
+    const onSetClicked = (idx: number) => {
         shownIdx = idx;
     }
     const clearShown = () => {
-        shownProg = null;
+        shownIdx = -1;
     }
 
     onMount(() => {
         preloadData(BS_HOME_SKIP);
+        let path = `${$page.url.origin}${$page.url.pathname}`;
+        // window.history.pushState({ path }, '', path);
+        replaceState(path, {});
     })
 
 </script>
@@ -39,7 +41,7 @@
             Play all your games for the best score!
         </p>
         <div class="week-container">
-            <WeekContainer on:clicked={(e) => onSetClicked(e.detail.prog, e.detail.idx)} dps={data.thisDp} />
+            <WeekContainer on:clicked={(e) => onSetClicked(e.detail.idx + 7)} dps={data.thisDp} />
         </div>
     </div>
     <div class="week">
@@ -50,7 +52,7 @@
             Last week's score is final, finish games for fun.
         </p>
         <div class="week-container">
-            <WeekContainer on:clicked={(e) => onSetClicked(e.detail.prog, e.detail.idx)} dps={data.lastDp} />
+            <WeekContainer on:clicked={(e) => onSetClicked(e.detail.idx)} dps={data.lastDp} />
         </div>
     </div>
     <div class="buttons">
@@ -59,10 +61,14 @@
 </div>
 
 <div id="modal" class:active={!!shownProg}>
-    <h1> {weekdays[shownIdx]}, Day {shownIdx + 1}</h1>
+    <h1> {weekdays[shownIdx % 7]}, Day {(shownIdx % 7) + 1}</h1>
     <div class="pin-container">
         {#if shownProg}
-            <PinContainer setProgress={shownProg.gameProgs} links={[0, 1, 2, 3].map((n) => bsGameLink(shownProg?.set.id ?? "", n, BS_PREV))} />
+            <PinContainer
+                setProgress={shownProg.gameProgs}
+                links={[0, 1, 2, 3].map((n) => 
+                    bsGameLink(shownProg?.set.id ?? "", n, `${BS_PREV}?show=${shownIdx}`))}
+            />
         {/if}
     </div>
     <div class="buttons">
