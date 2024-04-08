@@ -6,11 +6,11 @@
         AUTH_REGISTER_ACTION
     } from '$lib/links';
 
-    $: welcomeMessage = state === "welcome" ? 'Welcome Back' : 'Create your account';
-
     export let data;
     export let form;
-    let state = "welcome";
+
+    let state = form?.state ?? "welcome";
+    $: welcomeMessage = state === "welcome" ? 'Welcome Back' : 'Create your account';
 </script>
 
 <div id="root">
