@@ -1,5 +1,4 @@
 import { type RequestEvent, redirect, fail } from '@sveltejs/kit';
-import { State } from '$lib/loginstate';
 import { AUTH_VERIFY, AUTH_HOME } from '$lib/links.js';
 
 const redirectMe = async (event: RequestEvent) => {
@@ -27,7 +26,7 @@ export const actions = {
         const password = form.get('password')?.toString();
 
         let ret = {
-            state: State.LogIn,
+            state: "login",
             email: emailOrUsername,
             errors: new Array<string>(),
         };
@@ -59,7 +58,7 @@ export const actions = {
         const password = form.get('password')?.toString();
         const passwordConfirm = form.get('passwordConfirm')?.toString();
         let ret = {
-            state: State.SignUp,
+            state: "signup",
             email,
             emailConfirm: "",
             username,
@@ -105,6 +104,7 @@ export const actions = {
     },
     logout: async (event: RequestEvent) => {
         event.locals.pb.authStore.clear();
+        event.locals.wantsLogout = true;
     },
     redirect_me: redirectMe,
 }

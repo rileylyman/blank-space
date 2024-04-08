@@ -5,6 +5,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			pb: TypedPocketBase;
+			wantsLogout: boolean | undefined;
 		}
 		interface PageData {
 			pbUser: PbUser?;

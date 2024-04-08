@@ -84,9 +84,9 @@
             See Rankings
             <!-- <div class="noti"> ! </div> -->
         </a>
-        <!-- <a class="button" class:unseen={false} href={ACCOUNT}>
+        <a class="button" class:unseen={false} href={ACCOUNT}>
             Account Settings
-        </a> -->
+        </a>
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
 </div>
@@ -119,7 +119,7 @@
         display: grid;
         place-items: center;
         padding-top: 30%;
-        grid-template-rows: 15% 15% 60%;
+        grid-template-rows: 15% 15% 15% 45%;
     }
 
     #modal.shown {

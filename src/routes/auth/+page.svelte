@@ -4,21 +4,18 @@
         AUTH_LOGOUT_ACTION,
         AUTH_LOGIN_ACTION,
         AUTH_REGISTER_ACTION
-    } from '$lib/links.js';
-    import { State } from '$lib/loginstate';
+    } from '$lib/links';
 
-    let error = "";
-    let allowPasswordReset = true;
-    $: welcomeMessage = state == State.LogIn ? 'Welcome Back' : 'Create your account';
+    $: welcomeMessage = state === "welcome" ? 'Welcome Back' : 'Create your account';
 
     export let data;
     export let form;
-    let state = form?.state ?? State.Prompt;
+    let state = "welcome";
 </script>
 
 <div id="root">
     <h1> Slappy Games </h1>
-    {#if state == State.Prompt}
+    {#if state === "welcome"}
         {#if data.pbUser}
             <h2> Welcome back, {data.pbUser.username}! </h2>
             <div class="login">
@@ -31,23 +28,16 @@
             </div>
         {:else}
             <div class="login">
-                <button on:click={() => state = State.LogIn}>Log in</button>
-                <button on:click={() => state = State.SignUp}>Sign up</button>
+                <button on:click={() => state = "login"}>Log in</button>
+                <button on:click={() => state = "signup"}>Sign up</button>
                 <button class="inactive" style="margin-top: 2rem"> Continue as guest </button>
             </div>
         {/if}
-    {:else if state == State.PasswordReset}
-        <div class="login">
-            <h2> Password reset </h2>
-            <label for="email"> email </label>
-            <input id="email" type="text" />
-            <button on:click={() => error = "Incorrect email or password"}>Submit</button>
-        </div>
     {:else}
         <div class="login">
             <h2> {welcomeMessage} </h2>
 
-            {#if state == State.LogIn}
+            {#if state === "login"}
                 <form action={AUTH_LOGIN_ACTION} method="POST">
                     <label for="email"> email/username </label>
                     <input id="email" name="email" type="text" autocomplete="username" value={form?.email ?? ''}/>
@@ -62,9 +52,9 @@
                     </ul>
 
                     <button style="margin-top: 3rem" type="submit">Submit</button>
-                    <button style="margin-top: 1rem" on:click={() => state = State.Prompt}>Go back</button>
+                    <button style="margin-top: 1rem" on:click={() => state = "welcome"}>Go back</button>
                 </form>
-            {:else if state == State.SignUp}
+            {:else if state == "signup"}
                 <form action={AUTH_REGISTER_ACTION} method="POST">
                     <label for="username"> username </label>
                     <input id="username" name="username" type="text" autocomplete="username" value={form?.username ?? ''} />
@@ -88,22 +78,9 @@
                     </ul>
 
                     <button style="margin-top: 0.5rem" type="submit">Submit</button>
-                    <button style="margin-top: 0.5rem" on:click={() => state = State.Prompt}>Go back</button>
+                    <button style="margin-top: 0.5rem" on:click={() => state = "welcome"}>Go back</button>
                 </form>
             {/if}
-            
-            <p class:hidden={!error}> {error}
-                {#if allowPasswordReset}
-                    <br /> 
-                    <button 
-                        class="reset-password" 
-                        on:click={() => state = State.PasswordReset}
-                    >
-                        Reset your password
-                    </button> 
-                {/if}
-            </p>
-
         </div>
     {/if}
     <div />
@@ -163,20 +140,6 @@
         border-radius: 0.5rem;
         height: 3rem;
         width: 80%;
-    }
-
-    .hidden {
-        visibility: hidden;
-    }
-
-    .reset-password {
-        color: blue;
-        text-decoration: underline;
-        outline: none;
-        background: white;
-        margin: 0 !important;
-        border: none;
-        display: inline;
     }
 
     form {

@@ -27,7 +27,7 @@ export const handle = async ({event, resolve}) => {
 
     const response = await resolve(event);
 
-    if (pb.authStore.isValid) {
+    if (pb.authStore.isValid || event.locals.wantsLogout) {
         response.headers.append('set-cookie', event.locals.pb.authStore.exportToCookie());
     }
     if (process.env.NODE_ENV === 'development') {
