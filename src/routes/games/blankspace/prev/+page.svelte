@@ -3,8 +3,7 @@
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { onMount } from "svelte";
     import WeekContainer from "./WeekContainer.svelte";
-    import { preloadData, replaceState } from "$app/navigation";
-    import { page } from "$app/stores";
+    import { preloadData} from "$app/navigation";
     import { browser } from "$app/environment";
 
     export let data;
