@@ -60,7 +60,7 @@
         width: 100vw; 
         height: 100vh;
         height: 100svh;
-        max-width: 50rem;
+        max-width: 30rem;
         margin: 0 auto;
         display: grid;
         grid-template-rows: 1fr 3rem 1fr 1.25fr 0.75fr;

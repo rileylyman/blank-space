@@ -70,7 +70,7 @@
     </div>
     <div class="footer">
         <button class="button unseen" on:click={() => menuActive = true}>
-            Menu
+            Rankings/Settings
             <div class="noti"> ! </div>
         </button>
     </div>
@@ -95,7 +95,7 @@
     #root {
         background: white;
         width: 100vw;
-        max-width: 50rem;
+        max-width: 30rem;
         margin: 0 auto;
         height: 100vh;
         height: 100svh;

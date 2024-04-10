@@ -199,7 +199,7 @@
     #root {
         height: 100vh;
         height: 100svh;
-        max-width: 50rem;
+        max-width: 30rem;
         margin: 0 auto;
         display: grid;
         grid-template-rows: 6rem 10rem 9rem 1fr;
@@ -242,10 +242,9 @@
         display: grid;
         align-items: start;
         justify-items: center;
-        width: calc(min(90vw, 45rem));
-        margin: 0 calc(min(5vw, 2.5rem));
+        width: calc(min(90vw, 27rem));
+        margin: 0 calc(min(5vw, 1.5rem));
         height: 100%;
-        max-width: 50rem;
         background: transparent;
         transition: transform 500ms ease-in-out;
     }
