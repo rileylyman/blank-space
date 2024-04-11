@@ -26,12 +26,12 @@ export const bsGameHints = (g: BsGame): string[] =>
     [g.hint1, g.hint2, g.hint3, g.hint4, g.pity_hint];
 
 export const bsGameAllLowercase = (g: BsGame) => {
-      g.target = g.target.toLocaleLowerCase();
-      g.hint1 = g.hint1.toLocaleLowerCase();
-      g.hint2 = g.hint2.toLocaleLowerCase();
-      g.hint3 = g.hint3.toLocaleLowerCase();
-      g.hint4 = g.hint4.toLocaleLowerCase();
-      g.pity_hint = g.pity_hint.toLocaleLowerCase();
+      g.target = g.target.toLocaleLowerCase().trim();
+      g.hint1 = g.hint1.toLocaleLowerCase().trim();
+      g.hint2 = g.hint2.toLocaleLowerCase().trim();
+      g.hint3 = g.hint3.toLocaleLowerCase().trim();
+      g.hint4 = g.hint4.toLocaleLowerCase().trim();
+      g.pity_hint = g.pity_hint.toLocaleLowerCase().trim();
 }
 
 export const censorGame = (game: BsGame) => {

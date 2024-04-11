@@ -67,8 +67,8 @@ export const updateGameState = async (
     let won = hasWon || guess === game.target;
 
     const cleanHint = (guess: string, i: number) => {
-        const hint = fullHints[i].replace(game?.target ?? "", '').trim();
-        const before = fullHints[i].indexOf(game?.target ?? "") < fullHints[i].indexOf(hint);
+        const hint = fullHints[i].replace(game.target, '').trim();
+        const before = fullHints[i].indexOf(game.target) < fullHints[i].indexOf(hint);
         return { hint, before, guess, submitted: !!guess };
     }
 
