@@ -4,6 +4,7 @@
     import { ACCOUNT, BS_HOME_SKIP, BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
+    import { page } from "$app/stores";
 
     export let data;
 
@@ -11,6 +12,11 @@
         data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx, BS_HOME_SKIP)));
         preloadData(BS_PREV);
         preloadData(BS_STATS);
+
+        if ($page.url.searchParams.get("menu") === 'true') {
+            menuActive = true;
+        }
+
         updateCountdown();
         let countdownInterval = setInterval(updateCountdown, 1000);
         return () => clearInterval(countdownInterval);

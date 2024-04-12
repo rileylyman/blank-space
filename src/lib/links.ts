@@ -1,5 +1,6 @@
 export const BS_HOME = "/games/blankspace";
 export const BS_HOME_SKIP = "/games/blankspace?skip=true";
+export const BS_HOME_SKIP_MENU = "/games/blankspace?skip=true&menu=true";
 export const BS_STATS = "/games/blankspace/stats";
 export const BS_RANKINGS = "/games/blankspace/rankings";
 export const BS_PREV = "/games/blankspace/prev";
