@@ -84,12 +84,13 @@
         font-weight: bold;
         background: black;
         height: 3rem;
-        width: 50%;
+        width: 70%;
         display: block;
         margin: 2rem auto;
         font-size: 1.2rem;
         display: grid;
         place-items: center;
+        white-space: nowrap;
     }
 
     button.inactive {
