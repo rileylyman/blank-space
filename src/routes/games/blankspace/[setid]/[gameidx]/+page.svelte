@@ -8,6 +8,8 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
+    import Fa from 'svelte-fa';
+    import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
     export let data;
 
@@ -24,6 +26,7 @@
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
+    $: showHints = [false, false, false, false, false];
 
     onMount(async () => {
         if (won || lost) {
@@ -176,9 +179,21 @@
                 </div>
                 <button class="back-side">
                     {#if submitted && before}
-                        <div> <span class:skipped={guess === ".skipped"}> {guess.replace(".", "")} </span> {hint}  </div>
+                        <div>
+                            <span>
+                                <button on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></button>
+                                {showHints[idx] ? guess : "______"}
+                            </span> 
+                            {hint}
+                        </div>
                     {:else if submitted}
-                        <div> {hint} <span class:skipped={guess === ".skipped"}> {guess.replace(".", "")} </span> </div>
+                        <div>
+                            {hint}
+                            <span>
+                                {showHints[idx] ? guess : "______"}
+                                <button on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></button>
+                            </span> 
+                        </div>
                     {:else}
                         <div />
                     {/if}
@@ -301,12 +316,16 @@
     .back-side div span {
         font-weight: bold;
         color: red;
+        display: inline-flex;
     }
 
-    .back-side div span.skipped {
-        font-style: italic;
-        color: black;
-        font-size: 0.7rem;
+    .back-side div span button {
+        outline: none;
+        background: none;
+        border: none;
+        color: red;
+        font-size: 0.8rem;
+        padding: 0.3rem;
     }
 
     .hint-shown > .hint-side {
