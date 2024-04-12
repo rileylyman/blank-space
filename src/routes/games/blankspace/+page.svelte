@@ -1,7 +1,7 @@
 <script lang="ts">
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
-    import { ACCOUNT, BS_HOME_SKIP, BS_PREV, BS_STATS, bsGameLink } from "$lib/links";
+    import { ACCOUNT, BS_HOME_SKIP, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { page } from "$app/stores";
@@ -12,6 +12,8 @@
         data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx, BS_HOME_SKIP)));
         preloadData(BS_PREV);
         preloadData(BS_STATS);
+        preloadData(BS_RANKINGS);
+        preloadData(ACCOUNT);
 
         if ($page.url.searchParams.get("menu") === 'true') {
             menuActive = true;
@@ -68,12 +70,6 @@
         <p> Score Today </p> <p> Score This Week</p>
         <div> {data.currentScore} </div> <div> {data.weekScore} </div>
     </div>
-    <div class="stats"> 
-        <p>{data.totalGames}</p><p>total games</p>
-        <p>{data.winPct}%</p><p>win rate</p>
-        <p>{data.streak}</p><p>streak</p>
-        <p>{data.maxStreak}</p><p>max. streak</p>
-    </div>
     <div class="footer">
         <button class="button unseen" on:click={() => menuActive = true}>
             Rankings/Settings
@@ -82,12 +78,18 @@
     </div>
 
     <div id="modal" class:shown={menuActive}>
+        <h1> MENU </h1>
+
         <a class="button" class:unseen={false} href={BS_PREV}>
             Play Past Games
             <!-- <div class="noti"> ! </div> -->
         </a>
+        <a class="button" class:unseen={false} href={BS_RANKINGS}>
+            Rankings
+            <!-- <div class="noti"> ! </div> -->
+        </a>
         <a class="button" class:unseen={false} href={BS_STATS}>
-            See Rankings
+            Your Stats
             <!-- <div class="noti"> ! </div> -->
         </a>
         <a class="button" class:unseen={false} href={ACCOUNT}>
@@ -106,7 +108,7 @@
         height: 100vh;
         height: 100svh;
         display: grid;
-        grid-template-rows: 15% 3rem 1rem 1fr 6.5rem 5rem 4rem;
+        grid-template-rows: 15% 3rem 1rem 1fr 6.5rem 4rem;
         place-items: stretch;
         position: relative;
         overflow: hidden;
@@ -122,42 +124,29 @@
         background: white;
         z-index: 2;
         transition: transform 300ms;
-        display: grid;
-        place-items: center;
-        padding-top: 30%;
-        grid-template-rows: 15% 15% 15% 45%;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        padding-bottom: 10%;
+        padding-top: 10%;
     }
 
     #modal.shown {
         transform: none;
     }
 
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        place-items: center;
-        width: 85%;
-        place-self: center;
-        font-size: 1.2rem;
+    #modal h1 {
+        margin-bottom: auto;
+        font-size: 3rem;
+        font-weight: 600;
     }
 
-    .stats p {
-        text-align: center; 
-        font-size: 1.2em;
-        text-transform: uppercase;
-        white-space: nowrap;
+    #modal .button {
+        margin-bottom: 1rem;
     }
 
-    .stats p:nth-child(even) {
-        grid-row: 2;
-        font-size: 0.7em;
-        align-self: start;
-        font-weight: bold;
-    }
-
-    .stats p:nth-child(odd) {
-        grid-row: 1;
-        align-self: end;
+    #modal .button:last-child {
+        margin-top: auto;
     }
 
     .game-date {
@@ -209,15 +198,16 @@
     }
 
     .button {
-        background: rgb(234, 234, 234);
+        background: #c0c0c0;
         outline: none;
-        border: 1px solid black;
+        border: none;
         border-radius: 0.25rem;
         width: 75%;
         max-width: 25rem;
         height: 2.75rem;
         padding: 0;
         font-size: 1.5rem;
+        font-weight: 400;
         color: black;
         text-decoration: none;
         white-space: nowrap;
@@ -228,6 +218,7 @@
 
     .button.unseen {
         background-color: rgb(246, 235, 115);
+        border: 1px solid black;
     }
 
     .button .noti {

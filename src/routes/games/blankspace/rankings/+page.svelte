@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { BS_HOME_SKIP, BS_STATS } from "$lib/links";
+    import { BS_HOME_SKIP_MENU, BS_STATS } from "$lib/links";
     import { onMount, tick } from "svelte";
-    import { goto, preloadData } from "$app/navigation";
+    import { preloadData } from "$app/navigation";
 
     export let data;
     let entryHeight: number;
@@ -9,7 +9,7 @@
 
     onMount(() => {
         select("this", 300);
-        preloadData(BS_HOME_SKIP);
+        preloadData(BS_HOME_SKIP_MENU);
         preloadData(BS_STATS);
     })
 
@@ -90,8 +90,8 @@
         {/each}
     </div>
     <div class="buttons">
-        <a href={BS_HOME_SKIP}> Go Home </a>
-        <button on:click={() => goto("#bars")}> See More </button>
+        <a href={BS_HOME_SKIP_MENU}> Back </a>
+        <a href={BS_STATS}> See Stats </a>
     </div>
 </div>
 
@@ -107,8 +107,8 @@
         margin: 0 auto;
         display: grid;
         place-items: center;
-        grid-template-rows: 10vh 25vh 55vh 10vh;
-        grid-template-rows: 10svh 25svh 55svh 10svh;
+        grid-template-rows: 10vh 25vh 40vh 25vh;
+        grid-template-rows: 10svh 25svh 40svh 25svh;
     }
 
     @media (width >= 50rem) {
@@ -232,20 +232,22 @@
     }
 
     .buttons {
-        width: 100%;
-        display: flex;
-        justify-content: center;
+        display: grid;
+        place-items: center;
+        grid-template-columns: 50% 50%;
+        width: 80%;
+        margin: 0 auto;
+        text-align: center;
     }
 
-    .buttons a, .buttons button {
-        outline: none;
-        border: none;
-        padding: 0.5rem 1rem;
-        font-size: 1.25rem;
+    .buttons a {
         background: #c0c0c0;
-        border-radius: 0.25rem;
-        color: black;
-        margin: 0 1rem;
         text-decoration: none;
+        color: black;
+        font-weight: 600;
+        border-radius: 0.25rem;
+        width: 90%; 
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
     }
 </style>

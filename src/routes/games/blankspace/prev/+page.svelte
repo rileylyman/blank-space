@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { BS_HOME_SKIP, BS_PREV, bsGameLink } from "$lib/links";
+    import { BS_HOME_SKIP_MENU, BS_PREV, bsGameLink } from "$lib/links";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { onMount } from "svelte";
     import WeekContainer from "./WeekContainer.svelte";
@@ -24,7 +24,7 @@
     }
 
     onMount(() => {
-        preloadData(BS_HOME_SKIP);
+        preloadData(BS_HOME_SKIP_MENU);
     })
 
 </script>
@@ -57,7 +57,7 @@
         </div>
     </div>
     <div class="buttons">
-        <a href={BS_HOME_SKIP}> Go Home </a>
+        <a href={BS_HOME_SKIP_MENU}> Go Home </a>
     </div>
 </div>
 
