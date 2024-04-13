@@ -10,7 +10,6 @@
     onMount(() => {
         select("this", 300);
         preloadData(BS_HOME_SKIP_MENU);
-        preloadData(BS_STATS);
     })
 
     const select = async (week: "this" | "last", timeout: number) => {

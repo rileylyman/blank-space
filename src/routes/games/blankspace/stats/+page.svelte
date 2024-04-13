@@ -8,7 +8,6 @@
 
     onMount(() => {
         preloadData(BS_HOME_SKIP_MENU);
-        preloadData(BS_RANKINGS);
     })
 
     const won = data.stats.won_games ?? 0;

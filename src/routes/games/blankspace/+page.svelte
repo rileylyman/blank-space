@@ -9,11 +9,7 @@
     export let data;
 
     onMount(() => {
-        data.currentSet.games.forEach((_, idx) => preloadData(bsGameLink(data.currentSet.id, idx, BS_HOME_SKIP)));
-        preloadData(BS_PREV);
         preloadData(BS_STATS);
-        preloadData(BS_RANKINGS);
-        preloadData(ACCOUNT);
 
         if ($page.url.searchParams.get("menu") === 'true') {
             menuActive = true;
