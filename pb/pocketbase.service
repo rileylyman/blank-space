@@ -1,0 +1,16 @@
+[Unit]
+Description = pocketbase
+
+[Service]
+Type           = simple
+User           = root
+Group          = root
+LimitNOFILE    = 4096
+Restart        = always
+RestartSec     = 5s
+StandardOutput = append:/home/ec2-user/errors.log
+StandardError  = append:/home/ec2-user/errors.log
+ExecStart      = /home/ec2-user/pocketbase serve pb.slappygames.com
+
+[Install]
+WantedBy = multi-user.target
