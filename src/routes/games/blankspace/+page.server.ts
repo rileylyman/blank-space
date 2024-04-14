@@ -3,9 +3,6 @@ import { censorGame, GameProgress, progressToEnum } from "$lib/schema";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
-    const stats = (await event.locals.pb
-        .collection('bs_stats')
-        .getFullList({ fetch: event.fetch, filter: `user = "${userId}"`}))[0];
     const currentSet = (await event.locals.pb
         .collection('bs_current_set')
         .getFullList({ fetch: event.fetch, expand: 'games' }))[0];
@@ -16,9 +13,6 @@ export const load = async (event: ServerLoadEvent) => {
         .collection('bs_this_week_scores')
         .getFullList({ fetch, filter: `user = "${userId}"` })).at(0);
 
-    const wonGames = stats.won_games ?? 0;
-    const totalGames = stats.total_games ?? 0;
-    const winPct = Math.round((wonGames / Math.max(totalGames, 1)) * 100);
     const currentScore = progs.reduce((prev: number, p) => prev + p.score, 0);
     const weekScore = standing?.total_score ?? 0;
 
@@ -34,13 +28,9 @@ export const load = async (event: ServerLoadEvent) => {
     }
 
     return {
-        totalGames,
-        winPct,
         currentSet,
         currentScore,
         weekScore,
         setProgress,
-        streak: stats.current_streak ?? 0,
-        maxStreak: stats.max_streak ?? 0,
     }
 }

@@ -120,11 +120,9 @@ export interface BsGameSet {
 
 export interface BsStats {
     user: string;
-    avg_score: number | null;
-    max_streak: number | null;
-    current_streak: number | null;
-    total_games: number | null;
-    won_games: number | null;
+    avg_score: number;
+    total_games: number;
+    won_games: number;
     gd1: number | null;
     gd2: number | null;
     gd3: number | null;

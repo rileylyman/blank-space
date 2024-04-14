@@ -15,14 +15,14 @@ export const load = async (event: ServerLoadEvent) => {
 
     const stats = (await event.locals.pb
         .collection('bs_stats')
-        .getFullList({ fetch: event.fetch, filter: `user = "${userId}"`}))[0];
+        .getFullList({ fetch: event.fetch, filter: `user = "${userId}"`})).at(0);
 
     const bars = new Map<string, number>();
-    bars.set("1st", stats.gd1 ?? 0)
-    bars.set("2nd", stats.gd2 ?? 0)
-    bars.set("3rd", stats.gd3 ?? 0)
-    bars.set("4th", stats.gd4 ?? 0)
-    bars.set("5th", stats.gd5 ?? 0)
+    bars.set("1st", stats?.gd1 ?? 0)
+    bars.set("2nd", stats?.gd2 ?? 0)
+    bars.set("3rd", stats?.gd3 ?? 0)
+    bars.set("4th", stats?.gd4 ?? 0)
+    bars.set("5th", stats?.gd5 ?? 0)
 
     return {
         bars,

@@ -10,10 +10,10 @@
         preloadData(BS_HOME_SKIP_MENU);
     })
 
-    const won = data.stats.won_games ?? 0;
-    const total = data.stats.total_games ?? 1;
+    const won = data.stats?.won_games ?? 0;
+    const total = data.stats?.total_games ?? 1;
     $: winRate = Math.round((won / total) * 100);
-    $: avgScore = Math.round((data.stats.avg_score ?? 0));
+    $: avgScore = Math.round((data.stats?.avg_score ?? 0));
 </script>
 
 <div id="root">
@@ -23,7 +23,7 @@
         <BarPlot bars={data.bars} allowTruncate={false} />
     </div>
     <div class="stats">
-        <p>Total Games <span>{data.stats.total_games}</span></p>
+        <p>Total Games <span>{data.stats?.total_games ?? 0}</span></p>
         <p>Win Rate <span>{winRate}%</span></p>
         <p>Avg. Single Score <span>{avgScore}/25</span></p>
         <p>This Week's Score <span>{data.thisWeekScore}</span></p>
