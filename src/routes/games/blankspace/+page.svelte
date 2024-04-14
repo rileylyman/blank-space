@@ -9,7 +9,7 @@
     export let data;
 
     onMount(() => {
-        preloadData(BS_STATS);
+        preloadData(BS_RANKINGS);
 
         if ($page.url.searchParams.get("menu") === 'true') {
             menuActive = true;
