@@ -79,7 +79,7 @@ export const actions = {
             await event.locals.pb.collection('users').create({
                 username,
                 email,
-                emailVisibility: true,
+                emailVisibility: false,
                 password,
                 passwordConfirm,
                 verified: false,
