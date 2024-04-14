@@ -181,7 +181,7 @@
                     {#if submitted && before}
                         <div>
                             <span>
-                                <button on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></button>
+                                <span role="none" on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></span>
                                 {showHints[idx] ? guess : "______"}
                             </span> 
                             {hint}
@@ -191,7 +191,7 @@
                             {hint}
                             <span>
                                 {showHints[idx] ? guess : "______"}
-                                <button on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></button>
+                                <span role="none" on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></span>
                             </span> 
                         </div>
                     {:else}
