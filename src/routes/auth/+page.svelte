@@ -59,7 +59,7 @@
             {:else if state == "signup"}
                 <form action={AUTH_REGISTER_ACTION} method="POST">
                     <label for="username"> username </label>
-                    <input id="username" name="username" type="text" autocomplete="username" value={form?.username ?? ''} />
+                    <input id="username" name="username" type="text" autocomplete="username" value={form?.username ?? ''} placeholder="only your username will be public" />
 
                     <label for="email"> email </label>
                     <input id="email" name="email" type="text" autocomplete="email" value={form?.email ?? ''} />
