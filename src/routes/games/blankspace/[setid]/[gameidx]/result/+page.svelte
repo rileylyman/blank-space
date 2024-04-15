@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { preloadData } from "$app/navigation";
     import { bsFeedbackLink } from "$lib/links";
     import GuessTable from "$lib/ui/GuessTable.svelte";
     import { fitText } from "$lib/utils.js";
@@ -15,7 +14,8 @@
     $: guesses = hints.map(({ guess }) => guess);
 
     onMount(() => {
-        preloadData(data.from);
+        // Can't preload as of right now because we are doing the win/loss calc locally and
+        // so we could be preloading before the server is updated.
         onResize();
     })
 
@@ -31,7 +31,7 @@
     <div class="score">
         <div class:lost={!won}>
             {#if won}
-                {hints.length} guess{hints.length !== 1 ? 'es' : ''}
+                {hints.length} {hints.length !== 1 ? 'guesses' : 'guess'}
             {:else}
                 You Lost
             {/if}
