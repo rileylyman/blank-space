@@ -1,7 +1,7 @@
 <script lang="ts">
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
-    import { ACCOUNT, BS_HOME_SKIP, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink } from "$lib/links";
+    import { ACCOUNT, BS_HOME_SKIP, BS_RULES, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { page } from "$app/stores";
@@ -90,6 +90,10 @@
         </a>
         <a class="button" class:unseen={false} href={ACCOUNT}>
             Account Settings
+        </a>
+        <a class="button" class:unseen={false} href={BS_RULES}>
+            How to Play
+            <!-- <div class="noti"> ! </div> -->
         </a>
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
