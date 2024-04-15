@@ -13,7 +13,7 @@ export const load = async (event: ServerLoadEvent) => {
         .collection('bs_game_sets')
         .getOne(setId, { expand: 'games' });
     const gameId = set.games[gameIdx];
-    const bsGame = set.expand!.games[gameIdx];
+    const bsGame = set.expand!.games![gameIdx];
     bsGameAllLowercase(bsGame);
     // censorGame(bsGame);
 

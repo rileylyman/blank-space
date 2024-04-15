@@ -47,7 +47,7 @@
         {/each}
     </div>
     <div class="keyboard"> 
-        <VirtualKeyboard on:keypress={handleKeypress} {disabledKeys} enterDisabled={false} invalidWord={false} />
+        <VirtualKeyboard on:keypress={handleKeypress} {disabledKeys} enterDisabled={false} error={""} />
     </div>
 </div>
 

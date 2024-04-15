@@ -66,7 +66,8 @@
     <div class="pin-container">
         {#if shownProg}
             <PinContainer
-                setProgress={shownProg.gameProgs}
+                set={shownProg.set}
+                progs={shownProg.progs}
                 links={[0, 1, 2, 3].map((n) => 
                     bsGameLink(shownProg?.set.id ?? "", n, BS_PREV))}
             />

@@ -1,29 +1,48 @@
 <script lang="ts">
-    import { GameProgress } from "$lib/schema";
+    import { type BsGameSet, type BsGameProgress } from "$lib/schema";
     import { goto } from "$app/navigation";
     import Fa from "svelte-fa";
-    import { faCheck, faXmark, faPersonWalkingArrowLoopLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
+    import { faXmark, faPersonWalkingArrowLoopLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
 
-    export let setProgress: GameProgress[];
+    export let progs: BsGameProgress[];
+    export let set: BsGameSet;
     export let links: string[];
+
+    $: games = set.expand!.games!.map((game) => {
+        const prog = progs.find((p) => p.bs_game === game.id);
+        const won = prog?.won ?? false;
+        const lost = prog?.lost ?? false;
+        const unplayed = prog === undefined;
+        return {
+            game,
+            won,
+            lost,
+            unplayed,
+            prog
+        }
+    });
 </script>
 
 <div id="root">
-    {#each setProgress as prog, idx}
+    {#each games as { game, won, lost, unplayed, prog }, idx}
         <button 
             on:click={() => goto(links[idx])}
-            class:won={prog === GameProgress.WON} 
-            class:lost={prog === GameProgress.LOST} 
-            class:some-prog={prog === GameProgress.SOME_PROGRESS} 
-            class:unplayed={prog === GameProgress.NO_PROGRESS}>
-            {#if prog === GameProgress.WON}
-                <Fa icon={faCheck} />
-            {:else if prog === GameProgress.LOST}
-                <Fa icon={faXmark} />
-            {:else if prog === GameProgress.SOME_PROGRESS}
-                <Fa icon={faPersonWalkingArrowLoopLeft} size="0.8x" />
-            {:else}
+            class:won
+            class:lost
+            class:unplayed
+        >
+            {#if won}
+                <p> {prog?.guesses.split(',').length} {prog?.guesses.split(',').length === 1 ? 'guess' : 'guesses'}</p>
+                <p> {game.target} </p>
+                <p> {prog?.score} pts </p>
+            {:else if lost}
+                <p> Lost </p>
+                <p> {game.target} </p>
+                <p> {prog?.score} pts </p>
+            {:else if unplayed}
                 <Fa icon={faPlay} size="0.8x" />
+            {:else}
+                <Fa icon={faPersonWalkingArrowLoopLeft} size="0.8x" />
             {/if}
         </button>
     {/each}
@@ -53,6 +72,23 @@
         outline: 1px solid black;
         border: none;
         cursor: pointer;
+        background-color: white;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #root button p:first-of-type {
+        font-size: 0.9rem;
+        align-self: end;
+    }
+
+    #root button p:last-of-type {
+        font-size: 1.1rem;
+        align-self: start;
+    }
+
+    #root button p {
+        font-size: 1.3rem;
+        text-transform: uppercase;
     }
 
     #root button.lost {
@@ -61,13 +97,10 @@
 
     #root button.won {
         background-color: rgb(80, 194, 104);
+        grid-template-rows: 30% 40% 30%;
     }
 
     #root button.unplayed {
-        background-color: white;
-    }
-
-    #root button.some-prog {
         background-color: white;
     }
 </style>

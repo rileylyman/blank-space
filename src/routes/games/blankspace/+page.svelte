@@ -60,7 +60,7 @@
         next set in {countdown}
     </div>
     <div class="pin-container">
-        <PinContainer links={[0, 1, 2, 3].map((n) => bsGameLink(data.currentSet.id, n, BS_HOME_SKIP))} setProgress={data.setProgress} />
+        <PinContainer set={data.currentSet} progs={data.progs} links={[0, 1, 2, 3].map((n) => bsGameLink(data.currentSet.id, n, BS_HOME_SKIP))} />
     </div>
     <div class="guess-distro-container">
         <p> Score Today </p> <p> Score This Week</p>

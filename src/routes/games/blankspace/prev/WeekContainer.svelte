@@ -5,7 +5,7 @@
     export let dps: DayProgress[];
     for (let i = 0; i < 7; i++) {
         if (i >= dps.length) {
-            dps.push({ set: { id: "", publish_on: "", games: [] }, played: -1, gameProgs: []}) 
+            dps.push({ set: { id: "", publish_on: "", games: [] }, progs: [] }) 
         }
     }
 
@@ -14,12 +14,12 @@
 </script>
 
 <div id="root">
-    {#each dps as { played }, idx}
+    {#each dps as { progs, set }, idx}
         <div class="day">
             <p> {days[idx]} </p>
-            <div class:future={played === -1} class:none={played === 0} class:some={played > 0} class:all={played === 4}>
-                {#if played >= 0}
-                    <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{played}/4</button> 
+            <div class:future={!set.id} class:none={progs.length === 0} class:some={progs.length > 0} class:all={progs.length === 4}>
+                {#if set.id}
+                    <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{progs.length}/4</button> 
                 {:else}
                     ?/?
                 {/if}
@@ -44,12 +44,12 @@
         margin: 0.1rem;
     }
 
-    .day div.future {
-        background: #c0c0c0;
-    }
-
     .day div.none {
         background: white;
+    }
+
+    .day div.future {
+        background: #c0c0c0;
     }
 
     .day div.some {

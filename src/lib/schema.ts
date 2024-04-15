@@ -70,25 +70,6 @@ export interface BsGameProgress {
     }
 }
 
-export enum GameProgress {
-    NO_PROGRESS,
-    SOME_PROGRESS,
-    WON,
-    LOST,
-}
-
-export const progressToEnum = (prog: BsGameProgress | undefined): GameProgress => {
-    if (prog === undefined) {
-        return GameProgress.NO_PROGRESS;
-    } else if (prog.won) {
-        return GameProgress.WON;
-    } else if (prog.lost) {
-        return GameProgress.LOST;
-    } else {
-        return GameProgress.SOME_PROGRESS;
-    }
-}
-
 export interface BsGameFeedback {
     id: string;
     created?: string;
@@ -114,7 +95,7 @@ export interface BsGameSet {
     publish_on: string;
     next_set_avail?: string | null;
     expand?: {
-        games: BsGame[];
+        games?: BsGame[];
     }
 }
 

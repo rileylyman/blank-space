@@ -1,5 +1,4 @@
 import { type ServerLoadEvent } from "@sveltejs/kit"
-import { censorGame, GameProgress, progressToEnum } from "$lib/schema";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
@@ -16,21 +15,10 @@ export const load = async (event: ServerLoadEvent) => {
     const currentScore = progs.reduce((prev: number, p) => prev + p.score, 0);
     const weekScore = standing?.total_score ?? 0;
 
-    let setProgress: Array<GameProgress> = [];
-    let i = 0;
-    for (let id of currentSet.games) {
-        let prog = progs.find((p) => p.bs_game === id);
-        setProgress.push(progressToEnum(prog));
-        if ([GameProgress.NO_PROGRESS, GameProgress.SOME_PROGRESS].includes(setProgress[-1])) {
-            censorGame(currentSet.expand!.games[i]);
-        }
-        i += 1;
-    }
-
     return {
         currentSet,
         currentScore,
         weekScore,
-        setProgress,
+        progs,
     }
 }
