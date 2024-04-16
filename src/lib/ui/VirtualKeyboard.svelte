@@ -6,6 +6,8 @@
     export let error: string;
     export let disabledKeys: string = "";
     $: disabledKeys = disabledKeys.toLocaleLowerCase();
+    export let goodKeys: string = "";
+    $: goodKeys = goodKeys.toLocaleLowerCase();
 
     let deleteButton: HTMLButtonElement | null = null;
     let enterButton: HTMLButtonElement | null = null;
@@ -47,87 +49,87 @@
         { error ? error.toLocaleUpperCase() : 'ENTER YOUR GUESS'}
     </button>
     <div style="grid-column: span 4" />
-    <button on:click|preventDefault={handleKeyClick} value="Q" class="key popup" class:disabled={disabledKeys.includes("q")}>
+    <button on:click|preventDefault={handleKeyClick} value="Q" class="key popup" class:disabled={disabledKeys.includes("q")} class:good={goodKeys.includes("q")}>
         Q
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="W" class="key popup" class:disabled={disabledKeys.includes("w")}>
+    <button on:click|preventDefault={handleKeyClick} value="W" class="key popup" class:disabled={disabledKeys.includes("w")} class:good={goodKeys.includes("w")}>
         W
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="E" class="key popup" class:disabled={disabledKeys.includes("e")}>
+    <button on:click|preventDefault={handleKeyClick} value="E" class="key popup" class:disabled={disabledKeys.includes("e")} class:good={goodKeys.includes("e")}>
         E
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="R" class="key popup" class:disabled={disabledKeys.includes("r")}>
+    <button on:click|preventDefault={handleKeyClick} value="R" class="key popup" class:disabled={disabledKeys.includes("r")} class:good={goodKeys.includes("r")}>
         R
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="T" class="key popup" class:disabled={disabledKeys.includes("t")}>
+    <button on:click|preventDefault={handleKeyClick} value="T" class="key popup" class:disabled={disabledKeys.includes("t")} class:good={goodKeys.includes("t")}>
         T
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="Y" class="key popup" class:disabled={disabledKeys.includes("y")}>
+    <button on:click|preventDefault={handleKeyClick} value="Y" class="key popup" class:disabled={disabledKeys.includes("y")} class:good={goodKeys.includes("y")}>
         Y
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="U" class="key popup" class:disabled={disabledKeys.includes("u")}>
+    <button on:click|preventDefault={handleKeyClick} value="U" class="key popup" class:disabled={disabledKeys.includes("u")} class:good={goodKeys.includes("u")}>
         U
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="I" class="key popup" class:disabled={disabledKeys.includes("i")}>
+    <button on:click|preventDefault={handleKeyClick} value="I" class="key popup" class:disabled={disabledKeys.includes("i")} class:good={goodKeys.includes("i")}>
         I
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="O" class="key popup" class:disabled={disabledKeys.includes("o")}>
+    <button on:click|preventDefault={handleKeyClick} value="O" class="key popup" class:disabled={disabledKeys.includes("o")} class:good={goodKeys.includes("o")}>
         O
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="P" class="key popup" class:disabled={disabledKeys.includes("p")}>
+    <button on:click|preventDefault={handleKeyClick} value="P" class="key popup" class:disabled={disabledKeys.includes("p")} class:good={goodKeys.includes("p")}>
         P
     </button>
     <div class="empty-half" />
-    <button on:click|preventDefault={handleKeyClick} value="A" class="key popup" class:disabled={disabledKeys.includes("a")}>
+    <button on:click|preventDefault={handleKeyClick} value="A" class="key popup" class:disabled={disabledKeys.includes("a")} class:good={goodKeys.includes("a")}>
         A
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="S" class="key popup" class:disabled={disabledKeys.includes("s")}>
+    <button on:click|preventDefault={handleKeyClick} value="S" class="key popup" class:disabled={disabledKeys.includes("s")} class:good={goodKeys.includes("s")}>
         S
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="D" class="key popup" class:disabled={disabledKeys.includes("d")}>
+    <button on:click|preventDefault={handleKeyClick} value="D" class="key popup" class:disabled={disabledKeys.includes("d")} class:good={goodKeys.includes("d")}>
         D
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="F" class="key popup" class:disabled={disabledKeys.includes("f")}>
+    <button on:click|preventDefault={handleKeyClick} value="F" class="key popup" class:disabled={disabledKeys.includes("f")} class:good={goodKeys.includes("f")}>
         F
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="G" class="key popup" class:disabled={disabledKeys.includes("g")}>
+    <button on:click|preventDefault={handleKeyClick} value="G" class="key popup" class:disabled={disabledKeys.includes("g")} class:good={goodKeys.includes("g")}>
         G
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="H" class="key popup" class:disabled={disabledKeys.includes("h")}>
+    <button on:click|preventDefault={handleKeyClick} value="H" class="key popup" class:disabled={disabledKeys.includes("h")} class:good={goodKeys.includes("h")}>
         H
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="J" class="key popup" class:disabled={disabledKeys.includes("j")}>
+    <button on:click|preventDefault={handleKeyClick} value="J" class="key popup" class:disabled={disabledKeys.includes("j")} class:good={goodKeys.includes("j")}>
         J
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="K" class="key popup" class:disabled={disabledKeys.includes("k")}>
+    <button on:click|preventDefault={handleKeyClick} value="K" class="key popup" class:disabled={disabledKeys.includes("k")} class:good={goodKeys.includes("k")}>
         K
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="L" class="key popup" class:disabled={disabledKeys.includes("l")}>
+    <button on:click|preventDefault={handleKeyClick} value="L" class="key popup" class:disabled={disabledKeys.includes("l")} class:good={goodKeys.includes("l")}>
         L
     </button>
     <div class="empty-half" />
     <button bind:this={shiftButton} on:click|preventDefault={handleKeyClick} value="SHIFT" class="key wide">
         SHFT
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="Z" class="key popup" class:disabled={disabledKeys.includes("z")}>
+    <button on:click|preventDefault={handleKeyClick} value="Z" class="key popup" class:disabled={disabledKeys.includes("z")} class:good={goodKeys.includes("z")}>
         Z
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="X" class="key popup" class:disabled={disabledKeys.includes("x")}>
+    <button on:click|preventDefault={handleKeyClick} value="X" class="key popup" class:disabled={disabledKeys.includes("x")} class:good={goodKeys.includes("x")}>
         X
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="C" class="key popup" class:disabled={disabledKeys.includes("c")}>
+    <button on:click|preventDefault={handleKeyClick} value="C" class="key popup" class:disabled={disabledKeys.includes("c")} class:good={goodKeys.includes("c")}>
         C
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="V" class="key popup" class:disabled={disabledKeys.includes("v")}>
+    <button on:click|preventDefault={handleKeyClick} value="V" class="key popup" class:disabled={disabledKeys.includes("v")} class:good={goodKeys.includes("v")}>
         V
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="B" class="key popup" class:disabled={disabledKeys.includes("b")}>
+    <button on:click|preventDefault={handleKeyClick} value="B" class="key popup" class:disabled={disabledKeys.includes("b")} class:good={goodKeys.includes("b")}>
         B
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="N" class="key popup" class:disabled={disabledKeys.includes("n")}>
+    <button on:click|preventDefault={handleKeyClick} value="N" class="key popup" class:disabled={disabledKeys.includes("n")} class:good={goodKeys.includes("n")}>
         N
     </button>
-    <button on:click|preventDefault={handleKeyClick} value="M" class="key popup" class:disabled={disabledKeys.includes("m")}>
+    <button on:click|preventDefault={handleKeyClick} value="M" class="key popup" class:disabled={disabledKeys.includes("m")} class:good={goodKeys.includes("m")}>
         M
     </button>
     <button bind:this={deleteButton} on:click|preventDefault={handleKeyClick} value="DEL" class="key wide">
@@ -222,6 +224,10 @@
         color: #333;
         pointer-events: none;
         opacity: 25%;
+    }
+
+    .key.good {
+        background: rgb(80, 194, 104);
     }
 
 </style>

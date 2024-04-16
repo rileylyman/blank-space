@@ -23,8 +23,25 @@
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
+<<<<<<< HEAD
     $: showGuesses = true;
     $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
+=======
+    $: showHints = [false, false, false, false, false];
+    $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
+    $: disabledKeys = new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
+        for (let c of guess) {
+            if (!data.bsGame.target.includes(c)) { set.add(c) }
+        };
+        return set;
+    }, new Set())).join("");
+    $: goodKeys = new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
+        for (let c of guess) {
+            if (data.bsGame.target.includes(c)) { set.add(c) }
+        };
+        return set;
+    }, new Set())).join("");
+>>>>>>> b6f0f13... get started on peaceful mode
 
     onMount(async () => {
         if (won || lost) {
@@ -205,7 +222,7 @@
     </div>
     <div />
     <div style="align-self: end; margin-bottom: 1rem">
-        <VirtualKeyboard bind:error={invalidWordError} enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
+        <VirtualKeyboard bind:error={invalidWordError} {disabledKeys} {goodKeys} enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
     </div>
 </div>
 
