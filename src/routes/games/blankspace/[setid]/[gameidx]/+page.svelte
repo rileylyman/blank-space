@@ -8,8 +8,6 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
-    import Fa from 'svelte-fa';
-    import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
     export let data;
 
@@ -19,14 +17,14 @@
     let lastRevealedHint: number = data.bsResponse.result!.hints.length - 2;
     let invalidWordError = "";
     let invalidWordResetTimeout: NodeJS.Timeout | null = null;
-    let breakHidden = true;
 
     let lastResponse: BsResponse | null = null;
 
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
-    $: showHints = [false, false, false, false, false];
+    $: showGuesses = true;
+    $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
 
     onMount(async () => {
         if (won || lost) {
@@ -34,8 +32,6 @@
             return;
         }
         recalculateFlippedAndRevealed(true);
-
-        setTimeout(() => breakHidden = false, 4000);
 
         fetch("/api/dictionary").then(res => res.json().then(res => {
             if (res.wordList) {
@@ -78,7 +74,6 @@
 
         let res: BsResponse;
         if (wordList.length) {
-            const prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
             const dictionary = async (word: string): Promise<boolean> => wordList.includes(word);
             res = await updateGameState(guess, prevGuesses, won ?? false, data.bsGame, dictionary);
             lastResponse = res;
@@ -149,13 +144,13 @@
 </script>
 
 <div id="root">
-    {#if data.pbUser?.id === "g46kjxyg22of584"}
-        <div style={`position: absolute; top: 0; left; 0; width: 1rem; height: 1rem; background: ${wordList.length ? "white" : "red"}`} />
-    {/if}
     <div class="top-bar">
-        <a class="break" href={data.from} class:hidden={breakHidden}>
+        <button class="break" on:click={() => goto(data.from)}>
             Take a Break
-        </a>
+        </button>
+        <button class="break" on:click={() => showGuesses = !showGuesses} class:hidden={prevGuesses.length === 0}>
+            {showGuesses ? 'Hide Guesses' : 'Show Guesses'}
+        </button>
     </div>
     <div class="card-container">
         {#each hints as { hint, before, guess, submitted }, idx}
@@ -181,8 +176,7 @@
                     {#if submitted && before}
                         <div>
                             <span>
-                                <span role="none" on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></span>
-                                {showHints[idx] ? guess : "______"}
+                                {showGuesses ? guess : "______"}
                             </span> 
                             {hint}
                         </div>
@@ -190,8 +184,7 @@
                         <div>
                             {hint}
                             <span>
-                                {showHints[idx] ? guess : "______"}
-                                <span role="none" on:click={() => showHints[idx] = !showHints[idx]}><Fa icon={showHints[idx] ? faEyeSlash : faEye} /></span>
+                                {showGuesses ? guess : "______"}
                             </span> 
                         </div>
                     {:else}
@@ -225,9 +218,16 @@
 
     .top-bar {
         padding: 1rem calc(min(5vw, 2.5rem));
+        height: min-content;
+        display: grid;
+        place-items: center;
+        grid-template-columns: 50% 50%;
     }
 
-    .break {
+    .top-bar *:first-child { justify-self: start; }
+    .top-bar *:last-child { justify-self: end; }
+
+    .top-bar button {
         outline: none;
         border: none;
         background: #e0e0e0;
@@ -242,7 +242,7 @@
         margin-left: 0.1rem;
     }
 
-    .break.hidden {
+    .top-bar .hidden {
         opacity: 0; 
     }
 
