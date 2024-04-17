@@ -102,6 +102,8 @@
     const handleGuess = async () => {
         if (flippedHint === null) return;
         const guess = hints[flippedHint].guess;
+        if (!guess) return;
+
         await submitGuess(guess);
 
         if (won || lost) {
@@ -141,14 +143,18 @@
         }
         hints[flippedHint].guess += key.toLocaleLowerCase();
     }
+
+    let focusCapture: HTMLElement;
 </script>
+
+<button style="position: absolute; z-index: -1; opacity: 1" bind:this={focusCapture}  />
 
 <div id="root">
     <div class="top-bar">
         <button class="break" on:click={() => goto(data.from)}>
             Take a Break
         </button>
-        <button class="break" on:click={() => showGuesses = !showGuesses} class:hidden={prevGuesses.length === 0}>
+        <button class="break" on:click={() => { showGuesses = !showGuesses; focusCapture.focus() }} class:hidden={prevGuesses.length === 0}>
             {showGuesses ? 'Hide Guesses' : 'Show Guesses'}
         </button>
     </div>
