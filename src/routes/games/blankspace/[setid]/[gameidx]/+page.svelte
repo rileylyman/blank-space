@@ -23,11 +23,7 @@
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
-<<<<<<< HEAD
     $: showGuesses = true;
-    $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
-=======
-    $: showHints = [false, false, false, false, false];
     $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
     $: disabledKeys = new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
         for (let c of guess) {
@@ -41,7 +37,6 @@
         };
         return set;
     }, new Set())).join("");
->>>>>>> b6f0f13... get started on peaceful mode
 
     onMount(async () => {
         if (won || lost) {
@@ -53,7 +48,6 @@
         fetch("/api/dictionary").then(res => res.json().then(res => {
             if (res.wordList) {
                 wordList = res.wordList;
-                console.log("wordlist loaded");
             }
         }));
     });

@@ -1,3 +1,21 @@
+import type TypedPocketBase from "./schema";
+
+export const getEnabledFeatures = async (pb: TypedPocketBase): Promise<string[]> => {
+    const featureControls = await pb.collection('feature_control').getFullList();
+    return featureControls.filter((fc) => {
+        if (!fc.enabled) return false;
+        if (fc.filter.startsWith('specificUsers=')) {
+            const [_, ids] = fc.filter.split('=');
+            return ids.split(',').includes(pb.authStore.model?.id);
+        } else if (fc.filter === '*') {
+            return true;
+        } else {
+            console.error('invalid filter:', fc.filter);
+            return false;
+        }
+    }).map((fc) => fc.name);
+}
+
 export const sleepMs = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const fitText = (root: HTMLElement, query: string, scale: number) => {

@@ -123,6 +123,13 @@ export interface BsWeeklyStanding {
     rank?: number;
 }
 
+export interface FeatureControl {
+    name: string;
+    filter: string;
+    enabled: boolean;
+}
+export const PEACEFUL_MODE = 'peacefulMode';
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
@@ -137,4 +144,5 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'bs_last_week_scores'): RecordService<BsWeeklyStanding>;
     collection(idOrName: 'bs_this_week_sets'): RecordService<BsGameSet>;
     collection(idOrName: 'bs_last_week_sets'): RecordService<BsGameSet>;
+    collection(idOrName: 'feature_control'): RecordService<FeatureControl>;
 }
