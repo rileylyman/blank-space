@@ -35,7 +35,7 @@
             dispatch('keypress', { enter: false, del: true, key: e.key });
         } else if (e.key === "Enter") {
             dispatch('keypress', { enter: true, del: false, key: e.key });
-        } else if (!disabledKeys.includes(e.key.toLocaleLowerCase())) {
+        } else {
             dispatch('keypress', { enter: false, del: false, key: e.key });
         }
     }
@@ -220,10 +220,8 @@
     }
 
     .key.disabled {
-        background: #888;
-        color: #333;
-        pointer-events: none;
-        opacity: 25%;
+        background: #e0e0e0;
+        color: #999;
     }
 
     .key.good {

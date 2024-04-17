@@ -128,7 +128,6 @@ export interface FeatureControl {
     filter: string;
     enabled: boolean;
 }
-export const PEACEFUL_MODE = 'peacefulMode';
 
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;

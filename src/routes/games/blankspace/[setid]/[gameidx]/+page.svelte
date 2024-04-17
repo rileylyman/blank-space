@@ -20,23 +20,24 @@
 
     let lastResponse: BsResponse | null = null;
 
+    $: feat = data.features;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
     $: showGuesses = true;
     $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
-    $: disabledKeys = new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
+    $: disabledKeys = feat.peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
         for (let c of guess) {
             if (!data.bsGame.target.includes(c)) { set.add(c) }
         };
         return set;
-    }, new Set())).join("");
-    $: goodKeys = new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
+    }, new Set())).join("") : "";
+    $: goodKeys = feat.peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
         for (let c of guess) {
             if (data.bsGame.target.includes(c)) { set.add(c) }
         };
         return set;
-    }, new Set())).join("");
+    }, new Set())).join("") : "";
 
     onMount(async () => {
         if (won || lost) {

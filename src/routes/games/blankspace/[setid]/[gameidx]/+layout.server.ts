@@ -2,7 +2,7 @@ import { type ServerLoadEvent, error } from '@sveltejs/kit';
 import { BsResponseParser } from '$lib/blankspace-game-api';
 import { BS_HOME_SKIP, blankspaceApi } from '$lib/links';
 import { bsGameAllLowercase } from '$lib/schema';
-import { getEnabledFeatures } from '$lib/utils';
+import { getFeatures } from '$lib/features';
 
 export const load = async (event: ServerLoadEvent) => {
     const setId = event.params.setid ?? "";
@@ -34,8 +34,6 @@ export const load = async (event: ServerLoadEvent) => {
         error(404);
     }
 
-    const features = await getEnabledFeatures(event.locals.pb);
-
     return {
         bsResponse: parseRes.data,
         setId,
@@ -44,6 +42,6 @@ export const load = async (event: ServerLoadEvent) => {
         bsGame,
         feedback: feedbackList.items.at(0) ?? null,
         from,
-        features,
+        features: await getFeatures(event.locals.pb),
     }
 }
