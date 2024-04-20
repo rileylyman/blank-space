@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 pb/pb_data
 pb/pb_data_back
 pb/pb_migrations_back
+pb/email_list.txt
