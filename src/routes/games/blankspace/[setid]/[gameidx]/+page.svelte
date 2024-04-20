@@ -38,6 +38,7 @@
         };
         return set;
     }, new Set())).join("") : "";
+    $: targetLength = feat.peacefulMode ? data.bsGame.target.length : undefined;
 
     onMount(async () => {
         if (won || lost) {
@@ -153,13 +154,15 @@
             hints[flippedHint].guess = hints[flippedHint].guess.slice(0, -1)
             return;
         }
-        hints[flippedHint].guess += key.toLocaleLowerCase();
+        if (!feat.peacefulMode || hints[flippedHint].guess.length < (targetLength ?? 0)) {
+            hints[flippedHint].guess += key.toLocaleLowerCase();
+        }
     }
 
     let focusCapture: HTMLElement;
 </script>
 
-<button style="position: absolute; z-index: -1; opacity: 1" bind:this={focusCapture}  />
+<button style="position: absolute; z-index: -1; opacity: 0" bind:this={focusCapture}  />
 
 <div id="root">
     <div class="top-bar">
@@ -180,13 +183,13 @@
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput incorrect={!won && submitted} value={guess}/>
+                            <GuessInput {targetLength} incorrect={!won && submitted} value={guess}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput incorrect={!won && submitted} value={guess}/>
+                            <GuessInput {targetLength} incorrect={!won && submitted} value={guess}/>
                         </div>
                     {/if}
                 </div>

@@ -1,7 +1,12 @@
 <script lang="ts">
     export let value: string;
     export let incorrect: boolean;
-    $: shownValue = value ? value.replace(".", "") : String.fromCharCode(160);
+    export let targetLength: number | undefined = undefined;
+
+    $: shownValue = value.padEnd(targetLength!, '*');
+    $: {
+        shownValue = shownValue ? shownValue : String.fromCharCode(160);
+    }
 </script>
 
 <div>
