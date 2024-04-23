@@ -25,6 +25,7 @@
     const gameDateString = `${weekdays[gameDate.getUTCDay()]}, Day ${gameDate.getUTCDay() + 1}`;
 
     let menuActive = false;
+    let announcementShown = true;
     let folded = true;
     let foldedHeight = "15%";
 
@@ -101,6 +102,14 @@
         </a>
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
+
+    <div id="announcement" class:shown={announcementShown}>
+        <h2>New Announcement</h2>
+        <div class="buttons">
+            <button> Dismiss </button>
+            <a href={ANNOUNCEMENTS}> View </a>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -116,6 +125,45 @@
         place-items: stretch;
         position: relative;
         overflow: hidden;
+    }
+
+    #announcement {
+        width: 95%;
+        height: 20%;
+        background: #f0f0f0;
+        z-index: 3;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        border: 1px solid black;
+        border-radius: 1rem;
+        display: grid;
+        justify-items: center;
+        align-items: start;
+        padding-top: 1rem;
+    }
+
+    #announcement .buttons {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 50% 50%;
+        place-items: center;
+    }
+
+    #announcement .buttons * {
+        background: #c0c0c0;
+        border: none;
+        outline: none;
+        width: 80%;
+        display: grid;
+        place-items: center;
+        color: black;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 0.25rem;
+        font-size: 1.1rem;
+        padding: 0.25rem;
     }
 
     #modal {
