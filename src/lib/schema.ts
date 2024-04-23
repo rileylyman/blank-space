@@ -129,6 +129,13 @@ export interface FeatureControl {
     enabled: boolean;
 }
 
+export interface Announcement {
+    id: string;
+    title: string;
+    message: string;
+    release_on: string;
+}
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
@@ -144,4 +151,6 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'bs_this_week_sets'): RecordService<BsGameSet>;
     collection(idOrName: 'bs_last_week_sets'): RecordService<BsGameSet>;
     collection(idOrName: 'feature_control'): RecordService<FeatureControl>;
+    collection(idOrName: 'announcements'): RecordService<Announcement>;
+    collection(idOrName: 'current_announcement'): RecordService<Announcement>;
 }

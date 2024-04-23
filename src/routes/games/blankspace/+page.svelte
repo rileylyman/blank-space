@@ -1,7 +1,7 @@
 <script lang="ts">
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
-    import { ACCOUNT, BS_HOME_SKIP, BS_RULES, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink } from "$lib/links";
+    import { ACCOUNT, BS_HOME_SKIP, BS_RULES, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink, ANNOUNCEMENTS } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { page } from "$app/stores";
@@ -95,6 +95,10 @@
             How to Play
             <!-- <div class="noti"> ! </div> -->
         </a>
+        <a class="button" class:unseen={false} href={ANNOUNCEMENTS}>
+            Announcements
+            <!-- <div class="noti"> ! </div> -->
+        </a>
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
 </div>
@@ -143,6 +147,9 @@
 
     #modal .button {
         margin-bottom: 1rem;
+        font-size: 1.25rem;
+        height: min-content;
+        padding: 0.2rem;
     }
 
     #modal .button:last-child {
