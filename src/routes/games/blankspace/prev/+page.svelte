@@ -5,22 +5,21 @@
     import WeekContainer from "./WeekContainer.svelte";
     import { preloadData} from "$app/navigation";
     import { browser } from "$app/environment";
+    import { getCookie, setCookie } from "$lib/utils";
 
     export let data;
 
     let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-    let shownIdx = browser 
-        ? parseInt(document.cookie.split(";").find((c) => c.includes("prevShow"))?.split("=").at(1) ?? "-1")
-        : -1;
+    let shownIdx = browser ? parseInt(getCookie("prevShow") ?? "-1") : -1;
     $: shownProg = shownIdx < 0 ? null : data.lastDp.concat(data.thisDp).at(shownIdx);
     const onSetClicked = (idx: number) => {
         shownIdx = idx;
-        document.cookie = "prevShow=" + idx;
+        setCookie("prevShow", shownIdx.toString());
     }
     const clearShown = () => {
         shownIdx = -1;
-        document.cookie = "prevShow=-1";
+        setCookie("prevShow", shownIdx.toString());
     }
 
     onMount(() => {

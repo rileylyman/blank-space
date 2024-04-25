@@ -25,7 +25,7 @@
     const gameDateString = `${weekdays[gameDate.getUTCDay()]}, Day ${gameDate.getUTCDay() + 1}`;
 
     let menuActive = false;
-    let announcementShown = true;
+    let announcementShown = false;
     let folded = true;
     let foldedHeight = "15%";
 

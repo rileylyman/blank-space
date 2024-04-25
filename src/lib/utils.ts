@@ -1,3 +1,18 @@
+export interface CookieOpts {
+    maxAge?: number;
+    path?: string;
+}
+
+export const setCookie = (name: string, value: string, opts: CookieOpts = {}) => {
+    let c = `${name}=${value} ;samesite=strict ;secure`
+    if (opts.maxAge !== undefined) c += ` ;max-age=${opts.maxAge}`;
+    c += ` ;path=${opts.path ?? "/"}`;
+    document.cookie = c;
+}
+
+export const getCookie = (name: string): string | undefined => 
+    document.cookie.split(";").find((c) => c.includes(name))?.split("=").at(1);
+
 export const sleepMs = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const fitText = (root: HTMLElement, query: string, scale: number) => {
