@@ -103,13 +103,15 @@
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
 
-    <div id="announcement" class:shown={announcementShown}>
-        <h2>New Announcement</h2>
-        <div class="buttons">
-            <button> Dismiss </button>
-            <a href={ANNOUNCEMENTS}> View </a>
+    {#if announcementShown}
+        <div id="announcement" class:shown={announcementShown}>
+            <h2>New Announcement</h2>
+            <div class="buttons">
+                <button> Dismiss </button>
+                <a href={ANNOUNCEMENTS}> View </a>
+            </div>
         </div>
-    </div>
+    {/if}
 </div>
 
 <style>

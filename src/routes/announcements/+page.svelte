@@ -17,12 +17,12 @@
     }
 </script>
 
-<div id="root">
+<div id="root" data-sveltekit-preload-data="off">
     <h1> Announcements </h1>
     <a class="home" href={BS_HOME_SKIP_MENU}> Go Home </a>
     <div class="links">
         {#each data.anns as { id, title, release_on }}
-            <div>
+            <div class:read={data.read?.read.includes(id)}>
                 <a href={ANNOUNCEMENTS + '/' + id}> {title} </a> <span> {dateString(release_on)} </span>
             </div>
         {/each}
@@ -44,7 +44,7 @@
     }
 
     .links div {
-        background: #eee;
+        background: #fafafa;
         border: 1px solid #ccc;
         border-top: none;
         padding: 0.5rem;
@@ -58,11 +58,19 @@
         border-top: 1px solid #ccc;
     }
 
+    .links .read {
+        background: #eee;
+    }
+
     .links a {
         font-weight: 600;
         font-size: 1.25rem;
         color: black;
         text-decoration: none;
+    }
+
+    .links .read a {
+        font-weight: 400;
     }
 
     .links span {

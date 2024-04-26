@@ -136,6 +136,12 @@ export interface Announcement {
     release_on: string;
 }
 
+export interface AnnouncementsRead {
+    id: string;
+    user: string;
+    read: string[];
+}
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
@@ -152,5 +158,6 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'bs_last_week_sets'): RecordService<BsGameSet>;
     collection(idOrName: 'feature_control'): RecordService<FeatureControl>;
     collection(idOrName: 'announcements'): RecordService<Announcement>;
+    collection(idOrName: 'announcements_read'): RecordService<AnnouncementsRead>;
     collection(idOrName: 'current_announcement'): RecordService<Announcement>;
 }

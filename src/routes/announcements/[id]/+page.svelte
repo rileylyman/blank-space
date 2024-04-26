@@ -1,15 +1,12 @@
 <script lang="ts">
     import { ANNOUNCEMENTS } from '$lib/links.js';
-    import { page } from '$app/stores';
-
     export let data;
-    $: curr = data.anns.find((a) => a.id === $page.params.id);
 </script>
 
 <div id="root">
-    <h1> {curr?.title} </h1>
+    <h1> {data.announcement.title} </h1>
     <div id="announcement-body-container">
-        {@html curr?.message}
+        {@html data.announcement.message}
     </div>
     <div class="buttons">
         <a href={ANNOUNCEMENTS}> Go Back </a>
