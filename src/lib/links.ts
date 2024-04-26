@@ -17,6 +17,8 @@ export const AUTH_REGISTER_ACTION = "/auth?/register";
 export const ACCOUNT = "/account";
 export const ANNOUNCEMENTS = "/announcements";
 
+export const announcementLink = (id: string) => `/announcements/${id}`;
+
 export const bsGameLink = (setId: string, gameIdx: number, from: string) => `/games/blankspace/${setId}/${gameIdx}${from ? '?from=' + from : ''}`;
 export const bsResultLink = (setId: string, gameIdx: number, from: string) => `${bsGameLink(setId, gameIdx, "")}/result${from ? '?from=' + from : ''}`;
 export const bsFeedbackLink = 

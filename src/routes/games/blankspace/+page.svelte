@@ -1,10 +1,11 @@
 <script lang="ts">
     import Curtain from "./Curtain.svelte";
     import { preloadData } from "$app/navigation";
-    import { ACCOUNT, BS_HOME_SKIP, BS_RULES, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink, ANNOUNCEMENTS } from "$lib/links";
+    import { ACCOUNT, BS_HOME_SKIP, BS_RULES, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink, ANNOUNCEMENTS, announcementLink } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { page } from "$app/stores";
+    import type { Announcement } from "$lib/schema";
 
     export let data;
 
@@ -14,6 +15,10 @@
         if ($page.url.searchParams.get("menu") === 'true') {
             menuActive = true;
         }
+
+        data.newAnnouncement.then((newAnn) => {
+            newAnnouncement = newAnn;
+        });
 
         updateCountdown();
         let countdownInterval = setInterval(updateCountdown, 1000);
@@ -25,7 +30,7 @@
     const gameDateString = `${weekdays[gameDate.getUTCDay()]}, Day ${gameDate.getUTCDay() + 1}`;
 
     let menuActive = false;
-    let announcementShown = false;
+    let newAnnouncement: Announcement | null = null;
     let folded = true;
     let foldedHeight = "15%";
 
@@ -103,12 +108,19 @@
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
 
-    {#if announcementShown}
-        <div id="announcement" class:shown={announcementShown}>
-            <h2>New Announcement</h2>
+    {#if newAnnouncement}
+        <div id="announcement">
+            <h2>{newAnnouncement.title}</h2>
+            <div class="preview">
+                <p> A new announcement has been posted and is now available to read.
+                </p>
+            </div>
             <div class="buttons">
-                <button> Dismiss </button>
-                <a href={ANNOUNCEMENTS}> View </a>
+                <button on:click={() => {
+                    fetch(announcementLink(newAnnouncement?.id ?? "."));
+                    newAnnouncement = null;
+                }}> Dismiss </button>
+                <a href={announcementLink(newAnnouncement.id)}> View </a>
             </div>
         </div>
     {/if}
@@ -131,9 +143,9 @@
 
     #announcement {
         width: 95%;
-        height: 20%;
+        height: 35%;
         background: #f0f0f0;
-        z-index: 3;
+        z-index: 20;
         position: absolute;
         left: 50%;
         top: 50%;
@@ -141,9 +153,14 @@
         border: 1px solid black;
         border-radius: 1rem;
         display: grid;
-        justify-items: center;
+        place-items: center;
         align-items: start;
         padding-top: 1rem;
+    }
+
+    #announcement .preview p {
+        padding: 1.5rem;
+        text-align: center;
     }
 
     #announcement .buttons {
@@ -151,6 +168,8 @@
         display: grid;
         grid-template-columns: 50% 50%;
         place-items: center;
+        align-self: end;
+        padding-bottom: 1rem;
     }
 
     #announcement .buttons * {

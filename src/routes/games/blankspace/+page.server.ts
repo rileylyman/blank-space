@@ -20,5 +20,21 @@ export const load = async (event: ServerLoadEvent) => {
         currentScore,
         weekScore,
         progs,
+
+        newAnnouncement: (async () => {
+            const currAnn = (await event.locals.pb
+                .collection('current_announcement')
+                .getFullList())
+                .at(0);
+            if (!currAnn) return null;
+
+            const read = (await event.locals.pb
+                .collection('announcements_read')
+                .getFullList({ filter: `user.id = "${userId}"`}))
+                .at(0);
+            if (!read || !read.read.includes(currAnn.id)) return currAnn;
+
+            return null;
+        })(),
     }
 }
