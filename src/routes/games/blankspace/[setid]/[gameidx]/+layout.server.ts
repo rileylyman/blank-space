@@ -3,6 +3,7 @@ import { BsResponseParser } from '$lib/blankspace-game-api';
 import { BS_HOME_SKIP, blankspaceApi } from '$lib/links';
 import { bsGameAllLowercase } from '$lib/schema';
 import { getFeatures } from '$lib/features';
+import { getUserPreferences } from '$lib/utils';
 
 export const load = async (event: ServerLoadEvent) => {
     const setId = event.params.setid ?? "";
@@ -43,5 +44,6 @@ export const load = async (event: ServerLoadEvent) => {
         feedback: feedbackList.items.at(0) ?? null,
         from,
         features: await getFeatures(event.locals.pb),
+        prefs: await getUserPreferences(event.locals.pb),
     }
 }

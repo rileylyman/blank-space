@@ -21,24 +21,25 @@
     let lastResponse: BsResponse | null = null;
 
     $: feat = data.features;
+    $: peacefulMode = feat.peacefulMode && data.prefs.peacefulMode;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
     $: showGuesses = true;
     $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
-    $: disabledKeys = feat.peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
+    $: disabledKeys = peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
         for (let c of guess) {
             if (!data.bsGame.target.includes(c)) { set.add(c) }
         };
         return set;
     }, new Set())).join("") : "";
-    $: goodKeys = feat.peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
+    $: goodKeys = peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
         for (let c of guess) {
             if (data.bsGame.target.includes(c)) { set.add(c) }
         };
         return set;
     }, new Set())).join("") : "";
-    $: targetLength = feat.peacefulMode ? data.bsGame.target.length : undefined;
+    $: targetLength = peacefulMode ? data.bsGame.target.length : undefined;
 
     onMount(async () => {
         if (won || lost) {
@@ -154,7 +155,7 @@
             hints[flippedHint].guess = hints[flippedHint].guess.slice(0, -1)
             return;
         }
-        if (!feat.peacefulMode || hints[flippedHint].guess.length < (targetLength ?? 0)) {
+        if (!peacefulMode || hints[flippedHint].guess.length < (targetLength ?? 0)) {
             hints[flippedHint].guess += key.toLocaleLowerCase();
         }
     }
