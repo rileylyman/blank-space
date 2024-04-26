@@ -1,7 +1,11 @@
 <script lang="ts">
-    import { BS_HOME_SKIP_MENU } from "$lib/links";
+    import { BS_HOME_SKIP } from "$lib/links";
+    import { setWantHomeMenu } from "$lib/utils";
     import { faX } from "@fortawesome/free-solid-svg-icons";
+    import { onMount } from "svelte";
     import Fa from "svelte-fa";
+
+    onMount(() => setWantHomeMenu(true));
 </script>
 
 <div id="root">
@@ -134,7 +138,7 @@
 
 </div>
 
-<a href={BS_HOME_SKIP_MENU}> <Fa icon={faX} /> </a>
+<a href={BS_HOME_SKIP}> <Fa icon={faX} /> </a>
 
 <style>
     #root {

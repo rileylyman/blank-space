@@ -1,12 +1,14 @@
 <script lang="ts">
     import { preloadData } from "$app/navigation";
-    import { AUTH_LOGOUT_ACTION, BS_HOME_SKIP_MENU } from "$lib/links";
+    import { AUTH_LOGOUT_ACTION, BS_HOME_SKIP } from "$lib/links";
+    import { setWantHomeMenu } from "$lib/utils.js";
     import { onMount } from "svelte";
 
     export let data;
 
     onMount(() => {
-        preloadData(BS_HOME_SKIP_MENU);
+        setWantHomeMenu(true);
+        preloadData(BS_HOME_SKIP);
     })
 </script>
 
@@ -26,7 +28,7 @@
         <form action={AUTH_LOGOUT_ACTION} method="POST">
             <button class="button" type="submit"> Logout </button>
         </form>
-        <a class="button" href={BS_HOME_SKIP_MENU}> Back </a>
+        <a class="button" href={BS_HOME_SKIP}> Back </a>
     </div>
 </div>
 

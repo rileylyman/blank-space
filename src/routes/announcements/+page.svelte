@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { ANNOUNCEMENTS, BS_HOME_SKIP_MENU } from '$lib/links.js';
+    import { ANNOUNCEMENTS, BS_HOME_SKIP } from '$lib/links.js';
     import { onMount } from 'svelte';
     import { preloadData } from '$app/navigation';
 
     export let data;
 
     onMount(() => {
-        preloadData(BS_HOME_SKIP_MENU);
+        preloadData(BS_HOME_SKIP);
     })
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -19,7 +19,7 @@
 
 <div id="root" data-sveltekit-preload-data="off">
     <h1> Announcements </h1>
-    <a class="home" href={BS_HOME_SKIP_MENU}> Go Home </a>
+    <a class="home" href={BS_HOME_SKIP}> Go Home </a>
     <div class="links">
         {#each data.anns as { id, title, release_on }}
             <div class:read={data.read?.read.includes(id)}>

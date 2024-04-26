@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { BS_HOME_SKIP_MENU, BS_STATS } from "$lib/links";
+    import { BS_HOME_SKIP, BS_STATS } from "$lib/links";
     import { onMount, tick } from "svelte";
     import { preloadData } from "$app/navigation";
+    import { setWantHomeMenu } from "$lib/utils.js";
 
     export let data;
     let entryHeight: number;
@@ -9,7 +10,8 @@
 
     onMount(() => {
         select("this", 300);
-        preloadData(BS_HOME_SKIP_MENU);
+        setWantHomeMenu(true);
+        preloadData(BS_HOME_SKIP);
     })
 
     const select = async (week: "this" | "last", timeout: number) => {
@@ -89,7 +91,7 @@
         {/each}
     </div>
     <div class="buttons">
-        <a href={BS_HOME_SKIP_MENU}> Back </a>
+        <a href={BS_HOME_SKIP}> Back </a>
         <a href={BS_STATS}> See Stats </a>
     </div>
 </div>

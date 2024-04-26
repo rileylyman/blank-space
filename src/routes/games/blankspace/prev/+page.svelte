@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { BS_HOME_SKIP_MENU, BS_PREV, bsGameLink } from "$lib/links";
+    import { BS_HOME_SKIP, BS_PREV, bsGameLink } from "$lib/links";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import { onMount } from "svelte";
     import WeekContainer from "./WeekContainer.svelte";
     import { preloadData} from "$app/navigation";
     import { browser } from "$app/environment";
-    import { getCookie, setCookie } from "$lib/utils";
+    import { getCookie, setCookie, setWantHomeMenu } from "$lib/utils";
 
     export let data;
 
@@ -23,7 +23,8 @@
     }
 
     onMount(() => {
-        preloadData(BS_HOME_SKIP_MENU);
+        setWantHomeMenu(true);
+        preloadData(BS_HOME_SKIP);
     })
 
 </script>
@@ -56,7 +57,7 @@
         </div>
     </div>
     <div class="buttons">
-        <a href={BS_HOME_SKIP_MENU}> Go Home </a>
+        <a href={BS_HOME_SKIP}> Go Home </a>
     </div>
 </div>
 

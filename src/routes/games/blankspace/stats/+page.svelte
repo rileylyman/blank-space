@@ -1,13 +1,15 @@
 <script lang="ts">
-    import { BS_HOME_SKIP_MENU, BS_RANKINGS } from "$lib/links";
+    import { BS_HOME_SKIP, BS_RANKINGS } from "$lib/links";
     import BarPlot from "$lib/ui/BarPlot.svelte";
     import { onMount } from "svelte";
     import { preloadData } from "$app/navigation";
+    import { setWantHomeMenu } from "$lib/utils.js";
 
     export let data;
 
     onMount(() => {
-        preloadData(BS_HOME_SKIP_MENU);
+        setWantHomeMenu(true);
+        preloadData(BS_HOME_SKIP);
     })
 
     const won = data.stats?.won_games ?? 0;
@@ -30,7 +32,7 @@
         <p>Last Week's Score <span>{data.lastWeekScore}</span></p>
     </div>
     <div class="buttons">
-        <a href={BS_HOME_SKIP_MENU}> Back </a>
+        <a href={BS_HOME_SKIP}> Back </a>
         <a href={BS_RANKINGS}> See Rankings </a>
     </div>
 </div>

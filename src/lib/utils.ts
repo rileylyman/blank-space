@@ -13,6 +13,12 @@ export const setCookie = (name: string, value: string, opts: CookieOpts = {}) =>
 export const getCookie = (name: string): string | undefined => 
     document.cookie.split(";").find((c) => c.includes(name))?.split("=").at(1);
 
+export const getWantHomeMenu = () => !!getCookie("wantHomeMenu");
+
+export const setWantHomeMenu = (want: boolean) => {
+    setCookie("wantHomeMenu", "yes", { maxAge: want ? undefined : 0 });
+} 
+
 export const sleepMs = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const fitText = (root: HTMLElement, query: string, scale: number) => {

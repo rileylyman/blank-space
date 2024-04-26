@@ -4,15 +4,16 @@
     import { ACCOUNT, BS_HOME_SKIP, BS_RULES, BS_PREV, BS_RANKINGS, BS_STATS, bsGameLink, ANNOUNCEMENTS, announcementLink } from "$lib/links";
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
-    import { page } from "$app/stores";
     import type { Announcement } from "$lib/schema";
+    import { getWantHomeMenu, setWantHomeMenu } from "$lib/utils";
 
     export let data;
 
     onMount(() => {
         preloadData(BS_RANKINGS);
 
-        if ($page.url.searchParams.get("menu") === 'true') {
+        if (getWantHomeMenu()) {
+            setWantHomeMenu(false);
             menuActive = true;
         }
 
