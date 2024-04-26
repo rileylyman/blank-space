@@ -142,6 +142,13 @@ export interface AnnouncementsRead {
     read: string[];
 }
 
+export interface UserPreferences {
+    id: string;
+    user: string;
+
+    peacefulMode: boolean;
+}
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
@@ -160,4 +167,5 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'announcements'): RecordService<Announcement>;
     collection(idOrName: 'announcements_read'): RecordService<AnnouncementsRead>;
     collection(idOrName: 'current_announcement'): RecordService<Announcement>;
+    collection(idOrName: 'user_preferences'): RecordService<UserPreferences>;
 }

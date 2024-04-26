@@ -5,6 +5,10 @@
     import { onMount } from "svelte";
 
     export let data;
+    export let form;
+
+    $: prefs = form?.prefs ?? data.prefs;
+    let prefsUpdated = false;
 
     onMount(() => {
         setWantHomeMenu(true);
@@ -14,44 +18,72 @@
 
 <div id="root">
     <h1> Manage your account </h1>
-    <div class="account-info-container">
-        <h2> Account Info </h2>
-        <div class="account-info">
-            <p class="header"> Username </p>
-            <p class="value"> {data.pbUser?.username} </p>
-            <p class="header"> Email </p>
-            <p class="value"> {data.pbUser?.email} </p>
-        </div>
+
+    <h2> Account Info </h2>
+    <div class="account-info">
+        <p class="header"> Username </p>
+        <p class="value"> {data.pbUser?.username} </p>
+        <p class="header"> Email </p>
+        <p class="value"> {data.pbUser?.email} </p>
     </div>
+
+    <h2> Preferences </h2>
+    <div class="prefs">
+        <form action="?/prefs" method="POST" on:change={() => prefsUpdated = true}>
+            <label for="peacefulMode"> Peaceful Mode </label>
+            <input type="checkbox" name="peacefulMode" id="peacefulMode" bind:checked={prefs.peacefulMode} />
+
+            <button class="button" class:inactive={!prefsUpdated} type="submit"> Save Changes </button>
+        </form>
+    </div>
+
     <div class="buttons">
         <a class="button" href="/auth/reset?from=/account"> Change password </a>
-        <form action={AUTH_LOGOUT_ACTION} method="POST">
+        <form action={AUTH_LOGOUT_ACTION} method="POST" class="logout-form">
             <button class="button" type="submit"> Logout </button>
         </form>
-        <a class="button" href={BS_HOME_SKIP}> Back </a>
+        <a class="button" href={BS_HOME_SKIP}> Done </a>
     </div>
 </div>
 
 <style>
     #root {
-        display: grid;
         align-items: center;
         justify-items: start;
-        grid-template-rows: 15% 30% 30%;
         height: 100vh;
         height: 100svh;
         width: calc(min(50rem, 100vw));
         margin: 0 auto;
-        padding-left: 1rem;
-    }
-
-    .account-info-container {
-        width: 100%;
+        padding: 0 1rem;
     }
 
     h2 {
         margin-bottom: 0.5rem;
+        margin-top: 2rem;
     }
+
+    .prefs {
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        width: calc(100% - 2rem);
+    }
+
+    .prefs button {
+        margin: 1.5rem auto;
+        margin-bottom: 0;
+        width: min-content;
+        white-space: nowrap;
+    }
+
+    .prefs input[type='checkbox'] {
+        margin-left: 1rem;
+    }
+
+    .prefs label {
+        font-size: 1.2rem;
+    }
+
 
     .account-info {
         display: grid;
@@ -81,7 +113,13 @@
         width: 100%;
         display: grid;
         place-items: center;
-        grid-template-rows: 4rem 4rem 4rem;
+        margin-top: 2rem;
+    }
+
+    .logout-form {
+        width: 100%;
+        display: grid;
+        place-items: center;
     }
 
     .button {
@@ -93,7 +131,15 @@
         display: grid;
         place-items: center;
         padding: 0.5rem 1rem;
-        width: 10rem;
+        width: 80%;
         border-radius: 0.5rem;
+        margin-top: 1rem;
+        transition: background 250ms, color 250ms;
+    }
+
+    .button.inactive {
+        pointer-events: none;
+        background: #e0e0e0;
+        color: #555;
     }
 </style>

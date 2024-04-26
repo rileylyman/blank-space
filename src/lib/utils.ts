@@ -1,3 +1,26 @@
+import type { UserPreferences } from "./schema";
+import type TypedPocketBase from "./schema";
+
+export const getUserPreferences = async (pb: TypedPocketBase): Promise<UserPreferences> => {
+    const prefs = (await pb
+        .collection('user_preferences')
+        .getFullList({ filter: `user.id = "${pb.authStore.model?.id}"` }))
+        .at(0);
+    if (prefs === undefined) {
+        await pb
+            .collection('user_preferences')
+            .create({ user: pb.authStore.model?.id });
+        return await getUserPreferences(pb);
+    }
+    return prefs;
+}
+
+export const setUserPreferences = async (pb: TypedPocketBase, newPrefs: UserPreferences) => {
+    await pb
+        .collection('user_preferences')
+        .update(newPrefs.id, newPrefs)
+}
+
 export interface CookieOpts {
     maxAge?: number;
     path?: string;
