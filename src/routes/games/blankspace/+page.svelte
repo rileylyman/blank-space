@@ -5,7 +5,7 @@
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import type { Announcement } from "$lib/schema";
-    import { getWantHomeMenu, setWantHomeMenu } from "$lib/utils";
+    import { getWantHomeMenu, setWantHomeMenu, sleepMs } from "$lib/utils";
 
     export let data;
 
@@ -109,22 +109,20 @@
         <button class="button" on:click={() => menuActive = false}> Back </button>
     </div>
 
-    {#if newAnnouncement}
-        <div id="announcement">
-            <h2>{newAnnouncement.title}</h2>
-            <div class="preview">
-                <p> A new announcement has been posted and is now available to read.
-                </p>
-            </div>
-            <div class="buttons">
-                <button on:click={() => {
-                    fetch(announcementLink(newAnnouncement?.id ?? "."));
-                    newAnnouncement = null;
-                }}> Dismiss </button>
-                <a href={announcementLink(newAnnouncement.id)}> View </a>
-            </div>
+    <div id="announcement" class:hidden={!newAnnouncement}>
+        <h2>{newAnnouncement?.title}</h2>
+        <div class="preview">
+            <p> A new announcement has been posted and is now available to read.
+            </p>
         </div>
-    {/if}
+        <div class="buttons">
+            <button on:click={() => {
+                fetch(announcementLink(newAnnouncement?.id ?? "."));
+                newAnnouncement = null;
+            }}> Dismiss </button>
+            <a href={announcementLink(newAnnouncement?.id ?? ".")}> View </a>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -157,6 +155,11 @@
         place-items: center;
         align-items: start;
         padding-top: 1rem;
+        transition: transform 500ms;
+    }
+
+    #announcement.hidden {
+        transform: translateY(100vh) translateX(-50%);
     }
 
     #announcement .preview p {
