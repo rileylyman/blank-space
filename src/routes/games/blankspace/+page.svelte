@@ -158,6 +158,11 @@
         transition: transform 500ms;
     }
 
+    #announcement h2 {
+        text-align: center;
+        margin: 0 1rem;
+    }
+
     #announcement.hidden {
         transform: translateY(100vh) translateX(-50%);
     }
