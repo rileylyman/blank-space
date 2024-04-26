@@ -30,7 +30,7 @@ export const load = async (event: ServerLoadEvent) => {
 
     const appendDayProgress = (set: BsGameSet, arr: DayProgress[]) => {
         let played = progs
-            .filter((p) => p.bs_game_set === set.id && (p.won || p.lost));
+            .filter((p) => p.bs_game_set === set.id);
         arr.push({
             set,
             progs: played,

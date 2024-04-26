@@ -2,7 +2,7 @@
     import { type BsGameSet, type BsGameProgress } from "$lib/schema";
     import { goto } from "$app/navigation";
     import Fa from "svelte-fa";
-    import { faXmark, faPersonWalkingArrowLoopLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
+    import { faPersonWalkingArrowLoopLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
 
     export let progs: BsGameProgress[];
     export let set: BsGameSet;
