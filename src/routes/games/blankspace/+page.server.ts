@@ -26,7 +26,7 @@ export const load = async (event: ServerLoadEvent) => {
                 .collection('current_announcement')
                 .getFullList())
                 .at(0);
-            if (!currAnn) return null;
+            if (!currAnn || currAnn.id === "") return null;
 
             const read = (await event.locals.pb
                 .collection('announcements_read')
