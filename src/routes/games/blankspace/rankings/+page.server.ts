@@ -2,7 +2,7 @@ import { type ServerLoadEvent } from "@sveltejs/kit"
 import type { BsWeeklyStanding } from "$lib/schema";
 import type TypedPocketBase from "$lib/schema";
 
-const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584"];
+const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584", "t0tdwyeg9w84gmx"];
 
 const addRanksToStandings = (standings: Array<BsWeeklyStanding>) => {
     let lastKnownScore = -1;
