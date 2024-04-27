@@ -2,7 +2,7 @@
     import { type BsGameSet, type BsGameProgress } from "$lib/schema";
     import { goto, invalidateAll } from "$app/navigation";
     import Fa from "svelte-fa";
-    import { faPersonWalkingArrowLoopLeft, faPlay, faX } from '@fortawesome/free-solid-svg-icons';
+    import { faPersonWalkingArrowLoopLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
 
     export let progs: BsGameProgress[];
     export let set: BsGameSet;
@@ -51,7 +51,7 @@
                     await fetch("/api/blankspace/delete_prog?progId=" + prog?.id, { method: "POST" });
                     invalidateAll();
                 }} 
-                class="delete"> <Fa icon={faX} /> </button>
+                class="delete"> <span>x</span> </button>
             {/if}
         </button>
     {/each}
@@ -119,7 +119,7 @@
         right: 0;
         width: 2rem;
         height: 2rem;
-        font-size: 1rem;
+        font-size: 1.3rem;
         background: rgb(250, 113, 79);
         display: grid;
         place-items: center;
@@ -127,5 +127,9 @@
         outline: none;
         border-radius: 50%;
         z-index: 5;
+    }
+
+    .delete span {
+        transform: translateY(-3px);
     }
 </style>
