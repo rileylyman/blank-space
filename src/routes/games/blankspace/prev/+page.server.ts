@@ -1,6 +1,7 @@
 import type { BsGameSet } from "$lib/schema";
 import { type ServerLoadEvent } from "@sveltejs/kit"
 import { type DayProgress } from "./common";
+import { getFeatures } from "$lib/features";
 
 export const load = async (event: ServerLoadEvent) => {
     const userId = event.locals.pb.authStore.model?.id ?? "";
@@ -43,5 +44,6 @@ export const load = async (event: ServerLoadEvent) => {
     return {
         lastDp,
         thisDp,
+        features: await getFeatures(event.locals.pb),
     }
 }

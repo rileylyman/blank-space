@@ -1,9 +1,11 @@
 import type TypedPocketBase from "./schema";
 
 const PEACEFUL_MODE = 'peacefulMode';
+const CLEAR_PROGRESS = 'clearProgress';
 
 export interface Features {
     peacefulMode: boolean;
+    clearProgress: boolean;
 }
 
 export const getFeatures = async (pb: TypedPocketBase): Promise<Features> => {
@@ -23,5 +25,6 @@ export const getFeatures = async (pb: TypedPocketBase): Promise<Features> => {
 
     return {
         peacefulMode: enabled.includes(PEACEFUL_MODE),
+        clearProgress: enabled.includes(CLEAR_PROGRESS),
     }
 }

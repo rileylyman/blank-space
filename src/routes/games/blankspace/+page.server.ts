@@ -1,3 +1,4 @@
+import { getFeatures } from "$lib/features";
 import { type ServerLoadEvent } from "@sveltejs/kit"
 
 export const load = async (event: ServerLoadEvent) => {
@@ -20,6 +21,7 @@ export const load = async (event: ServerLoadEvent) => {
         currentScore,
         weekScore,
         progs,
+        features: await getFeatures(event.locals.pb),
 
         newAnnouncement: (async () => {
             const currAnn = (await event.locals.pb

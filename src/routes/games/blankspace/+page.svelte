@@ -5,7 +5,7 @@
     import { onMount } from "svelte";
     import PinContainer from "$lib/ui/PinContainer.svelte";
     import type { Announcement } from "$lib/schema";
-    import { getWantHomeMenu, setWantHomeMenu, sleepMs } from "$lib/utils";
+    import { getWantHomeMenu, setWantHomeMenu } from "$lib/utils";
 
     export let data;
 
@@ -31,7 +31,7 @@
     const gameDateString = `${weekdays[gameDate.getUTCDay()]}, Day ${gameDate.getUTCDay() + 1}`;
 
     let menuActive = false;
-    let allowClearGames = true;
+    let allowClearGames = data.features.clearProgress;
     let newAnnouncement: Announcement | null = null;
     let folded = true;
     let foldedHeight = "15%";
@@ -54,7 +54,6 @@
 
         countdown = `${rhr > 0 ? rhr + "h " : ""}${rmin > 0 ? + rmin + "m " : ""}${rsec + "s"}`;
     }
-
 </script>
 
 <div id="root">
