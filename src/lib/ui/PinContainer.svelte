@@ -117,8 +117,9 @@
         position: absolute;
         top: 0;
         right: 0;
-        width: 2rem;
-        height: 2rem;
+        padding: 0;
+        height: 2.2rem;
+        width: 2.2rem;
         font-size: 1.3rem;
         background: rgb(250, 113, 79);
         display: grid;
@@ -130,6 +131,6 @@
     }
 
     .delete span {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
     }
 </style>
