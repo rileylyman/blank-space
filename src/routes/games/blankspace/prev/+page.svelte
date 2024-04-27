@@ -66,6 +66,7 @@
     <div class="pin-container">
         {#if shownProg}
             <PinContainer
+                deleteButtons={false}
                 set={shownProg.set}
                 progs={shownProg.progs}
                 links={[0, 1, 2, 3].map((n) => 

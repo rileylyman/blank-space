@@ -1,12 +1,13 @@
 <script lang="ts">
     import { type BsGameSet, type BsGameProgress } from "$lib/schema";
-    import { goto } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import Fa from "svelte-fa";
-    import { faPersonWalkingArrowLoopLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
+    import { faPersonWalkingArrowLoopLeft, faPlay, faX } from '@fortawesome/free-solid-svg-icons';
 
     export let progs: BsGameProgress[];
     export let set: BsGameSet;
     export let links: string[];
+    export let deleteButtons: boolean;
 
     $: games = set.expand!.games!.map((game) => {
         const prog = progs.find((p) => p.bs_game === game.id);
@@ -27,6 +28,7 @@
     {#each games as { game, won, lost, unplayed, prog }, idx}
         <button 
             on:click={() => goto(links[idx])}
+            class="pin"
             class:won
             class:lost
             class:unplayed
@@ -44,6 +46,13 @@
             {:else}
                 <Fa icon={faPersonWalkingArrowLoopLeft} size="0.8x" />
             {/if}
+            {#if deleteButtons && prog !== undefined}
+                <button on:click|stopPropagation={async () => {
+                    await fetch("/api/blankspace/delete_prog?progId=" + prog?.id, { method: "POST" });
+                    invalidateAll();
+                }} 
+                class="delete"> <Fa icon={faX} /> </button>
+            {/if}
         </button>
     {/each}
 </div>
@@ -59,7 +68,7 @@
         grid-template-rows: 50% 50%;
     }
 
-    #root button {
+    #root .pin {
         position: relative;
         display: grid;
         place-items: center;
@@ -76,31 +85,47 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    #root button p:first-of-type {
+    #root .pin p:first-of-type {
         font-size: 0.9rem;
         align-self: end;
     }
 
-    #root button p:last-of-type {
+    #root .pin p:last-of-type {
         font-size: 1.1rem;
         align-self: start;
     }
 
-    #root button p {
+    #root .pin p {
         font-size: 1.3rem;
         text-transform: uppercase;
     }
 
-    #root button.lost {
+    #root .pin.lost {
         background: rgb(250, 113, 79);
     }
 
-    #root button.won {
+    #root .pin.won {
         background-color: rgb(80, 194, 104);
         grid-template-rows: 30% 40% 30%;
     }
 
-    #root button.unplayed {
+    #root .pin.unplayed {
         background-color: white;
+    }
+
+    #root .delete {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+        background: rgb(250, 113, 79);
+        display: grid;
+        place-items: center;
+        border: 1px solid black;
+        outline: none;
+        border-radius: 50%;
+        z-index: 5;
     }
 </style>
