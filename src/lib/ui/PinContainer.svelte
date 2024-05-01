@@ -49,7 +49,7 @@
             {#if deleteButtons && prog !== undefined}
                 <button on:click|stopPropagation={async () => {
                     await fetch("/api/blankspace/delete_prog?progId=" + prog?.id, { method: "POST" });
-                    invalidateAll();
+                    await invalidateAll();
                 }} 
                 class="delete"> <span>x</span> </button>
             {/if}

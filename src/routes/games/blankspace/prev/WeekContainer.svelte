@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { BsGameProgress } from '$lib/schema';
     import { type DayProgress } from './common';
     import { createEventDispatcher } from 'svelte';
 
@@ -9,6 +10,8 @@
         }
     }
 
+    const compLen = (progs: BsGameProgress[]): number => progs.filter((p) => p.won || p.lost).length;
+
     const dispatch = createEventDispatcher();
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 </script>
@@ -17,9 +20,14 @@
     {#each dps as { progs, set }, idx}
         <div class="day">
             <p> {days[idx]} </p>
-            <div class:future={!set.id} class:none={progs.length === 0} class:some={progs.length > 0} class:all={progs.length === 4}>
+            <div
+                class:future={!set.id}
+                class:none={compLen(progs) === 0}
+                class:some={compLen(progs) > 0}
+                class:all={compLen(progs) === 4}
+            >
                 {#if set.id}
-                    <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{progs.length}/4</button> 
+                    <button on:click={() => dispatch("clicked", { idx, prog: dps[idx] })}>{compLen(progs)}/4</button>
                 {:else}
                     ?/?
                 {/if}
