@@ -64,10 +64,17 @@ export interface BsGameProgress {
     won: boolean;
     lost: boolean;
     score: number;
+    flags: number;
 
     expand?: {
         bs_game_set?: BsGameSet;
     }
+}
+
+export enum ProgressFlags {
+    None = 0,
+    NumLettersShown = 1 << 0,
+    KeyboardUpdated = 1 << 1,
 }
 
 export interface BsGameFeedback {

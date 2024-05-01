@@ -1,13 +1,15 @@
 import {
     type BsGame,
     type BsGameProgress,
-    bsGameAllLowercase
+    bsGameAllLowercase,
+    ProgressFlags
 } from "$lib/schema";
 import fs from 'fs';
 import type TypedPocketBase from "$lib/schema";
 import { type RequestEvent, json } from "@sveltejs/kit"
 import { BsRequestParser, updateGameState, type BsResponse } from "$lib/blankspace-game-api";
 import { fromZodError } from 'zod-validation-error';
+import { getUserPreferences } from "$lib/utils";
 
 let dictionaryList = fs.readFileSync("./src/routes/api/blankspace/words.txt", { encoding: 'utf16le' }).split('\n').map((s) => s.trim());
 let dictionary: Set<string> = new Set(dictionaryList);
@@ -31,6 +33,8 @@ export const POST = async (event: RequestEvent) => {
     [progress, response.error] = await getProgress(event.locals.pb, { gameId, setId, userId });
     if (!progress) return json(response, { status: 400 });
 
+    let prefs = await getUserPreferences(event.locals.pb);
+
     let guesses = progress.guesses.split(',').filter((s) => s);
 
     let dictionaryFn = async (word: string): Promise<boolean> => dictionary.has(word);
@@ -40,21 +44,24 @@ export const POST = async (event: RequestEvent) => {
     }
     let { score, won, lost } = response.result!;
 
-    if (guess) {
-        try {
-            if (progress.id) {
-                await event.locals.pb
-                    .collection('bs_game_progress')
-                    .update(progress.id, { won, lost, guesses: guesses.join(','), score, local_dict: localDict});
-            } else {
-                await event.locals.pb
-                    .collection('bs_game_progress')
-                    .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(','), score, local_dict: localDict });
-            }
-        } catch (err) {
-            console.log(err);
-            return json({ error: 'internal server error: could not update progress' }, { status: 500 });
+    let flags = progress.flags;
+    if (!won && !lost && prefs.peacefulMode) {
+        flags |= ProgressFlags.KeyboardUpdated | ProgressFlags.NumLettersShown;
+    }
+
+    try {
+        if (progress.id) {
+            await event.locals.pb
+                .collection('bs_game_progress')
+                .update(progress.id, { won, lost, guesses: guesses.join(','), score, local_dict: localDict, flags});
+        } else {
+            await event.locals.pb
+                .collection('bs_game_progress')
+                .create({ bs_game: gameId, bs_game_set: setId, user: userId, won, lost, guesses: guesses.join(','), score, local_dict: localDict, flags });
         }
+    } catch (err) {
+        console.log(err);
+        return json({ error: 'internal server error: could not update progress' }, { status: 500 });
     }
 
     return json(response);
@@ -81,7 +88,7 @@ const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: 
             .getFirstListItem(
                 `user.id = "${args.userId}" && bs_game.id = "${args.gameId}" && bs_game_set.id = "${args.setId}"`);
     } catch (_) {
-        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", score: 0, won: false, lost: false };
+        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", score: 0, won: false, lost: false, flags: 0 };
     }
     return [progress, null];
 }
