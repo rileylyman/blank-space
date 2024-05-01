@@ -3,6 +3,8 @@
     import { onMount, tick } from "svelte";
     import { preloadData } from "$app/navigation";
     import { setWantHomeMenu } from "$lib/utils.js";
+    import Fa from "svelte-fa";
+    import { faRibbon } from "@fortawesome/free-solid-svg-icons";
 
     export let data;
     let entryHeight: number;
@@ -70,6 +72,7 @@
     <div class="rankings" bind:this={rankingsElement}>
         <div class="header entry" bind:clientHeight={entryHeight}>
             <span class="table-header"> # </span>
+            <span> </span>
             <span class="table-header"> User </span>
             <span class="table-header score"> Played </span>
             <span class="table-header score"> Score </span>
@@ -84,12 +87,22 @@
                         </div>
                     {/if}
                 </span>
+                <span>
+                    {#if data.features.badges}
+                        <Fa size="0.85x" icon={faRibbon} />
+                    {/if}
+                </span>
                 <span class="user"> {username} </span>
                 <span class="score"> {games_played} </span>
                 <span class="score"> {total_score} </span>
             </div>
         {/each}
     </div>
+    <p class="badge-explainer"> 
+        {#if data.features.badges}
+            A badge is displayed next to users who have played all of their games with no hints. 
+        {/if}
+    </p>
     <div class="buttons">
         <a href={BS_HOME_SKIP}> Back </a>
         <a href={BS_STATS}> See Stats </a>
@@ -108,8 +121,8 @@
         margin: 0 auto;
         display: grid;
         place-items: center;
-        grid-template-rows: 10vh 25vh 40vh 25vh;
-        grid-template-rows: 10svh 25svh 40svh 25svh;
+        grid-template-rows: 10vh 25vh 40vh 10vh 15vh;
+        grid-template-rows: 10svh 25svh 40svh 10svh 15svh;
     }
 
     @media (width >= 50rem) {
@@ -117,6 +130,15 @@
             border-left: 1px solid black;
             border-right: 1px solid black;
         }
+    }
+
+    .badge-explainer {
+        text-align: center;
+        font-size: 0.8rem;
+        font-style: italic;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
     }
 
     .tab-container {
@@ -192,7 +214,7 @@
         display: grid;
         justify-items: start;
         align-items: center;
-        grid-template-columns: 10% 55% 20% 15%;
+        grid-template-columns: 10% 10% 45% 20% 15%;
         padding: 0.5rem 1rem;
     }
 

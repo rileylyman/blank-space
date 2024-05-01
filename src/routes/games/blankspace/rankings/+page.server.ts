@@ -1,6 +1,7 @@
 import { type ServerLoadEvent } from "@sveltejs/kit"
 import type { BsWeeklyStanding } from "$lib/schema";
 import type TypedPocketBase from "$lib/schema";
+import { getFeatures } from "$lib/features";
 
 const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584", "t0tdwyeg9w84gmx"];
 
@@ -53,5 +54,6 @@ export const load = async (event: ServerLoadEvent) => {
     return {
         lastWeek,
         thisWeek,
+        features: await getFeatures(event.locals.pb),
     };
 }
