@@ -4,9 +4,11 @@
     import { createEventDispatcher } from 'svelte';
 
     export let dps: DayProgress[];
-    for (let i = 0; i < 7; i++) {
-        if (i >= dps.length) {
-            dps.push({ set: { id: "", publish_on: "", games: [] }, progs: [] }) 
+    $: {
+        for (let i = 0; i < 7; i++) {
+            if (i >= dps.length) {
+                dps.push({ set: { id: "", publish_on: "", games: [] }, progs: [] }) 
+            }
         }
     }
 
