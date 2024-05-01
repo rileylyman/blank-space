@@ -74,7 +74,7 @@
             <span class="table-header score"> Played </span>
             <span class="table-header score"> Score </span>
         </div>
-        {#each viewed.standings as {username, total_score, games_played, rank}, idx}
+        {#each viewed.standings as {username, total_score, games_played, rank, flags}, idx}
             <div class="entry" class:highlight={idx === viewed.idx}>
                 <span class="rank">  
                     {rank} 

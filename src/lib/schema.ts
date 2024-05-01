@@ -125,9 +125,11 @@ export interface BsWeeklyStanding {
     total_score: number;
     games_played: number;
     total_games: number;
+    agg_flags: string;
 
     // Augmented client side
     rank?: number;
+    flags?: number;
 }
 
 export interface FeatureControl {

@@ -4,7 +4,7 @@ import type TypedPocketBase from "$lib/schema";
 
 const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584", "t0tdwyeg9w84gmx"];
 
-const addRanksToStandings = (standings: Array<BsWeeklyStanding>) => {
+const augmentStandings = (standings: Array<BsWeeklyStanding>) => {
     let lastKnownScore = -1;
     let lastKnownRank = 0;
     let currentIndex = 0;
@@ -15,6 +15,11 @@ const addRanksToStandings = (standings: Array<BsWeeklyStanding>) => {
         }
         standing.rank = lastKnownRank;
         currentIndex += 1;
+
+        standing.flags = standing.agg_flags.toString()
+            .split(",")
+            .map((f) => parseInt(f, 10))
+            .reduce((acc, f) => acc | f, 0);
     }
 }
 
@@ -32,7 +37,7 @@ const getStandings = async (
         return excludedUsers.includes(userId) ? true : !excludedUsers.includes(standing.user);
     })
     standings.sort((a, b) => b.total_score - a.total_score);
-    addRanksToStandings(standings);
+    augmentStandings(standings);
 
     let idx = standings.findIndex((standing) => standing.user === userId);
     let score = idx < 0 ? 0 : standings[idx]?.total_score ?? 0;
