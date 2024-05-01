@@ -1,5 +1,28 @@
-import type { UserPreferences } from "./schema";
+import type { BsGameProgress, BsGameSet, UserPreferences } from "./schema";
 import type TypedPocketBase from "./schema";
+
+export const getWeekProgresses = async (pb: TypedPocketBase, week: 'this' | 'last'): Promise<[BsGameSet[], BsGameProgress[]]> => {
+    const userId = pb.authStore.model?.id ?? "";
+    const collection = `bs_${week}_week_sets`;
+    const weekSets: BsGameSet[] = await pb
+        .collection(collection)
+        .getFullList({ expand: 'games' });
+    weekSets.sort((a, b) => a.publish_on < b.publish_on ? -1 : 1);
+
+    let filter = `user.id = "${userId}"`;
+    let separator = " && (";
+    for (let set of weekSets.concat(weekSets)) {
+        filter += `${separator}bs_game_set = "${set.id}"`
+        separator = " || ";
+    }
+    filter += ')';
+
+    const progs = await pb
+        .collection('bs_game_progress')
+        .getFullList({ filter });
+    
+    return [weekSets, progs];
+}
 
 export const getUserPreferences = async (pb: TypedPocketBase): Promise<UserPreferences> => {
     const prefs = (await pb
