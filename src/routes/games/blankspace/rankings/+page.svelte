@@ -88,7 +88,7 @@
                     {/if}
                 </span>
                 <span>
-                    {#if data.features.badges}
+                    {#if data.features.badges && flags === 0}
                         <Fa size="0.85x" icon={faRibbon} />
                     {/if}
                 </span>
