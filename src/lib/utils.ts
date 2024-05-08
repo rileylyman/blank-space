@@ -1,5 +1,9 @@
-import type { BsGameProgress, BsGameSet, UserPreferences } from "./schema";
+import { ProgressFlags, type BsGameProgress, type BsGameSet, type UserPreferences } from "./schema";
 import type TypedPocketBase from "./schema";
+
+export const areFlagsHardcore = (flags: number): boolean => {
+    return (flags & (ProgressFlags.KeyboardUpdated | ProgressFlags.NumLettersShown)) === 0;
+}
 
 export const getWeekProgresses = async (pb: TypedPocketBase, week: 'this' | 'last'): Promise<[BsGameSet[], BsGameProgress[]]> => {
     const userId = pb.authStore.model?.id ?? "";

@@ -2,9 +2,11 @@
     import { BS_HOME_SKIP, BS_STATS } from "$lib/links";
     import { onMount, tick } from "svelte";
     import { preloadData } from "$app/navigation";
-    import { setWantHomeMenu } from "$lib/utils.js";
+    import { areFlagsHardcore, setWantHomeMenu } from "$lib/utils.js";
     import Fa from "svelte-fa";
-    import { faRibbon } from "@fortawesome/free-solid-svg-icons";
+    import { faMedal, faPeace } from "@fortawesome/free-solid-svg-icons";
+    import type { BsWeeklyStanding } from "$lib/schema";
+    import type { Rankings } from "./common.js";
 
     export let data;
     let entryHeight: number;
@@ -13,6 +15,7 @@
     onMount(() => {
         select("this", 300);
         setWantHomeMenu(true);
+        rankFilter = 'none';
         preloadData(BS_HOME_SKIP);
     })
 
@@ -21,13 +24,37 @@
         await tick();
 
         setTimeout(() => {
-            rankingsElement.scrollTop = entryHeight * (viewed.idx - 2);
+            rankingsElement.scrollTop = entryHeight * (viewed.idxCurr - 2);
         }, timeout);
     }
 
+    const trimLong = (s: string): string => {
+        if (s.length > 14) return `${s.slice(0, 14)}...`;
+        else return s;
+    }
+
+    type RankFilter = 'none' | 'pf' | 'hc';
+    let rankFilter: RankFilter = 'none';
+
+    const chooseRank = (rank: number | undefined, rankPf: number | undefined, rankHc: number | undefined, filter: RankFilter): number | undefined => {
+        if (filter === 'none') return rank;
+        else if (filter === 'pf') return rankPf;
+        else return rankHc;
+    }
+
+    const getCurrent = (rankings: Rankings, filter: RankFilter): { standingsCurr: Array<BsWeeklyStanding>, idxCurr: number, score: number } => {
+        if (filter === 'none') return { score: rankings.score, idxCurr: rankings.idx, standingsCurr: rankings.standings };
+        else if (filter === 'pf') return { score: rankings.score, idxCurr: rankings.idxPf, standingsCurr: rankings.standingsPf };
+        else return { score: rankings.score, idxCurr: rankings.idxHc, standingsCurr: rankings.standingsHc };
+    }
+    const filterClicked = (filter: RankFilter) => {
+        rankFilter = filter;
+        select(selected, 250);
+    }
+
     let day = (new Date()).getDay();
-    let selected = "this";
-    $: viewed = selected === "this" ? data.thisWeek : data.lastWeek;
+    let selected: 'this' | 'last' = "this";
+    $: viewed = selected === "this" ? getCurrent(data.thisWeek, rankFilter) : getCurrent(data.lastWeek, rankFilter);
 </script>
 
 <div id="root">
@@ -60,8 +87,8 @@
             {/if}
         </p>
         <h1>{viewed.score}</h1>
-        {#if viewed.idx >= 0}
-            <p> #{viewed.standings[viewed.idx].rank} out of {viewed.standings.length} players</p>
+        {#if viewed.idxCurr >= 0}
+            <p> #{viewed.standingsCurr[viewed.idxCurr].rank} out of {viewed.standingsCurr.length} players</p>
         {/if}
         {#if selected === "this"}
             <p style="font-style: italic; font-size: 0.9rem">
@@ -69,6 +96,12 @@
             </p>
         {/if}
     </div>
+    <p class="badge-explainer"> 
+        {#if data.features.badges}
+            <Fa icon={faMedal} /> <span> = hardcore mode</span>
+            <Fa icon={faPeace} /> <span> = peaceful mode</span>
+        {/if}
+    </p>
     <div class="rankings" bind:this={rankingsElement}>
         <div class="header entry" bind:clientHeight={entryHeight}>
             <span class="table-header"> # </span>
@@ -77,11 +110,11 @@
             <span class="table-header score"> Played </span>
             <span class="table-header score"> Score </span>
         </div>
-        {#each viewed.standings as {username, total_score, games_played, rank, flags}, idx}
-            <div class="entry" class:highlight={idx === viewed.idx}>
+        {#each viewed.standingsCurr as {username, total_score, games_played, rank, rankPf, rankHc, flags}, idx}
+            <div class="entry" class:highlight={idx === viewed.idxCurr}>
                 <span class="rank">  
-                    {rank} 
-                    {#if idx > 0 && rank == viewed.standings[idx - 1].rank}
+                    {chooseRank(rank, rankPf, rankHc, rankFilter)} 
+                    {#if idx > 0 && rank == viewed.standingsCurr[idx - 1].rank}
                         <div class="tied">
                             ||
                         </div>
@@ -89,20 +122,22 @@
                 </span>
                 <span>
                     {#if data.features.badges && flags === 0}
-                        <Fa size="0.85x" icon={faRibbon} />
+                        <Fa size="0.85x" icon={faMedal} />
+                    {:else if data.features.badges}
+                        <Fa size="0.85x" icon={faPeace} />
                     {/if}
                 </span>
-                <span class="user"> {username} </span>
+                <span class="user"> {trimLong(username)} </span>
                 <span class="score"> {games_played} </span>
                 <span class="score"> {total_score} </span>
             </div>
         {/each}
     </div>
-    <p class="badge-explainer"> 
-        {#if data.features.badges}
-            A badge is displayed next to users who have played all of their games with no hints. 
-        {/if}
-    </p>
+    <div class="filter-select"> 
+        <button class:selected={rankFilter === 'none'} on:click={() => filterClicked('none')}> Show Everyone </button>
+        <button class:selected={rankFilter === 'pf'} on:click={() => filterClicked('pf')}> Peaceful Only </button>
+        <button class:selected={rankFilter === 'hc'} on:click={() => filterClicked('hc')}> Hardcore Only </button>
+    </div>
     <div class="buttons">
         <a href={BS_HOME_SKIP}> Back </a>
         <a href={BS_STATS}> See Stats </a>
@@ -121,8 +156,8 @@
         margin: 0 auto;
         display: grid;
         place-items: center;
-        grid-template-rows: 10vh 25vh 40vh 10vh 15vh;
-        grid-template-rows: 10svh 25svh 40svh 10svh 15svh;
+        grid-template-rows: 10vh 20vh 7.5vh 40vh 5vh 17.5vh;
+        grid-template-rows: 10svh 20svh 7.5vh 40svh 5svh 17.5svh;
     }
 
     @media (width >= 50rem) {
@@ -132,13 +167,47 @@
         }
     }
 
+    .filter-select {
+        height: 100%;
+        width: 100%;
+        display: grid;
+        place-items: center;
+        grid-template-columns: 33% 33% 33%;
+    }
+
+    .filter-select button {
+        white-space: nowrap;
+        overflow: hidden;
+        font-size: 0.7rem;
+        height: 75%;
+        width: 80%;
+        outline: none;
+        border: none;
+        background: #e0e0e0;
+        border-radius: 0.25rem;
+    }
+
+    .filter-select button.selected {
+        background: #202020;
+        color: white;
+    }
+
     .badge-explainer {
+        height: 100%;
         text-align: center;
         font-size: 0.8rem;
         font-style: italic;
+        width: 100%;
         display: grid;
-        place-items: center;
-        padding: 2rem;
+        align-items: center;
+        justify-items: end;
+        padding: 0 2rem;
+        grid-template-columns: 10% 40% 10% 40%;
+    }
+
+    .badge-explainer span {
+        justify-self: start;
+        margin-left: 0.5rem;
     }
 
     .tab-container {
@@ -187,6 +256,8 @@
     .header {
         display: grid;
         place-items: center;
+        align-self: start;
+        padding-top: 0.5rem;
     }
 
     .rankings {
@@ -256,9 +327,11 @@
 
     .buttons {
         display: grid;
-        place-items: center;
+        align-items: center;
+        justify-items: center;
         grid-template-columns: 50% 50%;
         width: 80%;
+        height: 100%;
         margin: 0 auto;
         text-align: center;
     }

@@ -2,10 +2,12 @@ import { type ServerLoadEvent } from "@sveltejs/kit"
 import type { BsWeeklyStanding } from "$lib/schema";
 import type TypedPocketBase from "$lib/schema";
 import { getFeatures } from "$lib/features";
+import { areFlagsHardcore } from "$lib/utils";
+import type { Rankings } from "./common";
 
 const excludedUsers = ["x8mabziw1g7xgli", "g46kjxyg22of584", "t0tdwyeg9w84gmx"];
 
-const augmentStandings = (standings: Array<BsWeeklyStanding>) => {
+const augmentStandings = (standings: Array<BsWeeklyStanding>, key: 'rank' | 'rankHc' | 'rankPf', calcFlags: boolean) => {
     let lastKnownScore = -1;
     let lastKnownRank = 0;
     let currentIndex = 0;
@@ -14,7 +16,7 @@ const augmentStandings = (standings: Array<BsWeeklyStanding>) => {
             lastKnownScore = standing.total_score;
             lastKnownRank = currentIndex + 1;
         }
-        standing.rank = lastKnownRank;
+        standing[key] = lastKnownRank;
         currentIndex += 1;
 
         standing.flags = standing.agg_flags.toString()
@@ -29,7 +31,7 @@ const getStandings = async (
     userId: string,
     pb: TypedPocketBase, 
     _fetch: typeof fetch, 
-): Promise<{ standings: Array<BsWeeklyStanding>, idx: number, score: number }>  => {
+): Promise<Rankings>  => {
     let standings = await pb
         .collection(`bs_${week}_week_scores`)
         .getFullList({ fetch: _fetch }) as BsWeeklyStanding[];
@@ -38,11 +40,23 @@ const getStandings = async (
         return excludedUsers.includes(userId) ? true : !excludedUsers.includes(standing.user);
     })
     standings.sort((a, b) => b.total_score - a.total_score);
-    augmentStandings(standings);
 
-    let idx = standings.findIndex((standing) => standing.user === userId);
-    let score = idx < 0 ? 0 : standings[idx]?.total_score ?? 0;
-    return { standings, idx, score };
+    augmentStandings(standings, 'rank', true);
+
+    // Order is important here, must come after first augment
+    const standingsPf = standings.filter((s) => !areFlagsHardcore(s.flags!));
+    const standingsHc = standings.filter((s) => areFlagsHardcore(s.flags!));
+
+    augmentStandings(standingsHc, 'rankHc', false);
+    augmentStandings(standingsPf, 'rankPf', false);
+
+    const idx = standings.findIndex((s) => s.user === userId);
+    const idxPf = standingsPf.findIndex((s) => s.user === userId);
+    const idxHc = standingsHc.findIndex((s) => s.user === userId);
+
+    const score = idx < 0 ? 0 : standings[idx]?.total_score ?? 0;
+
+    return { standings, standingsPf, standingsHc, idx, idxPf, idxHc, score };
 }
 
 export const load = async (event: ServerLoadEvent) => {

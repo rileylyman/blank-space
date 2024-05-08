@@ -129,6 +129,8 @@ export interface BsWeeklyStanding {
 
     // Augmented client side
     rank?: number;
+    rankPf?: number;
+    rankHc?: number;
     flags?: number;
 }
 
