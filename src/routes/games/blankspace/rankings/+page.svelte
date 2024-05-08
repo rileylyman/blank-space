@@ -98,8 +98,12 @@
     </div>
     <p class="badge-explainer"> 
         {#if data.features.badges}
-            <Fa icon={faMedal} /> <span> = hardcore mode</span>
-            <Fa icon={faPeace} /> <span> = peaceful mode</span>
+            <div>
+                <Fa icon={faMedal} /> <span> = hardcore mode</span>
+            </div>
+            <div>
+                <Fa icon={faPeace} /> <span> = peaceful mode</span>
+            </div>
         {/if}
     </p>
     <div class="rankings" bind:this={rankingsElement}>
@@ -198,15 +202,22 @@
         font-size: 0.8rem;
         font-style: italic;
         width: 100%;
+        max-width: 25rem;
         display: grid;
-        align-items: center;
-        justify-items: end;
+        place-items: center;
         padding: 0 2rem;
-        grid-template-columns: 10% 40% 10% 40%;
+        grid-template-columns: 50% 50%;
     }
 
-    .badge-explainer span {
-        justify-self: start;
+    .badge-explainer div {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .badge-explainer div span {
         margin-left: 0.5rem;
     }
 
