@@ -93,11 +93,7 @@
             <!-- <div class="noti"> ! </div> -->
         </a>
         <a class="button" class:unseen={false} href={BS_RANKINGS}>
-            Rankings
-            <!-- <div class="noti"> ! </div> -->
-        </a>
-        <a class="button" class:unseen={false} href={BS_STATS}>
-            Your Stats
+            Rankings/Stats
             <!-- <div class="noti"> ! </div> -->
         </a>
         <a class="button" class:unseen={false} href={ACCOUNT}>
@@ -107,7 +103,7 @@
             How to Play
             <!-- <div class="noti"> ! </div> -->
         </a>
-        <a class="button" class:unseen={false} href={ANNOUNCEMENTS}>
+        <a on:click={() => {setWantHomeMenu(true)}} class="button" class:unseen={false} href={ANNOUNCEMENTS}>
             Announcements
             <!-- <div class="noti"> ! </div> -->
         </a>
