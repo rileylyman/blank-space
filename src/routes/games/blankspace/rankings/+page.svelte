@@ -138,9 +138,11 @@
         {/each}
     </div>
     <div class="filter-select"> 
-        <button class:selected={rankFilter === 'none'} on:click={() => filterClicked('none')}> Show Everyone </button>
-        <button class:selected={rankFilter === 'pf'} on:click={() => filterClicked('pf')}> Peaceful Only </button>
-        <button class:selected={rankFilter === 'hc'} on:click={() => filterClicked('hc')}> Hardcore Only </button>
+        {#if data.features.badges}
+            <button class:selected={rankFilter === 'none'} on:click={() => filterClicked('none')}> Show Everyone </button>
+            <button class:selected={rankFilter === 'pf'} on:click={() => filterClicked('pf')}> Peaceful Only </button>
+            <button class:selected={rankFilter === 'hc'} on:click={() => filterClicked('hc')}> Hardcore Only </button>
+        {/if}
     </div>
     <div class="buttons">
         <a href={BS_HOME_SKIP}> Back </a>
