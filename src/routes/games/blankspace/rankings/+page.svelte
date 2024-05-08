@@ -47,9 +47,9 @@
         else if (filter === 'pf') return { score: rankings.score, idxCurr: rankings.idxPf, standingsCurr: rankings.standingsPf };
         else return { score: rankings.score, idxCurr: rankings.idxHc, standingsCurr: rankings.standingsHc };
     }
-    const filterClicked = (filter: RankFilter) => {
+    const filterClicked = async (filter: RankFilter) => {
         rankFilter = filter;
-        select(selected, 250);
+        await select(selected, 250);
     }
 
     let day = (new Date()).getDay();
