@@ -78,23 +78,25 @@
             This Week
         </button>
     </div>
-    <div class="header">
-        <p style="font-size: 1.2rem; font-weight: 500">
-            {#if selected === "this"}
-                Score Through Day {day + 1}
-            {:else}
-                Last Week's Score
-            {/if}
-        </p>
-        <h1>{viewed.score}</h1>
-        {#if viewed.idxCurr >= 0}
-            <p> #{viewed.standingsCurr[viewed.idxCurr].rank} out of {viewed.standingsCurr.length} players</p>
-        {/if}
-        {#if selected === "this"}
-            <p style="font-style: italic; font-size: 0.9rem">
-                Play all your games to attain max rank! 
+    <div class="header-container">
+        <div class="header">
+            <p style="font-size: 1.2rem; font-weight: 500">
+                {#if selected === "this"}
+                    Score Through Day {day + 1}
+                {:else}
+                    Last Week's Score
+                {/if}
             </p>
-        {/if}
+            <h1>{viewed.score}</h1>
+            {#if viewed.idxCurr >= 0}
+                <p> #{viewed.standingsCurr[viewed.idxCurr].rank} out of {viewed.standingsCurr.length} players</p>
+            {/if}
+            {#if selected === "this"}
+                <p style="font-style: italic; font-size: 0.9rem">
+                    Play all your games to attain max rank! 
+                </p>
+            {/if}
+        </div>
     </div>
     <p class="badge-explainer"> 
         {#if data.features.badges}
@@ -266,11 +268,17 @@
         border-left: 1px solid black;
     }
 
+    .header-container {
+        height: 100%;
+        display: grid;
+        place-items: center;
+    }
+
     .header {
         display: grid;
         place-items: center;
+        margin: auto 0;
         align-self: start;
-        padding-top: 0.5rem;
     }
 
     .rankings {
