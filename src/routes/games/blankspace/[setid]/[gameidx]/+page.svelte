@@ -21,7 +21,7 @@
     let lastResponse: BsResponse | null = null;
 
     $: feat = data.features;
-    $: peacefulMode = feat.peacefulMode && data.prefs.peacefulMode;
+    $: peacefulMode = data.prefs.peacefulMode;
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
