@@ -2,7 +2,7 @@
     import { BS_HOME_SKIP, BS_STATS } from "$lib/links";
     import { onMount, tick } from "svelte";
     import { preloadData } from "$app/navigation";
-    import { areFlagsHardcore, setWantHomeMenu } from "$lib/utils.js";
+    import { setWantHomeMenu } from "$lib/utils.js";
     import Fa from "svelte-fa";
     import { faMedal, faPeace } from "@fortawesome/free-solid-svg-icons";
     import type { BsWeeklyStanding } from "$lib/schema";
@@ -26,11 +26,6 @@
         setTimeout(() => {
             rankingsElement.scrollTop = entryHeight * (viewed.idxCurr - 2);
         }, timeout);
-    }
-
-    const trimLong = (s: string): string => {
-        if (s.length > 14) return `${s.slice(0, 14)}...`;
-        else return s;
     }
 
     type RankFilter = 'none' | 'pf' | 'hc';
@@ -133,7 +128,7 @@
                         <Fa size="0.85x" icon={faPeace} />
                     {/if}
                 </span>
-                <span class="user"> {trimLong(username)} </span>
+                <span class="user"> {username} </span>
                 <span class="score"> {games_played} </span>
                 <span class="score"> {total_score} </span>
             </div>
@@ -331,6 +326,10 @@
 
     .entry .user {
         font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .entry .table-header { 
