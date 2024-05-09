@@ -36,7 +36,7 @@ export const getUserPreferences = async (pb: TypedPocketBase): Promise<UserPrefe
     if (prefs === undefined) {
         await pb
             .collection('user_preferences')
-            .create({ user: pb.authStore.model?.id, peacefulMode: true });
+            .create({ user: pb.authStore.model?.id, peacefulMode: false });
         return await getUserPreferences(pb);
     }
     return prefs;
