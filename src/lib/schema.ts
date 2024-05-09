@@ -160,6 +160,11 @@ export interface UserPreferences {
     peacefulMode: boolean;
 }
 
+export interface Rules {
+    text: string;
+    written_on: string;
+}
+
 export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: string): RecordService;
     collection(idOrName: 'users'): RecordService<PbUser>;
@@ -179,4 +184,5 @@ export default interface TypedPocketBase extends PocketBase {
     collection(idOrName: 'announcements_read'): RecordService<AnnouncementsRead>;
     collection(idOrName: 'current_announcement'): RecordService<Announcement>;
     collection(idOrName: 'user_preferences'): RecordService<UserPreferences>;
+    collection(idOrName: 'rules'): RecordService<Rules>;
 }
