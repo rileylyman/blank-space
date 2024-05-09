@@ -1,51 +1,63 @@
 <script lang="ts">
+    export let label: string | null = null;
     export let options: string[];
     export let optionIdx = 0;
+
+    $: labelN = label === null ? 0 : 1;
 </script>
 
-<div id="root" style={`grid-template-columns: repeat(${options.length}, minmax(0, 1fr))`}>
+<div id="root" style={`grid-template-columns: repeat(${options.length + labelN}, minmax(0, 1fr))`}>
+    {#if label !== null}
+        {label}
+    {/if}
     {#each options as option, idx}
-        <button class="option" on:click={() => optionIdx = idx}>
+        <button type="button" class="option" on:click={() => optionIdx = idx}>
             {option}
         </button>
     {/each}
-    <button style={`grid-column: ${optionIdx + 1} / span 1`} class="overlapper">
+    <span style={`grid-column: ${optionIdx + 1 + labelN} / span 1`} class="overlapper">
         {options[optionIdx]}
-    </button>
+    </span>
 </div>
 
 <style>
-    @import '$lib/css/button-reset.css';
-
     #root {
         display: grid;
         place-items: center;
         background: white;
-        border: 1px solid black;
         position: relative;
     }
 
     .option, .overlapper {
-        font-size: 1.25rem;
-        text-transform: uppercase;
         display: grid;
         place-items: center;
         cursor: pointer;
         width: 100%;
         height: 2.5rem;
+        border: 1px solid black;
+        outline: none;
+        background: white;
+    }
+
+    .option:first-of-type {
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+    }
+
+    .option:last-of-type {
+        border-top-right-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
     }
 
     .overlapper {
         width: 105%;
-        height: 150%;
+        height: 115%;
         z-index: 1;
         position: absolute;
-        background: black;
-        color: white;
+        background: #d0d0d0;
         border: 1px solid black;
         border-radius: 0.5rem;
         transition: grid-column 1s;
-        font-weight: bold;
     }
 
     .overlapper:hover {

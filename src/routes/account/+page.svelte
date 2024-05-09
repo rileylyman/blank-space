@@ -1,6 +1,7 @@
 <script lang="ts">
     import { preloadData } from "$app/navigation";
     import { AUTH_LOGOUT_ACTION, BS_HOME_SKIP } from "$lib/links";
+    import OptionSlider from "$lib/ui/OptionSlider.svelte";
     import { setWantHomeMenu } from "$lib/utils.js";
     import { onMount } from "svelte";
 
@@ -8,9 +9,11 @@
     export let form;
 
     $: prefs = form?.prefs ?? data.prefs;
-    let prefsUpdated = false;
+    $: prefsUpdated = (prefs.peacefulMode ? 0 : 1) !== difficultyIdx;
+    let difficultyIdx = form?.prefs.peacefulMode ?? data.prefs.peacefulMode ? 0 : 1;
 
     onMount(() => {
+        difficultyIdx = prefs.peacefulMode ? 0 : 1;
         setWantHomeMenu(true);
         preloadData(BS_HOME_SKIP);
     })
@@ -29,9 +32,9 @@
 
     <h2> Preferences </h2>
     <div class="prefs">
-        <form action="?/prefs" method="POST" on:change={() => prefsUpdated = true}>
-            <label for="peacefulMode"> Peaceful Mode </label>
-            <input type="checkbox" name="peacefulMode" id="peacefulMode" bind:checked={prefs.peacefulMode} />
+        <form action="?/prefs" method="POST">
+            <OptionSlider options={["Peaceful", "Hardcore"]} bind:optionIdx={difficultyIdx} label="Difficulty:" />
+            <input type="hidden" name="peacefulMode" value={difficultyIdx === 0 ? "on" : "off"} />
 
             <button class="button" class:inactive={!prefsUpdated} type="submit"> Save Changes </button>
         </form>
@@ -75,15 +78,6 @@
         width: min-content;
         white-space: nowrap;
     }
-
-    .prefs input[type='checkbox'] {
-        margin-left: 1rem;
-    }
-
-    .prefs label {
-        font-size: 1.2rem;
-    }
-
 
     .account-info {
         display: grid;
