@@ -37,6 +37,7 @@
         <form action="?/prefs" method="POST">
             <OptionSlider options={["Peaceful", "Hardcore"]} bind:optionIdx={difficultyIdx} label="Difficulty:" />
             <input type="hidden" name="peacefulMode" value={difficultyIdx === 0 ? "on" : "off"} />
+            <input type="hidden" name="from" value={form?.from ?? data.from} />
 
             <button class="button" class:inactive={!prefsUpdated} type="submit"> Save Changes </button>
         </form>
@@ -47,7 +48,7 @@
         <form action={AUTH_LOGOUT_ACTION} method="POST" class="logout-form">
             <button class="button" type="submit"> Logout </button>
         </form>
-        <a class="button" href={data.from}> Done </a>
+        <a class="button" href={form?.from ?? data.from}> Done </a>
     </div>
 </div>
 

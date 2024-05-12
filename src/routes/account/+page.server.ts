@@ -20,8 +20,11 @@ export const actions = {
         let prefs = await getUserPreferences(event.locals.pb);
         prefs.peacefulMode = form.get("peacefulMode") === "on";
         setUserPreferences(event.locals.pb, prefs);
+
+        const from = form.get("from");
         return {
-            prefs
+            prefs,
+            from,
         };
     }
 }
