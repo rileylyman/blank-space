@@ -14,8 +14,10 @@
 
     onMount(() => {
         difficultyIdx = prefs.peacefulMode ? 0 : 1;
-        setWantHomeMenu(true);
-        preloadData(BS_HOME_SKIP);
+        if (data.from === BS_HOME_SKIP) {
+            setWantHomeMenu(true);
+            preloadData(BS_HOME_SKIP);
+        }
     })
 </script>
 
@@ -45,7 +47,7 @@
         <form action={AUTH_LOGOUT_ACTION} method="POST" class="logout-form">
             <button class="button" type="submit"> Logout </button>
         </form>
-        <a class="button" href={BS_HOME_SKIP}> Done </a>
+        <a class="button" href={data.from}> Done </a>
     </div>
 </div>
 

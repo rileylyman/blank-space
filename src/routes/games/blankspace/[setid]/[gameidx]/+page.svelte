@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { blankspaceApiGuess } from '$lib/links';
+    import { ACCOUNT, blankspaceApiGuess } from '$lib/links';
     import { sleepMs } from '$lib/utils';
     import GuessInput from './GuessInput.svelte';
     import VirtualKeyboard from '$lib/ui/VirtualKeyboard.svelte';
@@ -8,6 +8,7 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { bsResultLink } from '$lib/links';
     import deepEqual from 'deep-equal';
+    import { page } from '$app/stores';
 
     export let data;
 
@@ -170,6 +171,9 @@
         <button class="break" on:click={() => goto(data.from)}>
             Take a Break
         </button>
+        <button class="break" on:click={() => goto(ACCOUNT + "?from=" + $page.url.pathname)}>
+            Set Difficulty
+        </button>
         <button class="break" on:click={() => { showGuesses = !showGuesses; focusCapture.focus() }} class:hidden={prevGuesses.length === 0}>
             {showGuesses ? 'Hide Guesses' : 'Show Guesses'}
         </button>
@@ -243,7 +247,7 @@
         height: min-content;
         display: grid;
         place-items: center;
-        grid-template-columns: 50% 50%;
+        grid-template-columns: 33% 33% 34%;
     }
 
     .top-bar *:first-child { justify-self: start; }
