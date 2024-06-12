@@ -175,8 +175,6 @@ export interface BsPhraseVetting {
 export interface BsVettingProgress {
     id: string;
     user: string;
-    pageLen: number;
-    page: number;
     cursor: number;
 }
 

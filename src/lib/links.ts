@@ -5,6 +5,7 @@ export const BS_RULES = "/games/blankspace/rules";
 export const BS_RANKINGS = "/games/blankspace/rankings";
 export const BS_PREV = "/games/blankspace/prev";
 export const BS_FEEDBACK_LIST = "/games/blankspace/view";
+export const BS_VETTING_PROGRESS = "/games/blankspace/vetting/progress";
 
 export const AUTH_HOME = "/auth";
 export const AUTH_VERIFY = "/auth/verify";

@@ -1,21 +1,23 @@
 <script lang="ts">
+    import { invalidateAll } from '$app/navigation';
+    import { BS_VETTING_PROGRESS } from '$lib/links.js';
     import { bsGameHints } from '$lib/schema';
-    import { tick } from 'svelte';
 
     export let data;
 
-    let cursor = data.cursor;
+    let hist: string[] = [];
 
-    $: gameIdx = Math.floor(cursor / 5);
-    $: hintIdx = cursor % 5;
-    $: {
-        if (gameIdx >= data.games.length) {
-        }
-    }
+    let gameIdx = data.cursor % data.pageLen;
 
     const vet = async (yes: boolean) => {
-        cursor += 1;
-        await tick();
+        hist = [data.games[gameIdx].target, ...hist];
+        data.cursor += 1;
+        gameIdx += 1;
+        await fetch(BS_VETTING_PROGRESS + "?cursor=" + data.cursor, { method: "POST" });
+        if (gameIdx >= data.games.length) {
+            await invalidateAll();
+            gameIdx = data.cursor % data.pageLen;
+        }
     };
 </script>
 
@@ -23,9 +25,18 @@
     <h1> Vetting </h1>
 
     <div class="card">
-        <p> {bsGameHints(data.games[gameIdx])[hintIdx]}</p>
-        <button on:click={() => vet(false)}> Nope, not a thing </button>
-        <button on:click={() => vet(true)}> Yes, that's a thing </button>
+        {#if gameIdx < data.games.length}
+            <p> {bsGameHints(data.games[gameIdx])}</p>
+            <button on:click={() => vet(false)}> Nope, not a thing </button>
+            <button on:click={() => vet(true)}> Yes, that's a thing </button>
+        {:else}
+            <p> Loading ... </p>
+        {/if}
+    </div>
+    <div>
+        {#each hist as h}
+            <p> h: {h} </p>
+        {/each}
     </div>
 </div>
 
