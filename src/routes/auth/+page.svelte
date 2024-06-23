@@ -3,7 +3,13 @@
         AUTH_REDIRECT_ME_ACTION,
         AUTH_LOGOUT_ACTION,
         AUTH_LOGIN_ACTION,
-        AUTH_REGISTER_ACTION
+        AUTH_REGISTER_ACTION,
+
+        PRIVACY_POLICY,
+
+        TOS
+
+
     } from '$lib/links';
 
     export let data;
@@ -11,11 +17,18 @@
 
     let state = form?.state ?? "welcome";
     $: welcomeMessage = state === "welcome" ? 'Welcome Back' : ( state === "signup" ? 'Create your account' : "Log In");
+
+    const goBack = () => {
+        state = "welcome";
+        if (form) {
+            form.errors = [];
+        }
+    }
 </script>
 
 <div id="root">
-    <h1> Slappy Games </h1>
     {#if state === "welcome"}
+        <h1> Slappy Games </h1>
         {#if data.pbUser}
             <h2> Welcome back, {data.pbUser.username}! </h2>
             <div class="login">
@@ -34,30 +47,37 @@
             </div>
         {/if}
     {:else}
-        <div class="login">
-            <h2> {welcomeMessage} </h2>
+        {#if state === "login"}
+            <form action={AUTH_LOGIN_ACTION} method="POST" class="login-form">
+                <h2 class="form-title"> {welcomeMessage} </h2>
 
-            {#if state === "login"}
-                <form action={AUTH_LOGIN_ACTION} method="POST">
+                <div class="form-inputs">
                     <label for="email"> email/username </label>
                     <input id="email" name="email" type="text" autocomplete="username" value={form?.email ?? ''}/>
 
                     <label for="password"> password </label>
                     <input id="password" name="password" type="password" autocomplete="current-password"/>
                     <a href="/auth/reset"> Forgot password </a>
+                </div>
 
+                <div class="form-errors">
                     <ul>
                         {#each form?.errors ?? [] as e}
                             <li>{e}</li>
                         {/each}
                     </ul>
+                </div>
 
-                    <button style="margin-top: 3rem" type="submit">Submit</button>
-                    <button style="margin-top: 1rem" on:click={() => state = "welcome"}>Go back</button>
+                <div class="form-buttons">
+                    <button type="submit">Submit</button>
+                    <button on:click={goBack}>Go back</button>
+                </div>
+            </form>
+        {:else if state == "signup"}
+            <form action={AUTH_REGISTER_ACTION} method="POST" class="login-form">
+                <h2 class="form-title"> {welcomeMessage} </h2>
 
-                </form>
-            {:else if state == "signup"}
-                <form action={AUTH_REGISTER_ACTION} method="POST">
+                <div class="form-inputs">
                     <label for="username"> username </label>
                     <input id="username" name="username" type="text" autocomplete="username" value={form?.username ?? ''} placeholder="only your username will be public" />
 
@@ -73,17 +93,26 @@
                     <label for="password-confirm"> confirm password </label>
                     <input id="password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" />
 
+                    <div class="tos-privacy">
+                        <input id="tos-check" name="tosCheck" type="checkbox">
+                        <span> You agree to our <a href={PRIVACY_POLICY}>Privacy Policy</a> and <a href={TOS}>Terms of Use</a></span>
+                    </div>
+                </div>
+
+                <div class="form-errors">
                     <ul>
                         {#each form?.errors ?? [] as e}
                             <li>{e}</li>
                         {/each}
                     </ul>
+                </div>
 
-                    <button style="margin-top: 0.5rem" type="submit">Submit</button>
-                    <button style="margin-top: 0.5rem" on:click={() => state = "welcome"}>Go back</button>
-                </form>
-            {/if}
-        </div>
+                <div class="form-buttons">
+                    <button type="submit">Submit</button>
+                    <button on:click={goBack}>Go back</button>
+                </div>
+            </form>
+        {/if}
     {/if}
     <div />
 </div>
@@ -122,7 +151,7 @@
         align-items: center;
     }
 
-    button, input {
+    button, input[type="text"], input[type="password"] {
         outline: none;
         height: 3rem;
         border-radius: 0.5rem;
@@ -137,23 +166,66 @@
         border: none;
     }
 
-    input {
+    input[type="text"], input[type="password"] {
         border: 1px solid black;
         border-radius: 0.5rem;
         height: 3rem;
         width: 80%;
+        text-align: left;
+        padding-left: 1rem;
     }
 
     form {
+        width: 100%;
+    }
+
+    .login-form {
+        width: 100%;
+        height: 100%;
+        max-height: 45rem;
+        display: grid;
+        grid-template-rows: 5rem 1fr 5rem 5rem;
+        place-items: center;
+    }
+
+    .form-inputs {
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
     }
 
-    form input {
-        text-align: left;
-        padding-left: 1rem;
+    .form-inputs .tos-privacy {
+        align-self: start; 
+        padding-left: 10%;
+        font-size: 0.8rem;
+    }
+
+    .form-errors {
+        width: 100%;
+        height: 100%;
+        overflow: scroll;
+    }
+
+    .form-buttons {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        place-items: center;
+    }
+
+    .form-buttons button {
+        width: 75%;
+    }
+
+    .form-buttons button:last-child {
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    .form-buttons button:first-child {
+        grid-row: 1;
+        grid-column: 2;
     }
 
     label {

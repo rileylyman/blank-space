@@ -1,7 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 import PocketBase from 'pocketbase';
 import type TypedPocketBase from '$lib/schema';
-import { AUTH_HOME } from "$lib/links";
+import { AUTH_HOME, PRIVACY_POLICY, TOS } from "$lib/links";
 import 'dotenv/config';
 
 export const handle = async ({event, resolve}) => {
@@ -11,12 +11,11 @@ export const handle = async ({event, resolve}) => {
     try {
        pb.authStore.isValid && await pb.collection('users').authRefresh();
     } catch (err) {
-        console.log(err);
         pb.authStore.clear();
     }
     event.locals.pb = pb;
 
-    if (!pb.authStore.isValid && !event.url.pathname.startsWith(AUTH_HOME)) {
+    if (!pb.authStore.isValid && !(event.url.pathname.startsWith(AUTH_HOME) || event.url.pathname.startsWith(TOS) || event.url.pathname.startsWith(PRIVACY_POLICY))) {
         event.cookies.set('wants_redirect', event.url.pathname, {
             httpOnly: true,
             secure: true,

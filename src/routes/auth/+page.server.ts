@@ -1,5 +1,6 @@
 import { type RequestEvent, redirect, fail } from '@sveltejs/kit';
 import { AUTH_VERIFY, AUTH_HOME } from '$lib/links.js';
+import { TOS_AND_PRIVACY_VERSION } from '$lib/constants.js';
 
 const redirectMe = async (event: RequestEvent) => {
     const cookies = event.request.headers.get('cookie')?.split(';');
@@ -57,6 +58,8 @@ export const actions = {
         const username = form.get('username')?.toString();
         const password = form.get('password')?.toString();
         const passwordConfirm = form.get('passwordConfirm')?.toString();
+        const tosCheck = form.get('tosCheck')?.toString();
+
         let ret = {
             state: "signup",
             email,
@@ -75,6 +78,11 @@ export const actions = {
             return fail(400, ret);
         }
 
+        if (tosCheck !== "on") {
+            ret.errors.push("you must agree to our privacy policy and ToS")
+            return fail(400, ret);
+        }
+
         try {
             await event.locals.pb.collection('users').create({
                 username,
@@ -83,6 +91,7 @@ export const actions = {
                 password,
                 passwordConfirm,
                 verified: false,
+                tosAndPrivacyVersion: TOS_AND_PRIVACY_VERSION,
             });
             await event.locals.pb.collection('users').requestVerification(email);
             await event.locals.pb.collection('users').authWithPassword(email, password);

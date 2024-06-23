@@ -14,6 +14,9 @@ export const AUTH_LOGOUT_ACTION = "/auth?/logout";
 export const AUTH_LOGIN_ACTION = "/auth?/login";
 export const AUTH_REGISTER_ACTION = "/auth?/register";
 
+export const PRIVACY_POLICY = "/privacy";
+export const TOS = "/terms";
+
 export const ACCOUNT = "/account";
 export const ANNOUNCEMENTS = "/announcements";
 
