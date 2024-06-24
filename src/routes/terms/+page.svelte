@@ -2,7 +2,7 @@
     import { PRIVACY_POLICY } from "$lib/links";
 </script>
 
-<div style="overflow-x: hidden">
+<div style="overflow-x: hidden" id="root">
 	<div style="clear:both">
 		<table style="width:504pt; margin-right:auto; margin-left:auto; margin-bottom:0pt; border-collapse:collapse">
 			<tr>
@@ -508,7 +508,7 @@
 	</div>
 </div>
 <style>
-    :root { 
+    #root { 
         text-align:justify;
         line-height:108%;
         font-family:'Times New Roman';
