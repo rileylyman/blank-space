@@ -281,10 +281,12 @@
     .ig-score {
         display: grid;
         height: 100%;
+        max-height: 6rem;
         overflow: hidden;
         grid-template-rows: 10% 90%;
         place-items: center;
         padding-top: 0.25rem;
+        align-self: end;
     }
 
     .ig-score h1 {
