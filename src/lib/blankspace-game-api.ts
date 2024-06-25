@@ -95,8 +95,10 @@ export const updateGameState = async (
     let score: number | undefined = undefined;
     if (won || lost) {
         score = lost ? 0 : SCORES.at(prevGuesses.length - 1);
-        response.result.score = score;
+    } else {
+        score = SCORES.at(prevGuesses.length);
     }
+    response.result.score = score;
 
     return response;
 }

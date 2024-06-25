@@ -26,6 +26,7 @@
     $: hints = data.bsResponse.result!.hints;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
+    $: currScore = data.bsResponse.result?.score ?? 25;
     $: showGuesses = true;
     $: prevGuesses = hints.slice(0, -1).map(({ guess }) => guess);
     $: disabledKeys = peacefulMode ? new Array(...prevGuesses.reduce((set: Set<string>, guess: string) => {
@@ -200,30 +201,32 @@
                 </div>
                 <button class="back-side">
                     {#if submitted && before}
-                        <div>
+                        <div class="prev-guess">
                             <span>
                                 {showGuesses ? guess : "______"}
                             </span> 
                             {hint}
                         </div>
                     {:else if submitted}
-                        <div>
+                        <div class="prev-guess">
                             {hint}
                             <span>
                                 {showGuesses ? guess : "______"}
                             </span> 
                         </div>
                     {:else}
-                        <div />
-                    {/if}
-                    {#if !submitted}
-                        <h1> Hint #{idx + 1} </h1>
+                        <div class="hint-number"> Hint #{idx + 1} </div>
                     {/if}
                 </button>
             </div>
         {/each}
     </div>
+    <!-- The previous div overflows on the bottom by 220%. This div serves as padding. -->
     <div />
+    <div class="ig-score">
+        <span> Current Score: </span>
+        <h1> {currScore} </h1>
+    </div>
     <div style="align-self: end; margin-bottom: 1rem">
         <VirtualKeyboard bind:error={invalidWordError} {disabledKeys} {goodKeys} enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
     </div>
@@ -236,7 +239,7 @@
         max-width: 30rem;
         margin: 0 auto;
         display: grid;
-        grid-template-rows: 6rem 10rem 9rem 1fr;
+        grid-template-rows: 6rem 5rem 7.5rem 1fr 1fr;
         overflow: hidden;
         place-items: stretch;
         background: white;
@@ -275,6 +278,18 @@
         opacity: 0; 
     }
 
+    .ig-score {
+        display: grid;
+        height: 100%;
+        overflow: hidden;
+        grid-template-rows: 10% 90%;
+        place-items: center;
+    }
+
+    .ig-score h1 {
+        font-size: 5rem;
+    }
+
     .card-container {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -283,9 +298,6 @@
 
     .card {
         position: absolute;
-        display: grid;
-        align-items: start;
-        justify-items: center;
         width: calc(min(90vw, 27rem));
         margin: 0 calc(min(5vw, 1.5rem));
         height: 100%;
@@ -312,18 +324,6 @@
         background: white;
     }
 
-    .back-side {
-        display: grid;
-        grid-template-rows: 25% 1fr 25%;
-        transform: rotateX(0deg);
-        background: #f0f0f0;
-        align-items: start;
-    }
-
-    .back-side h1 {
-        margin-top: 1rem;
-    }
-
     .hint-side div {
         display: flex;
         justify-content: center;
@@ -336,10 +336,16 @@
         text-transform: uppercase;
     }
 
+    .back-side {
+        display: grid;
+        place-items: center;
+        transform: rotateX(0deg);
+        background: #f0f0f0;
+    }
+
     .back-side div {
         text-transform: uppercase;
         font-weight: bold;
-        margin-top: 0.5rem;
     }
 
     .back-side div span {
@@ -348,13 +354,13 @@
         display: inline-flex;
     }
 
-    .back-side div span button {
-        outline: none;
-        background: none;
-        border: none;
-        color: red;
-        font-size: 0.8rem;
-        padding: 0.3rem;
+    .back-side .hint-number {
+        font-size: 1.5rem;
+    }
+
+    .back-side .prev-guess {
+        align-self: start;
+        margin-top: 0.25rem;
     }
 
     .hint-shown > .hint-side {
@@ -370,11 +376,11 @@
     }
 
     .card:nth-child(1) {
-        transform: translateY(-25%);
+        transform: translateY(-40%);
     }
 
     .card:nth-child(1).away {
-        transform: translateY(-25%) translateX(100vw);
+        transform: translateY(-40%) translateX(100vw);
     }
 
     .card:nth-child(2) {
@@ -386,26 +392,26 @@
     }
 
     .card:nth-child(3) {
-        transform: translateY(25%);
+        transform: translateY(40%);
     }
 
     .card:nth-child(3).away {
-        transform: translateY(25%) translateX(100vw);
+        transform: translateY(40%) translateX(100vw);
     }
 
     .card:nth-child(4) {
-        transform: translateY(50%);
+        transform: translateY(80%);
     }
 
     .card:nth-child(4).away {
-        transform: translateY(50%) translateX(100vw);
+        transform: translateY(80%) translateX(100vw);
     }
 
     .card:nth-child(5) {
-        transform: translateY(75%);
+        transform: translateY(120%);
     }
 
     .card:nth-child(5).away {
-        transform: translateY(75%) translateX(100vw);
+        transform: translateY(120%) translateX(100vw);
     }
 </style>
