@@ -169,10 +169,10 @@
 <div id="root">
     <div class="top-bar">
         <button class="break" on:click={() => goto(data.from)}>
-            Take a Break
+            Pause
         </button>
         <button class="break" on:click={() => goto(ACCOUNT + "?from=" + $page.url.pathname)}>
-            Set Difficulty
+            Difficulty
         </button>
         <button class="break" on:click={() => { showGuesses = !showGuesses; focusCapture.focus() }} class:hidden={prevGuesses.length === 0}>
             {showGuesses ? 'Hide Guesses' : 'Show Guesses'}
@@ -266,6 +266,9 @@
         color: black;
         transition: opacity 1000ms;
         margin-left: 0.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 90%;
     }
 
     .top-bar .hidden {
