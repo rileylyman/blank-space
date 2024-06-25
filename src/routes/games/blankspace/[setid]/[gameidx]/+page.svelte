@@ -284,6 +284,7 @@
         overflow: hidden;
         grid-template-rows: 10% 90%;
         place-items: center;
+        padding-top: 0.25rem;
     }
 
     .ig-score h1 {
