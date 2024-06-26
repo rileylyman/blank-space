@@ -195,7 +195,7 @@
 		We may also limit our personal data processing for EU users between 13 and 16.
 	</p>
 	<p>
-		We take children’s privacy seriously and encourage parents to play an active role in their children’s online experience. If you have any concerns about your child’s personal data, please contact us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d6e515c4d4d447f515c53566e4d5c5e587d5a505c5451135e5250">[email&#160;protected]</a>.
+		We take children’s privacy seriously and encourage parents to play an active role in their children’s online experience. If you have any concerns about your child’s personal data, please contact us at slappyblankspace@gmail.com. 
 	</p>
 	<ol start="9" style="margin:0pt; padding-left:0pt">
 		<li class="MainHeading" style="margin-left:15.5pt; text-indent:0pt; padding-left:7pt">
