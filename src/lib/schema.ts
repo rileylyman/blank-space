@@ -65,6 +65,8 @@ export interface BsGameProgress {
     lost: boolean;
     score: number;
     flags: number;
+    firstLetterHelp: string;
+    numLettersHelp: string;
 
     expand?: {
         bs_game_set?: BsGameSet;

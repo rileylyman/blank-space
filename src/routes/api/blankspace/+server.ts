@@ -21,8 +21,8 @@ export const POST = async (event: RequestEvent) => {
         invalidWord: false,
     };
 
-    let gameId: string, userId: string, setId: string, guess: string | undefined, localDict: boolean | undefined;
-    [{ userId, gameId, setId, guess, localDict }, response.error] = parseRequest(event);
+    let gameId: string, userId: string, setId: string, guess: string | undefined, localDict: boolean | undefined, help: string | undefined;
+    [{ userId, gameId, setId, guess, localDict, help }, response.error] = parseRequest(event);
     if (response.error) return json(response, { status: 400 });
 
     let game: BsGame | null;
@@ -35,10 +35,8 @@ export const POST = async (event: RequestEvent) => {
 
     let prefs = await getUserPreferences(event.locals.pb);
 
-    let guesses = progress.guesses.split(',').filter((s) => s);
-
     let dictionaryFn = async (word: string): Promise<boolean> => dictionary.has(word);
-    response = await updateGameState(guess ?? null, guesses, progress.won, game, dictionaryFn);
+    response = await updateGameState(guess ?? null, help ?? null, progress, game, dictionaryFn);
     if (response.error || response.invalidWord) {
         return json(response, { status: 200 });
     }
@@ -88,13 +86,13 @@ const getProgress = async (pb: TypedPocketBase, args: { userId: string, gameId: 
             .getFirstListItem(
                 `user.id = "${args.userId}" && bs_game.id = "${args.gameId}" && bs_game_set.id = "${args.setId}"`);
     } catch (_) {
-        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", score: 0, won: false, lost: false, flags: 0 };
+        progress = { id: "", bs_game: args.gameId, bs_game_set: args.setId, user: args.userId, guesses: "", score: 0, won: false, lost: false, flags: 0, firstLetterHelp: "", numLettersHelp: "" };
     }
     return [progress, null];
 }
 
-const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, setId: string, guess: string | undefined, localDict: boolean | undefined}, string | null] => {
-    let ret = { userId: "", setId: "", gameId: "", guess: "", localDict: false };
+const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, setId: string, guess: string | undefined, localDict: boolean | undefined, help: string | undefined}, string | null] => {
+    let ret = { userId: "", setId: "", gameId: "", guess: "", localDict: false, help: "" };
     if (!event.locals.pb.authStore.isValid || !event.locals.pb.authStore.model?.id) {
         return [ret, 'not authenticated'];
     }
@@ -104,10 +102,14 @@ const parseRequest = (event: RequestEvent): [{userId: string, gameId: string, se
     if (!res.success) {
         return [ret, fromZodError(res.error).toString()];
     }
-    let { gameId, setId, guess, localDict } = res.data;
+    let { gameId, setId, guess, localDict, help } = res.data;
     guess = guess?.toLocaleLowerCase().trim();
 
     let localDictParsed = localDict === undefined ? undefined : localDict === "true";
 
-    return [{ userId, gameId, setId, guess, localDict: localDictParsed}, null];
+    if (guess && help) {
+        return [ret, "cannot buy help and make guess at same time"];
+    }
+
+    return [{ userId, gameId, setId, guess, localDict: localDictParsed, help}, null];
 }

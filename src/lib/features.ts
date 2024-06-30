@@ -2,10 +2,12 @@ import type TypedPocketBase from "./schema";
 
 const CLEAR_PROGRESS = 'clearProgress';
 const BADGES = 'badges';
+const BUY_HELP = 'buyHelp';
 
 export interface Features {
     clearProgress: boolean;
     badges: boolean;
+    buyHelp: boolean;
 }
 
 export const getFeatures = async (pb: TypedPocketBase): Promise<Features> => {
@@ -26,5 +28,6 @@ export const getFeatures = async (pb: TypedPocketBase): Promise<Features> => {
     return {
         clearProgress: enabled.includes(CLEAR_PROGRESS),
         badges: enabled.includes(BADGES),
+        buyHelp: enabled.includes(BUY_HELP),
     }
 }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { type BsGame, bsGameHints } from '$lib/schema';
+import { type BsGame, type BsGameProgress, bsGameHints } from '$lib/schema';
 import { SCORES } from '$lib/constants';
 
 export const BsRequestParser = z.object({
@@ -7,6 +7,7 @@ export const BsRequestParser = z.object({
     setId: z.string().regex(/^[a-zA-Z0-9]+$/).length(15),
     guess: z.string().regex(/^[a-zA-Z\.]+$/).optional(),
     localDict: z.string().regex(/^(true|false)$/).optional(),
+    help: z.string().regex(/^(firstLetter)|(numLetters)$/).optional(),
 });
 export type BsRequest = z.infer<typeof BsRequestParser>;
 
@@ -25,14 +26,16 @@ export const BsResponseParser = z.object({
             submitted: z.boolean(),
         })),
         fullHints: z.array(z.string()),
+        firstLetterHelpBought: z.boolean(),
+        numLettersHelpBought: z.boolean(),
     }).nullable()
 });
 export type BsResponse = z.infer<typeof BsResponseParser>;
 
 export const updateGameState = async (
     guess: string | null,
-    prevGuesses: Array<string>,
-    hasWon: boolean,
+    help: string | null,
+    progress: BsGameProgress,
     game: BsGame,
     dictionary: ((word: string) => Promise<boolean>),
 ): Promise<BsResponse> => {
@@ -41,6 +44,7 @@ export const updateGameState = async (
         error: null,
         invalidWord: false,
     };
+    let prevGuesses = progress.guesses.split(",").filter((s) => s);
 
     if (guess && guess !== game.target && (guess.length <= 2 || !(await dictionary(guess)))) {
         response.error = guess.length <= 2 ? "too short" : "not a word";
@@ -56,7 +60,7 @@ export const updateGameState = async (
         return response;
     }
 
-    let guessAllowed = !hasWon && prevGuesses.length < fullHints.length;
+    let guessAllowed = !progress.won && prevGuesses.length < fullHints.length;
     if (guess && guessAllowed) {
         prevGuesses.push(guess);
     } else if (guess && !guessAllowed) {
@@ -64,7 +68,7 @@ export const updateGameState = async (
         return response;
     }
 
-    let won = hasWon || guess === game.target;
+    let won = progress.won || guess === game.target;
 
     const cleanHint = (guess: string, i: number) => {
         const hint = fullHints[i].replace(game.target, '').trim();
@@ -80,10 +84,20 @@ export const updateGameState = async (
         lost = true;
     }
 
+    if ((help === "firstLetter" && progress.firstLetterHelp !== null) || (help === "numLetters" && progress.numLettersHelp !== null)) {
+        response.error = "you cannot buy that help again";
+        return response;
+    }
+
+    let firstLetterHelpBought = help === "firstLetter" || progress.firstLetterHelp !== null;
+    let numLettersHelpBought = help === "numLetters" || progress.numLettersHelp !== null;
+
     response.result = {
         won,
         lost, 
         hints,
+        firstLetterHelpBought,
+        numLettersHelpBought,
         fullHints: (won || lost) ? bsGameHints(game) : [],
     }
     if (won || lost) {
@@ -98,7 +112,9 @@ export const updateGameState = async (
     } else {
         score = SCORES.at(prevGuesses.length);
     }
-    response.result.score = score;
+    if (firstLetterHelpBought && score !== undefined) score -= 3;
+    if (numLettersHelpBought && score !== undefined) score -= 3;
+    response.result.score = score === undefined ? undefined : Math.max(score, 0);
 
     return response;
 }

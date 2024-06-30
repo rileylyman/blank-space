@@ -22,8 +22,10 @@
     let lastResponse: BsResponse | null = null;
 
     $: feat = data.features;
-    $: peacefulMode = data.prefs.peacefulMode;
+    $: peacefulMode = !feat.buyHelp && data.prefs.peacefulMode;
     $: hints = data.bsResponse.result!.hints;
+    $: firstBought = data.bsResponse.result!.firstLetterHelpBought;
+    $: lengthBought = data.bsResponse.result!.numLetterHelpBought;
     $: won = data.bsResponse.result?.won;
     $: lost = data.bsResponse.result?.lost;
     $: currScore = data.bsResponse.result?.score ?? 25;
@@ -41,7 +43,8 @@
         };
         return set;
     }, new Set())).join("") : "";
-    $: targetLength = peacefulMode ? data.bsGame.target.length : undefined;
+    $: targetLength = ((feat.buyHelp && lengthBought) || peacefulMode) ? data.bsGame.target.length : undefined;
+    $: firstLetter = (feat.buyHelp && firstBought) ? data.bsGame.target[0] : undefined;
 
     onMount(async () => {
         if (won || lost) {
@@ -189,13 +192,13 @@
                 <div class="hint-side">
                     {#if before}
                         <div>
-                            <GuessInput {targetLength} incorrect={!won && submitted} value={guess}/>
+                            <GuessInput {targetLength} {firstLetter} incorrect={!won && submitted} value={guess}/>
                             <span> {hint} </span>
                         </div>
                     {:else}
                         <div>
                             <span> {hint} </span> 
-                            <GuessInput {targetLength} incorrect={!won && submitted} value={guess}/>
+                            <GuessInput {targetLength} {firstLetter} incorrect={!won && submitted} value={guess}/>
                         </div>
                     {/if}
                 </div>
@@ -225,7 +228,25 @@
     <div />
     <div class="ig-score">
         <span> Current Score: </span>
+        {#if feat.buyHelp}
+            <button> 
+                <span> Hint </span>
+                <span class="main"> # Letters </span>
+                <span> -3 Pts. </span>
+            </button>
+        {:else}
+            <div />
+        {/if}
         <h1> {currScore} </h1>
+        {#if feat.buyHelp}
+            <button> 
+                <span> Hint </span>
+                <span class="main"> 1st Letter </span>
+                <span> -3 Pts. </span>
+            </button>
+        {:else}
+            <div />
+        {/if}
     </div>
     <div style="align-self: end; margin-bottom: 1rem">
         <VirtualKeyboard bind:error={invalidWordError} {disabledKeys} {goodKeys} enterDisabled={flippedHint === null || !hints[flippedHint]?.guess} on:keypress={handleKeyPress} />
@@ -280,17 +301,49 @@
 
     .ig-score {
         display: grid;
+        width: min-content;
+        margin: 0 auto;
         height: 100%;
         max-height: 6rem;
         overflow: hidden;
         grid-template-rows: 10% 90%;
+        grid-template-columns: 4.5rem 1fr 4.5rem;
         place-items: center;
         padding-top: 0.25rem;
         align-self: end;
     }
 
+    .ig-score span {
+        grid-column: 1 / span 3;
+    }
+
     .ig-score h1 {
         font-size: 5rem;
+        margin: 0 2rem;
+    }
+
+    .ig-score button {
+        display: grid;
+        grid-template-rows: 20% 30% 20%;
+        overflow: hidden;
+        outline: none;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        background: #e0e0e0;
+    }
+
+    .ig-score button:active {
+        background: #888;
+    }
+
+    .ig-score button span {
+        font-size: 0.6rem;
+        white-space: nowrap;
+    }
+
+    .ig-score button .main {
+        font-size: 0.8rem;
     }
 
     .card-container {
